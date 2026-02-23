@@ -3,11 +3,9 @@ import { useReveal } from "../hooks/useReveal";
 import { SOCIAL_LINKS } from "../constants/data";
 import emailjs from "@emailjs/browser";
 
-// ─── Replace these with your real EmailJS credentials ───────────────────────
 const EMAILJS_SERVICE_ID  = "service_x2eglwf";
 const EMAILJS_TEMPLATE_ID = "template_ej7w0ws";
 const EMAILJS_PUBLIC_KEY  = "qzyvhsmpQWDWTr_Pl";
-// ────────────────────────────────────────────────────────────────────────────
 
 const GithubIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -22,27 +20,22 @@ const LinkedinIcon = () => (
 );
 
 export default function Contact() {
-  const formRef  = useRef(null);
-  const titleRef = useReveal();
+  const formRef       = useRef(null);
+  const titleRef      = useReveal();
+  const infoRef       = useReveal();
   const formRevealRef = useReveal();
 
   const [form, setForm]     = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState("idle"); // idle | sending | success | error
+  const [status, setStatus] = useState("idle");
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) return;
-
     setStatus("sending");
     try {
-      await emailjs.sendForm(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        formRef.current,
-        EMAILJS_PUBLIC_KEY
-      );
+      await emailjs.sendForm(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, formRef.current, EMAILJS_PUBLIC_KEY);
       setStatus("success");
       setForm({ name: "", email: "", message: "" });
     } catch {
@@ -51,111 +44,109 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="grid-bg" style={{ padding: "120px 40px", width: "100%" }}>
-      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+    <>
+      <style>{`
+        .contact-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 60px;
+          align-items: start;
+        }
+        @media (max-width: 768px) {
+          .contact-grid {
+            grid-template-columns: 1fr !important;
+            gap: 32px !important;
+          }
+          .contact-section {
+            padding: 60px 20px !important;
+          }
+          .contact-title {
+            font-size: 32px !important;
+            margin-bottom: 32px !important;
+          }
+        }
+      `}</style>
 
-        <div ref={titleRef} className="reveal" style={{ textAlign: "center", marginBottom: "64px" }}>
-          <p className="section-label" style={{ justifyContent: "center" }}>// CONNECT.SH</p>
-          <h2 style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(28px, 5vw, 56px)",
-            fontWeight: 900, lineHeight: 1.2,
-          }}>
-            LET'S<br /><span style={{ color: "var(--green)" }}>COLLABORATE_</span>
-          </h2>
-        </div>
+      <section id="contact" className="grid-bg contact-section" style={{ padding: "120px 40px", width: "100%" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
 
-        <div style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr",
-          gap: "60px", alignItems: "start",
-        }}>
+          {/* Title */}
+          <div ref={titleRef} className="reveal" style={{ textAlign: "center", marginBottom: "56px" }}>
+            <p className="section-label">// CONNECT.SH</p>
+            <h2 className="contact-title" style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(28px, 5vw, 56px)",
+              fontWeight: 900, lineHeight: 1.2,
+            }}>
+              LET'S<br /><span style={{ color: "var(--green)" }}>COLLABORATE_</span>
+            </h2>
+          </div>
 
-          {/* Left — info */}
-          <div ref={titleRef} className="reveal">
-            <p style={{ color: "var(--text-muted)", lineHeight: 1.8, marginBottom: "40px" }}>
-              Whether you have a project in mind, need a Flutter developer,
-              or want mentorship — my inbox is open. Fill out the form or
-              reach me directly on any of the platforms below.
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer"
-                style={{ textDecoration: "none" }}>
-                <button className="btn btn-secondary" style={{ width: "100%", justifyContent: "center" }}>
-                  <GithubIcon /> GitHub
-                </button>
-              </a>
-              <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer"
-                style={{ textDecoration: "none" }}>
-                <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
-                  <LinkedinIcon /> LinkedIn
-                </button>
-              </a>
+          {/* 2-col on desktop, 1-col on mobile */}
+          <div className="contact-grid">
+
+            {/* Left — info + social */}
+            <div ref={infoRef} className="reveal">
+              <p style={{ color: "var(--text-muted)", lineHeight: 1.8, marginBottom: "32px" }}>
+                Whether you have a project in mind, need a Flutter developer,
+                or want mentorship — my inbox is open. Fill out the form or
+                reach me directly on any of the platforms below.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                  <button className="btn btn-secondary" style={{ width: "100%", justifyContent: "center" }}>
+                    <GithubIcon /> GitHub
+                  </button>
+                </a>
+                <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                  <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
+                    <LinkedinIcon /> LinkedIn
+                  </button>
+                </a>
+              </div>
             </div>
-          </div>
 
-          {/* Right — form */}
-          <div ref={formRevealRef} className="reveal" style={{ transitionDelay: "150ms" }}>
-            <form ref={formRef} onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              <div className="form-group">
-                <label className="form-label">Name</label>
-                <input
-                  className="form-input"
-                  type="text"
-                  name="name"
-                  placeholder="John Doe"
-                  value={form.name}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Email</label>
-                <input
-                  className="form-input"
-                  type="email"
-                  name="email"
-                  placeholder="john@example.com"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Message</label>
-                <textarea
-                  className="form-input"
-                  name="message"
-                  placeholder="Tell me about your project..."
-                  rows={5}
-                  value={form.message}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+            {/* Right — form */}
+            <div ref={formRevealRef} className="reveal" style={{ transitionDelay: "150ms" }}>
+              <form ref={formRef} onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div className="form-group">
+                  <label className="form-label">Name</label>
+                  <input className="form-input" type="text" name="name" placeholder="John Doe"
+                    value={form.name} onChange={handleChange} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Email</label>
+                  <input className="form-input" type="email" name="email" placeholder="john@example.com"
+                    value={form.email} onChange={handleChange} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Message</label>
+                  <textarea className="form-input" name="message" placeholder="Tell me about your project..."
+                    rows={5} value={form.message} onChange={handleChange} required />
+                </div>
 
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ justifyContent: "center", opacity: status === "sending" ? 0.7 : 1 }}
-                disabled={status === "sending"}
-              >
-                {status === "sending" ? "SENDING..." : "SEND MESSAGE"}
-              </button>
+                <button type="submit" className="btn btn-primary"
+                  style={{ justifyContent: "center", opacity: status === "sending" ? 0.7 : 1 }}
+                  disabled={status === "sending"}>
+                  {status === "sending" ? "SENDING..." : "SEND MESSAGE"}
+                </button>
 
-              {status === "success" && (
-                <p style={{ color: "var(--green)", fontFamily: "var(--font-mono)", fontSize: "13px", letterSpacing: "2px" }}>
-                  ✓ MESSAGE SENT SUCCESSFULLY
-                </p>
-              )}
-              {status === "error" && (
-                <p style={{ color: "#ff4466", fontFamily: "var(--font-mono)", fontSize: "13px", letterSpacing: "2px" }}>
-                  ✗ FAILED TO SEND — TRY AGAIN
-                </p>
-              )}
-            </form>
+                {status === "success" && (
+                  <p style={{ color: "var(--green)", fontFamily: "var(--font-mono)", fontSize: "13px", letterSpacing: "2px" }}>
+                    ✓ MESSAGE SENT SUCCESSFULLY
+                  </p>
+                )}
+                {status === "error" && (
+                  <p style={{ color: "#ff4466", fontFamily: "var(--font-mono)", fontSize: "13px", letterSpacing: "2px" }}>
+                    ✗ FAILED TO SEND — TRY AGAIN
+                  </p>
+                )}
+              </form>
+            </div>
+
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
