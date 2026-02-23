@@ -3,10 +3,10 @@ import Navbar   from "./components/Navbar";
 import Hero     from "./components/Hero";
 import About    from "./components/About";
 import Projects from "./components/Projects";
+import Game     from "./components/Game";
 import Contact  from "./components/Contact";
 import Footer   from "./components/Footer";
 
-// Scanline overlay component
 function Scanline() {
   return (
     <div style={{
@@ -22,7 +22,6 @@ function Scanline() {
   );
 }
 
-// Section divider
 function Divider() {
   return (
     <div className="divider">
@@ -43,6 +42,8 @@ export default function App() {
       <About />
       <Divider />
       <Projects />
+      <Divider />
+      <Game />
       <Divider />
       <Contact />
       <Footer />
