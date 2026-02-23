@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { useReveal } from "../hooks/useReveal";
 
 const TECH_CARDS = [
-  { id: "flutter",    label: "Flutter",    emoji: "🐦" },
-  { id: "dart",       label: "Dart",       emoji: "🎯" },
-  { id: "firebase",   label: "Firebase",   emoji: "🔥" },
-  { id: "git",        label: "Git",        emoji: "🌿" },
-  { id: "figma",      label: "Figma",      emoji: "🎨" },
-  { id: "sql",        label: "SQL",        emoji: "🗄️" },
-  { id: "api",        label: "REST API",   emoji: "🔌" },
-  { id: "mobile",     label: "Mobile",     emoji: "📱" },
+  { id: "flutter",  label: "Flutter",  emoji: "🐦" },
+  { id: "dart",     label: "Dart",     emoji: "🎯" },
+  { id: "firebase", label: "Firebase", emoji: "🔥" },
+  { id: "git",      label: "Git",      emoji: "🌿" },
+  { id: "figma",    label: "Figma",    emoji: "🎨" },
+  { id: "sql",      label: "SQL",      emoji: "🗄️" },
+  { id: "api",      label: "REST API", emoji: "🔌" },
+  { id: "mobile",   label: "Mobile",   emoji: "📱" },
 ];
 
 function shuffle(arr) {
@@ -22,27 +22,22 @@ function shuffle(arr) {
 }
 
 function createDeck() {
-  const doubled = TECH_CARDS.flatMap((card) => [
-    { ...card, uid: card.id + "_a" },
-    { ...card, uid: card.id + "_b" },
-  ]);
-  return shuffle(doubled);
+  return shuffle(
+    TECH_CARDS.flatMap((card) => [
+      { ...card, uid: card.id + "_a" },
+      { ...card, uid: card.id + "_b" },
+    ])
+  );
 }
 
 function Card({ card, isFlipped, isMatched, onClick }) {
   return (
     <div
       onClick={onClick}
-      style={{
-        width: "100%",
-        aspectRatio: "1",
-        perspective: "600px",
-        cursor: isMatched ? "default" : "pointer",
-      }}
+      style={{ width: "100%", aspectRatio: "1", perspective: "600px", cursor: isMatched ? "default" : "pointer" }}
     >
       <div style={{
-        width: "100%", height: "100%",
-        position: "relative",
+        width: "100%", height: "100%", position: "relative",
         transformStyle: "preserve-3d",
         transform: isFlipped || isMatched ? "rotateY(180deg)" : "rotateY(0deg)",
         transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -50,45 +45,35 @@ function Card({ card, isFlipped, isMatched, onClick }) {
         {/* Back */}
         <div style={{
           position: "absolute", inset: 0,
-          backfaceVisibility: "hidden",
-          WebkitBackfaceVisibility: "hidden",
-          background: "#050f0a",
-          border: "1px solid #0d2a1a",
+          backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
+          background: "#050f0a", border: "1px solid #0d2a1a",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: "24px",
-          transition: "border-color 0.3s, box-shadow 0.3s",
           boxShadow: "inset 0 0 20px #00ff8808",
         }}>
-          <span style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "22px",
-            color: "#0d2a1a",
-            letterSpacing: "2px",
-          }}>?</span>
+          <span style={{ fontFamily: "var(--font-display)", fontSize: "clamp(16px, 4vw, 28px)", color: "#1a4a2a", letterSpacing: "2px" }}>?</span>
         </div>
 
         {/* Front */}
         <div style={{
           position: "absolute", inset: 0,
-          backfaceVisibility: "hidden",
-          WebkitBackfaceVisibility: "hidden",
+          backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden",
           transform: "rotateY(180deg)",
-          background: isMatched
-            ? "linear-gradient(135deg, #001a0d, #002a15)"
-            : "linear-gradient(135deg, #050f0a, #0a1a10)",
+          background: isMatched ? "linear-gradient(135deg, #001a0d, #002a15)" : "linear-gradient(135deg, #050f0a, #0a1a10)",
           border: `1px solid ${isMatched ? "var(--green)" : "#1a4a2a"}`,
           display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center", gap: "8px",
+          alignItems: "center", justifyContent: "center", gap: "6px",
           boxShadow: isMatched ? "0 0 20px #00ff8844" : "none",
           transition: "all 0.3s",
         }}>
-          <span style={{ fontSize: "22px" }}>{card.emoji}</span>
+          <span style={{ fontSize: "clamp(18px, 5vw, 32px)" }}>{card.emoji}</span>
           <span style={{
             fontFamily: "var(--font-mono)",
-            fontSize: "10px",
-            letterSpacing: "2px",
+            fontSize: "clamp(8px, 2vw, 11px)",
+            letterSpacing: "1px",
             color: isMatched ? "var(--green)" : "var(--text-muted)",
             textTransform: "uppercase",
+            textAlign: "center",
+            padding: "0 4px",
           }}>
             {card.label}
           </span>
@@ -108,32 +93,28 @@ export default function Game() {
   const [locked, setLocked]       = useState(false);
   const [won, setWon]             = useState(false);
   const [bestScore, setBestScore] = useState(() => {
-    const s = localStorage.getItem("memoryBest");
-    return s ? parseInt(s) : null;
+    try { const s = localStorage.getItem("memoryBest"); return s ? parseInt(s) : null; } catch { return null; }
   });
-  const [time, setTime]           = useState(0);
-  const [running, setRunning]     = useState(false);
+  const [time, setTime]   = useState(0);
+  const [running, setRunning] = useState(false);
 
-  // Timer
   useEffect(() => {
     if (!running) return;
     const t = setInterval(() => setTime((s) => s + 1), 1000);
     return () => clearInterval(t);
   }, [running]);
 
-  // Check for win
   useEffect(() => {
     if (matched.length === TECH_CARDS.length * 2 && matched.length > 0) {
       setWon(true);
       setRunning(false);
       if (!bestScore || moves < bestScore) {
         setBestScore(moves);
-        localStorage.setItem("memoryBest", moves);
+        try { localStorage.setItem("memoryBest", moves); } catch {}
       }
     }
   }, [matched]);
 
-  // Check for match when 2 cards flipped
   useEffect(() => {
     if (flipped.length !== 2) return;
     setLocked(true);
@@ -143,141 +124,160 @@ export default function Game() {
       setFlipped([]);
       setLocked(false);
     } else {
-      setTimeout(() => {
-        setFlipped([]);
-        setLocked(false);
-      }, 900);
+      setTimeout(() => { setFlipped([]); setLocked(false); }, 900);
     }
     setMoves((m) => m + 1);
   }, [flipped]);
 
   const handleCardClick = (index) => {
-    if (locked) return;
-    if (flipped.includes(index)) return;
-    if (matched.includes(deck[index].uid)) return;
-    if (flipped.length === 2) return;
+    if (locked || flipped.includes(index) || matched.includes(deck[index].uid) || flipped.length === 2) return;
     if (!running) setRunning(true);
     setFlipped((f) => [...f, index]);
   };
 
   const restart = () => {
     setDeck(createDeck());
-    setFlipped([]);
-    setMatched([]);
-    setMoves(0);
-    setLocked(false);
-    setWon(false);
-    setTime(0);
-    setRunning(false);
+    setFlipped([]); setMatched([]); setMoves(0);
+    setLocked(false); setWon(false); setTime(0); setRunning(false);
   };
 
-  const formatTime = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const formatTime = (s) =>
+    `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   return (
-    <section id="game" style={{ padding: "80px 40px", width: "100%" }}>
-      <div style={{ maxWidth: "860px", margin: "0 auto" }}>
+    <>
+      <style>{`
+        .game-section {
+          padding: 80px 40px;
+          width: 100%;
+        }
+        .game-grid {
+          display: grid;
+          grid-template-columns: repeat(8, 1fr);
+          gap: 10px;
+        }
+        .stats-row {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 16px;
+          flex-wrap: nowrap;
+        }
+        .stat-box {
+          border: 1px solid var(--green-dark);
+          background: #050f0a;
+          padding: 8px 12px;
+          flex: 1;
+          text-align: center;
+        }
 
-        {/* Header */}
-        <div ref={titleRef} className="reveal">
-          <p className="section-label">// GAME.EXE</p>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(20px, 3vw, 30px)", fontWeight: 700, marginBottom: "6px" }}>
-            MEMORY <span style={{ color: "var(--green)" }}>CHALLENGE_</span>
-          </h2>
-          <p style={{ color: "var(--text-muted)", marginBottom: "20px", fontSize: "13px" }}>
-            Flip the cards and match all tech pairs. Fewest moves wins!
-          </p>
-        </div>
+        @media (max-width: 768px) {
+          .game-section {
+            padding: 0 !important;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+          }
+          .game-inner {
+            max-width: 100% !important;
+            padding: 16px !important;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+          }
+          .game-grid {
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 8px !important;
+            flex: 1;
+          }
+          .stats-row {
+            gap: 6px;
+          }
+          .stat-box {
+            padding: 6px 4px;
+          }
+          .game-header {
+            margin-bottom: 12px !important;
+          }
+        }
+      `}</style>
 
-        {/* Stats bar */}
-        <div style={{
-          display: "flex", gap: "20px", flexWrap: "wrap",
-          marginBottom: "16px",
-        }}>
-          {[
-            { label: "MOVES",     value: moves },
-            { label: "TIME",      value: formatTime(time) },
-            { label: "MATCHED",   value: `${matched.length / 2}/${TECH_CARDS.length}` },
-            { label: "BEST",      value: bestScore ? `${bestScore} moves` : "---" },
-          ].map(({ label, value }) => (
-            <div key={label} style={{
-              border: "1px solid var(--green-dark)",
-              background: "#050f0a",
-              padding: "8px 16px",
-              flex: 1, minWidth: "120px",
-              textAlign: "center",
+      <section id="game" className="game-section">
+        <div className="game-inner" style={{ maxWidth: "900px", margin: "0 auto", width: "100%" }}>
+
+          {/* Header */}
+          <div ref={titleRef} className="reveal game-header" style={{ marginBottom: "20px" }}>
+            <p className="section-label">// GAME.EXE</p>
+            <h2 style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(18px, 3vw, 30px)",
+              fontWeight: 700, marginBottom: "4px",
             }}>
-              <div style={{
-                fontFamily: "var(--font-mono)", fontSize: "10px",
-                letterSpacing: "3px", color: "var(--green-dim)",
-                marginBottom: "4px",
-              }}>{label}</div>
-              <div style={{
-                fontFamily: "var(--font-display)", fontSize: "15px",
-                fontWeight: 700, color: "var(--green)",
-              }}>{value}</div>
-            </div>
-          ))}
+              MEMORY <span style={{ color: "var(--green)" }}>CHALLENGE_</span>
+            </h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "12px" }}>
+              Match all tech pairs — fewest moves wins!
+            </p>
+          </div>
 
-          <button
-            onClick={restart}
-            className="btn btn-secondary"
-            style={{ minWidth: "120px" }}
-          >
-            ↺ RESET
-          </button>
-        </div>
+          {/* Stats row */}
+          <div className="stats-row">
+            {[
+              { label: "MOVES",   value: moves },
+              { label: "TIME",    value: formatTime(time) },
+              { label: "MATCHED", value: `${matched.length / 2}/${TECH_CARDS.length}` },
+              { label: "BEST",    value: bestScore ? `${bestScore}` : "---" },
+            ].map(({ label, value }) => (
+              <div key={label} className="stat-box">
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "2px", color: "var(--green-dim)", marginBottom: "2px" }}>
+                  {label}
+                </div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "clamp(13px, 3vw, 18px)", fontWeight: 700, color: "var(--green)" }}>
+                  {value}
+                </div>
+              </div>
+            ))}
+            <button onClick={restart} className="btn btn-secondary" style={{ padding: "6px 16px", fontSize: "11px", letterSpacing: "2px", whiteSpace: "nowrap" }}>
+              ↺ RESET
+            </button>
+          </div>
 
-        {/* Grid */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(8, 1fr)",
-          gap: "8px",
-        }}>
-          {deck.map((card, i) => (
-            <Card
-              key={card.uid}
-              card={card}
-              isFlipped={flipped.includes(i)}
-              isMatched={matched.includes(card.uid)}
-              onClick={() => handleCardClick(i)}
-            />
-          ))}
+          {/* Card grid */}
+          <div className="game-grid">
+            {deck.map((card, i) => (
+              <Card
+                key={card.uid}
+                card={card}
+                isFlipped={flipped.includes(i)}
+                isMatched={matched.includes(card.uid)}
+                onClick={() => handleCardClick(i)}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Win overlay */}
         {won && (
           <div style={{
             position: "fixed", inset: 0, zIndex: 200,
-            background: "rgba(5,10,15,0.92)",
-            backdropFilter: "blur(8px)",
+            background: "rgba(5,10,15,0.95)", backdropFilter: "blur(8px)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
             <div style={{
-              border: "1px solid var(--green)",
-              background: "#050f0a",
-              padding: "60px",
-              textAlign: "center",
+              border: "1px solid var(--green)", background: "#050f0a",
+              padding: "40px 32px", textAlign: "center",
               boxShadow: "0 0 60px #00ff8833",
-              maxWidth: "420px", width: "90%",
+              maxWidth: "360px", width: "90%",
             }}>
-              <div style={{ fontSize: "36px", marginBottom: "12px" }}>🏆</div>
-              <h3 style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "28px", fontWeight: 900,
-                color: "var(--green)", marginBottom: "8px",
-              }}>
+              <div style={{ fontSize: "40px", marginBottom: "12px" }}>🏆</div>
+              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "26px", fontWeight: 900, color: "var(--green)", marginBottom: "8px" }}>
                 YOU WIN!
               </h3>
-              <p style={{
-                fontFamily: "var(--font-mono)", fontSize: "13px",
-                letterSpacing: "2px", color: "var(--text-muted)",
-                marginBottom: "16px",
-              }}>
+              <p style={{ fontFamily: "var(--font-mono)", fontSize: "13px", letterSpacing: "2px", color: "var(--text-muted)", marginBottom: "24px" }}>
                 {moves} MOVES &nbsp;|&nbsp; {formatTime(time)}
                 {bestScore === moves && (
-                  <span style={{ color: "var(--green)", display: "block", marginTop: "8px" }}>
-                    ★ NEW BEST SCORE!
-                  </span>
+                  <span style={{ color: "var(--green)", display: "block", marginTop: "8px" }}>★ NEW BEST!</span>
                 )}
               </p>
               <button onClick={restart} className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
@@ -286,7 +286,7 @@ export default function Game() {
             </div>
           </div>
         )}
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
