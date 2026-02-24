@@ -1,0 +1,280 @@
+const translations = {
+  en: {
+    // Nav
+    nav: {
+      home:     "Home",
+      about:    "About",
+      projects: "Projects",
+      contact:  "Contact",
+      games:    "Games",
+    },
+
+    // Hero
+    hero: {
+      greeting: "// INITIALIZING PROFILE...",
+      title:    "> Flutter Mobile Developer & IT Mentor",
+      bio:      "Building polished cross-platform mobile experiences with Flutter. Mentoring the next generation of developers across Uzbekistan and beyond.",
+      cta_projects: "View Projects",
+      cta_contact:  "Contact Me",
+    },
+
+    // About
+    about: {
+      label:    "// ABOUT.EXE",
+      heading:  "WHO AM",
+      heading2: "I_",
+      p1: "I'm a Flutter Mobile Developer passionate about crafting high-performance, beautiful applications for both iOS and Android from a single codebase.",
+      p2: "Beyond shipping products, I serve as an IT mentor — helping aspiring developers break into the industry through structured guidance, code reviews, and real-world projects.",
+      stack_label: "// TECH_STACK[]",
+      stats_label: "// STATS.JSON",
+      stats: [
+        { value:"3+", label:"Years Experience" },
+        { value:"50+", label:"Students Mentored" },
+        { value:"10+", label:"Apps Shipped" },
+        { value:"5★",  label:"Mentor Rating" },
+      ],
+    },
+
+    // Projects
+    projects: {
+      label:   "// PROJECTS.JSON",
+      heading: "SELECTED",
+      heading2:"WORK_",
+      filter_all: "All",
+      status: { live:"LIVE", open:"OPEN SOURCE", shipped:"SHIPPED" },
+    },
+
+    // Contact
+    contact: {
+      label:    "// CONNECT.SH",
+      heading:  "LET'S",
+      heading2: "COLLABORATE_",
+      desc: "Whether you have a project in mind, need a Flutter developer, or want mentorship — my inbox is open.",
+      name:        "Name",
+      email:       "Email",
+      message:     "Message",
+      placeholder_name:    "John Doe",
+      placeholder_email:   "john@example.com",
+      placeholder_message: "Tell me about your project...",
+      send:    "Send Message",
+      sending: "Sending...",
+      success: "✓ Message sent successfully",
+      error:   "✗ Failed to send — try again",
+    },
+
+    // Footer
+    footer: {
+      built: "Built with React + Vite",
+      status: "All Systems Operational",
+    },
+
+    // Games page
+    games: {
+      label:    "// ARCADE.EXE",
+      heading:  "MINI",
+      heading2: "GAMES_",
+      all_games: "// ALL GAMES",
+      back:     "← Back",
+      memory:   { label:"Memory",     desc:"Match tech card pairs" },
+      snake:    { label:"Snake",      desc:"Classic snake on a code grid" },
+      typeracer:{ label:"Type Racer", desc:"Type Flutter snippets fast" },
+      quiz:     { label:"Quiz",       desc:"Flutter & Dart trivia" },
+      whack:    { label:"Whack-a-Bug",desc:"Squash bugs before they escape" },
+
+      // Shared game strings
+      score:   "Score",
+      best:    "Best",
+      moves:   "Moves",
+      time:    "Time",
+      matched: "Matched",
+      start:   "Start",
+      restart: "Restart",
+      play_again: "Play Again",
+      new_best:   "★ New Best!",
+      you_win:    "You Win!",
+      game_over:  "Game Over",
+
+      // Snake
+      snake_hint: "Arrow keys or D-pad below. Space = pause.",
+      // TypeRacer
+      wpm:      "WPM",
+      acc:      "Accuracy",
+      next_snippet: "Next Snippet →",
+      skip:     "↺ Skip Snippet",
+      type_hint:"Start typing the code above...",
+      // Quiz
+      correct:  "✓ Correct!",
+      next:     "Next →",
+      results:  "See Results",
+      // Whack
+      hit:      "Hit",
+      missed:   "Missed",
+      times_up: "Time's Up! ⏰",
+      whack_hint:"Tap bugs before they escape! 30 seconds.",
+    },
+  },
+
+  // ─────────────────────────────────────────────────────────
+  ru: {
+    nav: {
+      home:     "Главная",
+      about:    "Обо мне",
+      projects: "Проекты",
+      contact:  "Контакт",
+      games:    "Игры",
+    },
+    hero: {
+      greeting: "// ИНИЦИАЛИЗАЦИЯ ПРОФИЛЯ...",
+      title:    "> Flutter-разработчик и IT-наставник",
+      bio:      "Создаю красивые кроссплатформенные мобильные приложения на Flutter. Наставляю начинающих разработчиков по всему Узбекистану и за его пределами.",
+      cta_projects: "Мои проекты",
+      cta_contact:  "Написать мне",
+    },
+    about: {
+      label:    "// ОБО_МНЕ.EXE",
+      heading:  "КТО Я",
+      heading2: "_",
+      p1: "Я Flutter-разработчик, увлечённый созданием высокопроизводительных красивых приложений для iOS и Android из единой кодовой базы.",
+      p2: "Помимо разработки, я IT-наставник — помогаю начинающим войти в профессию через структурированное обучение, проверку кода и реальные проекты.",
+      stack_label: "// ТЕХНОЛОГИИ[]",
+      stats_label: "// СТАТИСТИКА.JSON",
+      stats: [
+        { value:"3+",  label:"Лет опыта" },
+        { value:"50+", label:"Учеников" },
+        { value:"10+", label:"Приложений" },
+        { value:"5★",  label:"Рейтинг" },
+      ],
+    },
+    projects: {
+      label:    "// ПРОЕКТЫ.JSON",
+      heading:  "ИЗБРАННЫЕ",
+      heading2: "РАБОТЫ_",
+      filter_all: "Все",
+      status: { live:"В ЭФИРЕ", open:"ОТКРЫТЫЙ КОД", shipped:"ВЫПУЩЕН" },
+    },
+    contact: {
+      label:    "// СВЯЗАТЬСЯ.SH",
+      heading:  "ДАВАЙТЕ",
+      heading2: "СОТРУДНИЧАТЬ_",
+      desc: "Есть проект, нужен Flutter-разработчик или хотите наставничество — я открыт для общения.",
+      name:        "Имя",
+      email:       "Эл. почта",
+      message:     "Сообщение",
+      placeholder_name:    "Иван Иванов",
+      placeholder_email:   "ivan@example.com",
+      placeholder_message: "Расскажите о вашем проекте...",
+      send:    "Отправить",
+      sending: "Отправка...",
+      success: "✓ Сообщение отправлено",
+      error:   "✗ Ошибка — попробуйте снова",
+    },
+    footer: {
+      built:  "Создано на React + Vite",
+      status: "Все системы работают",
+    },
+    games: {
+      label:    "// АРКАДА.EXE",
+      heading:  "МИНИ",
+      heading2: "ИГРЫ_",
+      all_games: "// ВСЕ ИГРЫ",
+      back:     "← Назад",
+      memory:   { label:"Память",       desc:"Найди пары карточек" },
+      snake:    { label:"Змейка",       desc:"Классическая змейка на сетке" },
+      typeracer:{ label:"Набор кода",   desc:"Быстро набирай Flutter-код" },
+      quiz:     { label:"Викторина",    desc:"Вопросы про Flutter и Dart" },
+      whack:    { label:"Бей багов",    desc:"Лови багов до побега" },
+      score:"Счёт", best:"Рекорд", moves:"Ходы", time:"Время", matched:"Найдено",
+      start:"Старт", restart:"Заново", play_again:"Играть снова", new_best:"★ Новый рекорд!",
+      you_win:"Победа!", game_over:"Игра окончена",
+      snake_hint:"Стрелки или кнопки ниже. Пробел = пауза.",
+      wpm:"СЛМ", acc:"Точность", next_snippet:"Следующий →", skip:"↺ Пропустить",
+      type_hint:"Начните вводить код выше...",
+      correct:"✓ Верно!", next:"Далее →", results:"Результаты",
+      hit:"Попал", missed:"Пропустил", times_up:"Время вышло! ⏰",
+      whack_hint:"Нажимай на багов до побега! 30 секунд.",
+    },
+  },
+
+  // ─────────────────────────────────────────────────────────
+  uz: {
+    nav: {
+      home:     "Bosh sahifa",
+      about:    "Men haqimda",
+      projects: "Loyihalar",
+      contact:  "Aloqa",
+      games:    "O'yinlar",
+    },
+    hero: {
+      greeting: "// PROFIL YUKLANMOQDA...",
+      title:    "> Flutter Mobil Dasturchi va IT Mentor",
+      bio:      "Flutter yordamida chiroyli va yuqori samarali mobil ilovalar yarataman. O'zbekiston va undan tashqaridagi yosh dasturchilarni yo'naltiraman.",
+      cta_projects: "Loyihalar",
+      cta_contact:  "Bog'lanish",
+    },
+    about: {
+      label:    "// MEN_HAQIMDA.EXE",
+      heading:  "MEN",
+      heading2: "KIMMAN_",
+      p1: "Men Flutter mobil dasturchi bo'lib, bitta kod bazasidan iOS va Android uchun chiroyli va samarali ilovalar yaratishga ishtiyoqmandman.",
+      p2: "Dastur yaratishdan tashqari, IT mentor sifatida ishlayman — yangi dasturchilarga soha sirlarini o'rgataman, kod tekshiraman va real loyihalar bo'yicha yo'naltiraman.",
+      stack_label: "// TEXNOLOGIYALAR[]",
+      stats_label: "// STATISTIKA.JSON",
+      stats: [
+        { value:"3+",  label:"Yillik tajriba" },
+        { value:"50+", label:"O'quvchilar" },
+        { value:"10+", label:"Ilovalar" },
+        { value:"5★",  label:"Reyting" },
+      ],
+    },
+    projects: {
+      label:    "// LOYIHALAR.JSON",
+      heading:  "TANLANGAN",
+      heading2: "ISHLAR_",
+      filter_all: "Barchasi",
+      status: { live:"JONLI", open:"OCHIQ KOD", shipped:"CHIQARILGAN" },
+    },
+    contact: {
+      label:    "// BOG'LANISH.SH",
+      heading:  "KELING",
+      heading2: "HAMKORLIK QILAMIZ_",
+      desc: "Loyiha g'oyangiz bo'lsa, Flutter dasturchi kerak bo'lsa yoki mentor izlayotgan bo'lsangiz — murojaat qiling.",
+      name:        "Ism",
+      email:       "Elektron pochta",
+      message:     "Xabar",
+      placeholder_name:    "Jasur Karimov",
+      placeholder_email:   "jasur@example.com",
+      placeholder_message: "Loyihangiz haqida yozing...",
+      send:    "Yuborish",
+      sending: "Yuborilmoqda...",
+      success: "✓ Xabar muvaffaqiyatli yuborildi",
+      error:   "✗ Xatolik — qayta urinib ko'ring",
+    },
+    footer: {
+      built:  "React + Vite bilan yaratilgan",
+      status: "Barcha tizimlar ishlayapti",
+    },
+    games: {
+      label:    "// ARKADA.EXE",
+      heading:  "MINI",
+      heading2: "O'YINLAR_",
+      all_games: "// BARCHA O'YINLAR",
+      back:     "← Orqaga",
+      memory:   { label:"Xotira",        desc:"Juft kartalarni toping" },
+      snake:    { label:"Ilon",          desc:"Klassik ilon o'yini" },
+      typeracer:{ label:"Tez yozish",    desc:"Flutter kodini tez yozing" },
+      quiz:     { label:"Viktorina",     desc:"Flutter va Dart savollari" },
+      whack:    { label:"Qo'ng'izlarni ur", desc:"Qochmasdan oldin bosing" },
+      score:"Ball", best:"Rekord", moves:"Harakatlar", time:"Vaqt", matched:"Topildi",
+      start:"Boshlash", restart:"Qayta boshlash", play_again:"Yana o'ynash", new_best:"★ Yangi rekord!",
+      you_win:"G'alaba!", game_over:"O'yin tugadi",
+      snake_hint:"O'q tugmalar yoki pastdagi tugmalar. Bo'sh joy = pauza.",
+      wpm:"SdD", acc:"Aniqlik", next_snippet:"Keyingisi →", skip:"↺ O'tkazib yuborish",
+      type_hint:"Yuqoridagi kodni yozishni boshlang...",
+      correct:"✓ To'g'ri!", next:"Keyingisi →", results:"Natijalar",
+      hit:"Urdi", missed:"O'tkazib yubordi", times_up:"Vaqt tugadi! ⏰",
+      whack_hint:"Qo'ng'izlarni qochmasidan oldin bosing! 30 soniya.",
+    },
+  },
+};
+
+export default translations;

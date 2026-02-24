@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./styles/global.css";
-import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeProvider   } from "./context/ThemeContext";
+import { LanguageProvider } from "./i18n/LanguageContext";
 import Navbar    from "./components/Navbar";
 import Hero      from "./components/Hero";
 import About     from "./components/About";
@@ -46,13 +47,14 @@ function Portfolio({ onGamesClick }) {
 
 export default function App() {
   const [page, setPage] = useState("portfolio");
-
   return (
     <ThemeProvider>
-      {page === "portfolio"
-        ? <Portfolio onGamesClick={() => setPage("games")} />
-        : <GamesPage onBack={() => setPage("portfolio")} />
-      }
+      <LanguageProvider>
+        {page === "portfolio"
+          ? <Portfolio onGamesClick={() => setPage("games")} />
+          : <GamesPage onBack={() => setPage("portfolio")} />
+        }
+      </LanguageProvider>
     </ThemeProvider>
   );
 }
