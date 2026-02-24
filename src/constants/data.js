@@ -1,4 +1,4 @@
-export const NAV_ITEMS = ["home", "about", "projects", "game", "contact"];
+export const NAV_ITEMS = ["home", "about", "projects",  "contact"];
 
 export const SKILLS = [
   "Flutter", "Dart", "Firebase", "REST APIs",

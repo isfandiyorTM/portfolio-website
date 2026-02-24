@@ -6,95 +6,160 @@ import WhackABug  from "../games/WhackABug";
 import MemoryCard from "../games/MemoryCard";
 
 const GAMES = [
-  { id:"memory",   label:"Memory",    icon:"🃏", desc:"Match tech card pairs",       component:<MemoryCard/> },
-  { id:"snake",    label:"Snake",     icon:"🐍", desc:"Classic snake on a code grid", component:<Snake/>      },
-  { id:"typeracer",label:"Type Racer",icon:"⌨️", desc:"Type Flutter snippets fast",   component:<TypeRacer/>  },
-  { id:"quiz",     label:"Quiz",      icon:"🧠", desc:"Flutter & Dart trivia",        component:<Quiz/>       },
-  { id:"whack",    label:"Whack-a-Bug",icon:"🐛",desc:"Squash bugs before they escape",component:<WhackABug/> },
+  { id:"memory",    label:"Memory",     icon:"🃏", desc:"Match tech card pairs",          component:MemoryCard },
+  { id:"snake",     label:"Snake",      icon:"🐍", desc:"Classic snake on a code grid",   component:Snake      },
+  { id:"typeracer", label:"Type Racer", icon:"⌨️", desc:"Type Flutter snippets fast",     component:TypeRacer  },
+  { id:"quiz",      label:"Quiz",       icon:"🧠", desc:"Flutter & Dart trivia",          component:Quiz       },
+  { id:"whack",     label:"Whack-a-Bug",icon:"🐛", desc:"Squash bugs before they escape", component:WhackABug  },
 ];
 
 export default function GamesPage({ onBack }) {
   const [active, setActive] = useState("memory");
   const current = GAMES.find(g => g.id === active);
+  const GameComponent = current.component;
 
   return (
-    <div style={{ width:"100%", minHeight:"100vh", background:"var(--bg)", color:"var(--text)" }}>
+    <>
+      <style>{`
+        .gp-wrap { width:100%; min-height:100vh; background:var(--bg); color:var(--text); }
 
-      {/* Header */}
-      <div style={{ borderBottom:"1px solid var(--border)", background:"var(--bg-nav)", backdropFilter:"blur(12px)", padding:"0 40px", height:"64px", display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, zIndex:100 }}>
-        <div style={{ fontFamily:"var(--font-display)", fontSize:"18px", fontWeight:900, color:"var(--green)", letterSpacing:"4px" }}>
-          IM<span style={{ color:"var(--text)", fontWeight:400 }}>_GAMES</span>
+        /* ── Header ── */
+        .gp-header {
+          border-bottom:1px solid var(--border);
+          background:var(--bg-nav);
+          backdrop-filter:blur(12px);
+          padding:0 24px;
+          height:64px;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          position:sticky;
+          top:0;
+          z-index:100;
+        }
+
+        /* ── Inner ── */
+        .gp-inner { max-width:1100px; margin:0 auto; padding:32px 40px 60px; }
+
+        /* ── Tab strip (visible on mobile, hidden desktop) ── */
+        .gp-tabs {
+          display:none;
+          overflow-x:auto;
+          gap:8px;
+          padding-bottom:4px;
+          scrollbar-width:none;
+          -ms-overflow-style:none;
+          margin-bottom:20px;
+        }
+        .gp-tabs::-webkit-scrollbar { display:none; }
+        .gp-tab {
+          font-family:var(--font-mono);
+          font-size:12px;
+          letter-spacing:2px;
+          padding:10px 16px;
+          border:1px solid var(--border);
+          background:transparent;
+          color:var(--text-muted);
+          cursor:pointer;
+          transition:all 0.3s;
+          text-transform:uppercase;
+          display:flex;
+          align-items:center;
+          gap:6px;
+          white-space:nowrap;
+          flex-shrink:0;
+        }
+        .gp-tab.active { border-color:var(--green); background:rgba(0,255,136,0.08); color:var(--green); }
+
+        /* ── Layout ── */
+        .gp-layout { display:grid; grid-template-columns:1fr 260px; gap:24px; align-items:start; }
+
+        /* ── Game panel ── */
+        .gp-panel { border:1px solid var(--border); background:var(--bg-card); padding:24px; }
+        .gp-panel-header { margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+
+        /* ── Sidebar ── */
+        .gp-sidebar { display:flex; flex-direction:column; gap:10px; }
+        .gp-sidebar-label { font-family:var(--font-mono); font-size:11px; letter-spacing:3px; color:var(--green); margin-bottom:4px; }
+        .gp-sidebar-item { border:1px solid var(--border); background:var(--bg-card); padding:14px 16px; cursor:pointer; transition:all 0.3s; display:flex; align-items:center; gap:12px; }
+        .gp-sidebar-item:hover, .gp-sidebar-item.active { border-color:var(--green); background:rgba(0,255,136,0.05); }
+        .gp-sidebar-item-title { font-family:var(--font-mono); font-size:12px; letter-spacing:2px; text-transform:uppercase; transition:color 0.3s; }
+        .gp-sidebar-item-desc  { font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-top:2px; }
+
+        /* ── Mobile ── */
+        @media (max-width:768px) {
+          .gp-inner   { padding:16px 16px 48px; }
+          .gp-tabs    { display:flex !important; }
+          .gp-layout  { grid-template-columns:1fr !important; gap:0; }
+          .gp-sidebar { display:none !important; }
+          .gp-panel   { padding:16px; border-left:none; border-right:none; }
+          .gp-title   { font-size:26px !important; margin-bottom:4px !important; }
+        }
+      `}</style>
+
+      <div className="gp-wrap">
+
+        {/* Sticky header */}
+        <div className="gp-header">
+          <div style={{ fontFamily:"var(--font-display)", fontSize:"18px", fontWeight:900, color:"var(--green)", letterSpacing:"4px" }}>
+            IM<span style={{ color:"var(--text)", fontWeight:400 }}>_GAMES</span>
+          </div>
+          <button onClick={onBack} className="btn btn-secondary" style={{ padding:"8px 20px", fontSize:"11px", letterSpacing:"3px" }}>
+            ← BACK
+          </button>
         </div>
-        <button onClick={onBack} className="btn btn-secondary" style={{ padding:"8px 20px", fontSize:"11px", letterSpacing:"3px" }}>
-          ← BACK
-        </button>
-      </div>
 
-      <div style={{ maxWidth:"1100px", margin:"0 auto", padding:"40px" }}>
+        <div className="gp-inner">
 
-        {/* Title */}
-        <div style={{ marginBottom:"32px" }}>
-          <p style={{ fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"4px", color:"var(--green)", marginBottom:"8px" }}>// ARCADE.EXE</p>
-          <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(28px,5vw,52px)", fontWeight:900, lineHeight:1.1 }}>
-            MINI<br/><span style={{ color:"var(--green)" }}>GAMES_</span>
-          </h1>
-        </div>
-
-        {/* Game tabs */}
-        <div style={{ display:"flex", gap:"8px", flexWrap:"wrap", marginBottom:"32px" }}>
-          {GAMES.map(g => (
-            <button
-              key={g.id}
-              onClick={() => setActive(g.id)}
-              style={{
-                fontFamily:"var(--font-mono)", fontSize:"12px", letterSpacing:"2px",
-                padding:"10px 20px", border:`1px solid ${active===g.id ? "var(--green)" : "var(--border)"}`,
-                background: active===g.id ? "rgba(0,255,136,0.08)" : "transparent",
-                color: active===g.id ? "var(--green)" : "var(--text-muted)",
-                cursor:"pointer", transition:"all 0.3s", textTransform:"uppercase",
-                display:"flex", alignItems:"center", gap:"8px",
-              }}
-            >
-              {g.icon} {g.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Active game */}
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 300px", gap:"32px", alignItems:"start" }}>
-
-          {/* Game area */}
-          <div style={{ border:"1px solid var(--border)", background:"var(--bg-card)", padding:"28px" }}>
-            <div style={{ marginBottom:"20px", paddingBottom:"16px", borderBottom:"1px solid var(--border)", display:"flex", alignItems:"center", gap:"12px" }}>
-              <span style={{ fontSize:"24px" }}>{current.icon}</span>
-              <div>
-                <div style={{ fontFamily:"var(--font-display)", fontSize:"16px", fontWeight:700, color:"var(--text)" }}>{current.label}</div>
-                <div style={{ fontFamily:"var(--font-mono)", fontSize:"11px", color:"var(--text-muted)", letterSpacing:"1px" }}>{current.desc}</div>
-              </div>
-            </div>
-            {current.component}
+          {/* Page title */}
+          <div style={{ marginBottom:"24px" }}>
+            <p style={{ fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"4px", color:"var(--green)", marginBottom:"6px" }}>// ARCADE.EXE</p>
+            <h1 className="gp-title" style={{ fontFamily:"var(--font-display)", fontSize:"clamp(26px,5vw,48px)", fontWeight:900, lineHeight:1.1 }}>
+              MINI <span style={{ color:"var(--green)" }}>GAMES_</span>
+            </h1>
           </div>
 
-          {/* Sidebar — game list */}
-          <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
-            <div style={{ fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"3px", color:"var(--green)", marginBottom:"4px" }}>// ALL GAMES</div>
+          {/* Mobile tab strip */}
+          <div className="gp-tabs">
             {GAMES.map(g => (
-              <div key={g.id} onClick={() => setActive(g.id)} style={{
-                border:`1px solid ${active===g.id ? "var(--green)" : "var(--border)"}`,
-                background: active===g.id ? "rgba(0,255,136,0.05)" : "var(--bg-card)",
-                padding:"16px", cursor:"pointer", transition:"all 0.3s",
-                display:"flex", alignItems:"center", gap:"12px",
-              }}>
-                <span style={{ fontSize:"20px" }}>{g.icon}</span>
-                <div>
-                  <div style={{ fontFamily:"var(--font-mono)", fontSize:"12px", letterSpacing:"2px", color: active===g.id ? "var(--green)" : "var(--text)", textTransform:"uppercase" }}>{g.label}</div>
-                  <div style={{ fontFamily:"var(--font-mono)", fontSize:"10px", color:"var(--text-muted)", marginTop:"2px" }}>{g.desc}</div>
-                </div>
-              </div>
+              <button key={g.id} className={`gp-tab ${active===g.id?"active":""}`} onClick={() => setActive(g.id)}>
+                {g.icon} {g.label}
+              </button>
             ))}
           </div>
+
+          {/* Main layout */}
+          <div className="gp-layout">
+
+            {/* Game panel */}
+            <div className="gp-panel">
+              <div className="gp-panel-header">
+                <span style={{ fontSize:"24px" }}>{current.icon}</span>
+                <div>
+                  <div style={{ fontFamily:"var(--font-display)", fontSize:"15px", fontWeight:700, color:"var(--text)" }}>{current.label}</div>
+                  <div style={{ fontFamily:"var(--font-mono)", fontSize:"11px", color:"var(--text-muted)", letterSpacing:"1px" }}>{current.desc}</div>
+                </div>
+              </div>
+              <GameComponent key={active} />
+            </div>
+
+            {/* Sidebar (desktop only) */}
+            <div className="gp-sidebar">
+              <div className="gp-sidebar-label">// ALL GAMES</div>
+              {GAMES.map(g => (
+                <div key={g.id} className={`gp-sidebar-item ${active===g.id?"active":""}`} onClick={() => setActive(g.id)}>
+                  <span style={{ fontSize:"20px" }}>{g.icon}</span>
+                  <div>
+                    <div className="gp-sidebar-item-title" style={{ color: active===g.id ? "var(--green)" : "var(--text)" }}>{g.label}</div>
+                    <div className="gp-sidebar-item-desc">{g.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
