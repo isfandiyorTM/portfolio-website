@@ -1,14 +1,15 @@
 import { useState } from "react";
 import "./styles/global.css";
-import { ThemeProvider   } from "./context/ThemeContext";
+import { ThemeProvider    } from "./context/ThemeContext";
 import { LanguageProvider } from "./i18n/LanguageContext";
-import Navbar    from "./components/Navbar";
-import Hero      from "./components/Hero";
-import About     from "./components/About";
-import Projects  from "./components/Projects";
-import Contact   from "./components/Contact";
-import Footer    from "./components/Footer";
-import GamesPage from "./pages/GamesPage";
+import LoadingScreen from "./components/Loadingscreen";
+import Navbar        from "./components/Navbar";
+import Hero          from "./components/Hero";
+import About         from "./components/About";
+import Projects      from "./components/Projects";
+import Contact       from "./components/Contact";
+import Footer        from "./components/Footer";
+import GamesPage     from "./pages/GamesPage";
 
 function Scanline() {
   return (
@@ -46,14 +47,23 @@ function Portfolio({ onGamesClick }) {
 }
 
 export default function App() {
-  const [page, setPage] = useState("portfolio");
+  const [page, setPage]     = useState("portfolio");
+  const [loaded, setLoaded] = useState(false);
+
   return (
     <ThemeProvider>
       <LanguageProvider>
-        {page === "portfolio"
-          ? <Portfolio onGamesClick={() => setPage("games")} />
-          : <GamesPage onBack={() => setPage("portfolio")} />
-        }
+        {!loaded && <LoadingScreen onDone={() => setLoaded(true)} />}
+        <div style={{
+          opacity: loaded ? 1 : 0,
+          transition: "opacity 0.5s ease",
+          pointerEvents: loaded ? "all" : "none",
+        }}>
+          {page === "portfolio"
+            ? <Portfolio onGamesClick={() => setPage("games")} />
+            : <GamesPage onBack={() => setPage("portfolio")} />
+          }
+        </div>
       </LanguageProvider>
     </ThemeProvider>
   );
