@@ -44,6 +44,7 @@ export default function Navbar({ onGamesClick }) {
           opacity: 0.5;
           transition: all 0.2s;
           line-height: 1;
+          color: var(--text);
         }
         .lang-btn:hover { opacity: 1; transform: scale(1.15); }
         .lang-btn.active { opacity: 1; filter: drop-shadow(0 0 6px rgba(0,255,136,0.6)); transform: scale(1.1); }
