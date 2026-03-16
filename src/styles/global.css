@@ -170,3 +170,33 @@ body {
   .stats-grid { grid-template-columns: 1fr 1fr !important; }
   #home h1 { font-size: 30px !important; }
 }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* ── Append these lines to the BOTTOM of src/styles/global.css ── */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px);  }
+  50%       { transform: translateY(-8px); }
+}
+
+/* Cho'ntak page responsive */
+@media (max-width: 768px) {
+  .chontak-hero {
+    grid-template-columns: 1fr !important;
+    gap: 48px !important;
+    padding: 60px 20px 40px !important;
+  }
+  .chontak-feat-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .chontak-screenshots {
+    padding-bottom: 20px;
+  }
+}
+
+/* Hide scrollbar for screenshots row */
+.chontak-screenshots::-webkit-scrollbar { display: none; }
