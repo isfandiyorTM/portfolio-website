@@ -611,7 +611,7 @@ export default function ChontakPage() {
         </h2>
         <p className="ct-cta-sub">{c.cta_sub}</p>
         <div className="ct-cta-btns">
-          <a href="/chontak-release.apk" download className="ct-btn-amber"
+          <a href="/cho'ntak.apk" download className="ct-btn-amber"
              style={{ padding:"16px 40px", fontSize:13 }}>{c.download}</a>
           <a href="https://github.com/isfandiyorTM/cho-ntak" target="_blank"
              rel="noopener noreferrer" className="ct-btn-ghost"
