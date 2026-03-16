@@ -517,7 +517,7 @@ export default function ChontakPage() {
           <h1 className="ct-hero-title">{c.title}<span>_</span></h1>
           <p className="ct-hero-desc">{c.desc}</p>
           <div className="ct-hero-btns">
-            <a href="/chontak-release.apk" download className="ct-btn-amber">{c.download}</a>
+            <a href="/cho'ntak.apk" download className="ct-btn-amber">{c.download}</a>
             <a href="https://github.com/isfandiyorTM/cho-ntak" target="_blank"
                rel="noopener noreferrer" className="ct-btn-ghost">{c.source}</a>
           </div>
