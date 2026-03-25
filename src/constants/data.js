@@ -40,7 +40,7 @@ export const PROJECTS = [
   },
 ];
 
-export const FILTER_TAGS = ["All", "Flutter", "Firebase", "Dart", "GetX"];
+export const FILTER_TAGS_KEYS = ["All", "Flutter", "Firebase", "Dart", "GetX"];
 
 export const SOCIAL_LINKS = {
   github: "https://github.com/isfandiyorTM",
