@@ -186,7 +186,7 @@ export default function HojiJalyuziPage() {
             custom order requests, and direct customer contact. Built with Flutter + GetX.
           </p>
           <div style={{ display:"flex", gap:12, flexWrap:"wrap", marginBottom:28 }}>
-            <a href="/hoji_jalyuzi.apk" download style={{ textDecoration:"none" }}>
+            <a href="/hoji__jalyuzi.apk" download style={{ textDecoration:"none" }}>
               <span style={btnA}
                 onMouseEnter={e => { e.currentTarget.style.background="#93C5FD"; e.currentTarget.style.transform="translateY(-2px)"; }}
                 onMouseLeave={e => { e.currentTarget.style.background=ACCENT; e.currentTarget.style.transform="none"; }}>
@@ -313,7 +313,7 @@ export default function HojiJalyuziPage() {
           Direct APK download. Works on Android 6.0+.
         </p>
         <div style={{ display:"flex", gap:14, justifyContent:"center", flexWrap:"wrap" }}>
-          <a href="/hoji_jalyuzi.apk" download style={{ textDecoration:"none" }}>
+          <a href="/hoji__jalyuzi.apk" download style={{ textDecoration:"none" }}>
             <span style={{ ...btnA, padding:"16px 40px", fontSize:13 }}
               onMouseEnter={e => { e.currentTarget.style.background="#93C5FD"; e.currentTarget.style.transform="translateY(-3px)"; e.currentTarget.style.boxShadow=`0 12px 40px ${ACCENT}50`; }}
               onMouseLeave={e => { e.currentTarget.style.background=ACCENT; e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
