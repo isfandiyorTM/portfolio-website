@@ -1,4 +1,3 @@
-// App.jsx
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import "./styles/global.css";
@@ -16,8 +15,9 @@ import Footer from "./components/Footer";
 
 import GamesPage from "./pages/GamesPage";
 import ChontakPage from "./pages/ChontakPage";
+import HojiJalyuziPage from "./pages/HojiJalyuziPage";
 
-/* Small UI bits kept from your original file */
+/* UI effects */
 function Scanline() {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 9999, pointerEvents: "none", overflow: "hidden" }}>
@@ -45,7 +45,7 @@ function Divider() {
   );
 }
 
-/* Portfolio component (keeps same structure so Navbar/Hero/... remain) */
+/* Portfolio page */
 function Portfolio({ onGamesClick }) {
   return (
     <div style={{ width: "100%", minHeight: "100vh", background: "var(--bg)", overflowX: "hidden" }}>
@@ -63,7 +63,7 @@ function Portfolio({ onGamesClick }) {
   );
 }
 
-/* Routes component so we can use useNavigate (must be inside BrowserRouter) */
+/* Routes */
 function AppRoutes() {
   const navigate = useNavigate();
 
@@ -72,12 +72,12 @@ function AppRoutes() {
       <Route path="/" element={<Portfolio onGamesClick={() => navigate("/games")} />} />
       <Route path="/games" element={<GamesPage onBack={() => navigate("/")} />} />
       <Route path="/chontak" element={<ChontakPage />} />
-      {/* Add more routes here as needed */}
+      <Route path="/hoji-jalyuzi" element={<HojiJalyuziPage />} />
     </Routes>
   );
 }
 
-/* Top-level App: providers + loading screen + router */
+/* Main App */
 export default function App() {
   const [loaded, setLoaded] = useState(false);
 

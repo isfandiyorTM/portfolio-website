@@ -21,6 +21,20 @@ export const PROJECTS = [
   },
   {
     id: "02",
+    key: "hojijalyuzi",
+    name: "Hoji Jalyuzi",
+    desc: {
+      en: "Mobile app for a blinds company — browse products, request quotes, and manage orders. Built with Flutter for a seamless customer experience.",
+      uz: "Jalyuzi kompaniyasi uchun mobil ilova — mahsulotlarni ko'rish, narx so'rash va buyurtmalarni boshqarish. Flutter bilan qurilgan.",
+      ru: "Мобильное приложение для компании жалюзи — просмотр продуктов, запрос цен и управление заказами. Разработано на Flutter.",
+    },
+    stack: ["Flutter", "Dart", "GetX"],
+    statusKey: "shipped",
+    tags: ["Flutter", "Dart"],
+    internalLink: "/hoji-jalyuzi",
+  },
+  {
+    id: "03",
     key: "mentorhub",
     name: "MentorHub",
     desc: {
@@ -34,7 +48,7 @@ export const PROJECTS = [
     link: "https://github.com/isfandiyorTM",
   },
   {
-    id: "03",
+    id: "04",
     key: "flutterkit",
     name: "FlutterKit UI",
     desc: {
