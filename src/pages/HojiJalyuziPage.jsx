@@ -281,12 +281,19 @@ export default function HojiJalyuziPage() {
             O'rnatuvchilar uchun professional parda o'lchov va hisob-kitob tizimi.
             Seller zakazlari real-time ishchilarga yetadi. Offline ham ishlaydi.
           </p>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 28 }}>
-            <a href="/hoji_jalyuzi.apk" download style={{ textDecoration: "none" }}>
-              <span style={btnA}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+            <a href="/hoji_jalyuzi_v1.apk" download style={{ textDecoration: "none" }}>
+              <span style={{ ...btnA, fontSize: 11, padding: "10px 18px" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "#E8D5A0"; e.currentTarget.style.transform = "translateY(-2px)"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = "none"; }}>
-                ↓ DOWNLOAD APK
+                ↓ v1 — Lokal
+              </span>
+            </a>
+            <a href="/hoji_jalyuzi_v2.apk" download style={{ textDecoration: "none" }}>
+              <span style={{ ...btnA, fontSize: 11, padding: "10px 18px", background: "#2563EB" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "#3B82F6"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "#2563EB"; e.currentTarget.style.transform = "none"; }}>
+                ↓ v2 — Backend
               </span>
             </a>
             <a href="https://github.com/isfandiyorTM" target="_blank"
@@ -297,6 +304,15 @@ export default function HojiJalyuziPage() {
                 ⌥ GITHUB
               </span>
             </a>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: ACCENT, opacity: 0.7 }}>
+              v1 — Hive lokal baza, internet shart emas
+            </span>
+            <span style={{ color: "#2a1e08", fontSize: 9 }}>·</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#2563EB", opacity: 0.9 }}>
+              v2 — Supabase backend, rollar, real-time zakazlar
+            </span>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {STACK.map(t => (
@@ -493,30 +509,37 @@ export default function HojiJalyuziPage() {
           To'g'ridan-to'g'ri APK. Android 7.0+ da ishlaydi.
           Offline ham to'liq ishlaydi.
         </p>
-        <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-          <a href="/hoji_jalyuzi.apk" download style={{ textDecoration: "none" }}>
-            <span style={{ ...btnA, padding: "16px 40px", fontSize: 13 }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = "#E8D5A0";
-                e.currentTarget.style.transform = "translateY(-3px)";
-                e.currentTarget.style.boxShadow = `0 12px 40px ${ACCENT}50`;
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = ACCENT;
-                e.currentTarget.style.transform = "none";
-                e.currentTarget.style.boxShadow = "none";
-              }}>
-              ↓ DOWNLOAD APK
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
+          <a href="/hoji_jalyuzi_v1.apk" download style={{ textDecoration: "none" }}>
+            <span style={{ ...btnA, padding: "14px 32px", fontSize: 12 }}
+              onMouseEnter={e => { e.currentTarget.style.background = "#E8D5A0"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 12px 40px ${ACCENT}50`; }}
+              onMouseLeave={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+              ↓ v1 — LOKAL APK
+            </span>
+          </a>
+          <a href="/hoji_jalyuzi_v2.apk" download style={{ textDecoration: "none" }}>
+            <span style={{ ...btnA, padding: "14px 32px", fontSize: 12, background: "#2563EB" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "#3B82F6"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 12px 40px #2563EB50"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "#2563EB"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+              ↓ v2 — BACKEND APK
             </span>
           </a>
           <a href="https://github.com/isfandiyorTM" target="_blank"
             rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-            <span style={{ ...btnB, padding: "16px 40px", fontSize: 13 }}
+            <span style={{ ...btnB, padding: "14px 32px", fontSize: 12 }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = ACCENT; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "#2a1e08"; e.currentTarget.style.color = "#5a4a2a"; }}>
               ⌥ VIEW SOURCE
             </span>
           </a>
+        </div>
+        <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap" }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: ACCENT, opacity: 0.6 }}>
+            v1 — offline, lokal Hive baza
+          </span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#2563EB", opacity: 0.8 }}>
+            v2 — Supabase · rollar · real-time
+          </span>
         </div>
       </div>
 
