@@ -20,6 +20,15 @@ const translations = {
         { value:"3+", label:"Years Experience" }, { value:"50+", label:"Students Mentored" },
         { value:"10+", label:"Apps Shipped" },     { value:"5★",  label:"Mentor Rating" },
       ],
+      students_label:   "// MY STUDENTS",
+      students_heading: "They build too.",
+      students_sub:     "Students I mentor who already have their own live portfolios and projects.",
+      students_view:    "view portfolio →",
+      students: [
+        { name:"Baxodirov Salohiddin",     tag:"Student",                    desc:"Building web projects and growing fast.",                                              init:"BS" },
+        { name:"Ahmadjon Ilhamov",         tag:"6th Grade · Rahimov School", desc:"Finance tracker, stock simulator, task manager, messenger — all live.",               init:"AI" },
+        { name:"Muhammadaziz Mahmudjonov", tag:"12 yosh · Rahimov School",   desc:"HTML, CSS, JS — already shipping projects from Tashkent.",                            init:"MM" },
+      ],
     },
     projects: {
       label: "// PROJECTS.JSON", heading: "SELECTED", heading2: "WORK_",
@@ -54,7 +63,6 @@ const translations = {
       hit:"Hit", missed:"Missed", times_up:"Time's Up! ⏰",
       whack_hint:"Tap bugs before they escape!",
     },
-    // ── Cho'ntak page ──────────────────────────────────────────────────────────
     chontak: {
       back:        "← BACK",
       tag:         "// PROJECT.FLUTTER",
@@ -115,6 +123,15 @@ const translations = {
       stats:[
         { value:"3+",  label:"Yillik tajriba" }, { value:"50+", label:"O'quvchilar" },
         { value:"10+", label:"Ilovalar" },        { value:"5★",  label:"Reyting" },
+      ],
+      students_label:   "// MENING O'QUVCHILARIM",
+      students_heading: "Ular ham qurishadi.",
+      students_sub:     "Men mentor bo'lgan o'quvchilar — ularning o'z jonli portfoliolari va loyihalari bor.",
+      students_view:    "portfolioni ko'rish →",
+      students: [
+        { name:"Baxodirov Salohiddin",     tag:"O'quvchi",                 desc:"Veb loyihalar yaratmoqda va tez o'smoqda.",                                             init:"BS" },
+        { name:"Ahmadjon Ilhamov",         tag:"6-sinf · Rahimov Maktabi", desc:"Moliya tracker, aksiya simulyatori, vazifa menejeri, messenjer — hammasi jonli.",       init:"AI" },
+        { name:"Muhammadaziz Mahmudjonov", tag:"12 yosh · Rahimov Maktabi",desc:"HTML, CSS, JS — Toshkentdan allaqachon loyihalar chiqarmoqda.",                         init:"MM" },
       ],
     },
     projects: {
@@ -210,6 +227,15 @@ const translations = {
       stats:[
         { value:"3+",  label:"Лет опыта" }, { value:"50+", label:"Студентов" },
         { value:"10+", label:"Приложений" }, { value:"5★",  label:"Рейтинг" },
+      ],
+      students_label:   "// МОИ СТУДЕНТЫ",
+      students_heading: "Они тоже создают.",
+      students_sub:     "Студенты, которых я наставляю — у них уже есть свои живые портфолио и проекты.",
+      students_view:    "смотреть портфолио →",
+      students: [
+        { name:"Baxodirov Salohiddin",     tag:"Студент",                    desc:"Создаёт веб-проекты и быстро растёт.",                                                init:"BS" },
+        { name:"Ahmadjon Ilhamov",         tag:"6-й класс · Школа Рахимова", desc:"Финансовый трекер, симулятор акций, таск-менеджер, мессенджер — всё в эфире.",       init:"AI" },
+        { name:"Muhammadaziz Mahmudjonov", tag:"12 лет · Школа Рахимова",    desc:"HTML, CSS, JS — уже публикует проекты из Ташкента.",                                 init:"MM" },
       ],
     },
     projects: {
