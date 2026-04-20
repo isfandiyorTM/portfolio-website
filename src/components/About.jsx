@@ -3,12 +3,22 @@ import { SKILLS } from "../constants/data";
 import { useLang } from "../i18n/LanguageContext";
 
 
-function StatCard({ value, label, index }) {
+function StatCard({ value, label, index, link }) {
   const ref = useReveal();
+  const inner = <>
+    <div style={{ fontFamily:"var(--font-display)", fontSize:"clamp(28px,5vw,44px)", fontWeight:900, color:"var(--green)", marginBottom:"6px" }}>{value}</div>
+    <div style={{ fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"2px", color:"var(--text-muted)", textTransform:"uppercase" }}>{label}</div>
+  </>;
+  if (link) return (
+    <a ref={ref} href={link} target="_blank" rel="noopener noreferrer"
+      className="stat-card reveal" style={{ transitionDelay:`${index*120}ms`, textDecoration:"none", display:"block", cursor:"pointer" }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor="var(--green)"; e.currentTarget.style.boxShadow="0 0 18px rgba(0,255,136,0.25)"; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor=""; e.currentTarget.style.boxShadow=""; }}
+    >{inner}</a>
+  );
   return (
     <div ref={ref} className="stat-card reveal" style={{ transitionDelay:`${index*120}ms` }}>
-      <div style={{ fontFamily:"var(--font-display)", fontSize:"clamp(28px,5vw,44px)", fontWeight:900, color:"var(--green)", marginBottom:"6px" }}>{value}</div>
-      <div style={{ fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"2px", color:"var(--text-muted)", textTransform:"uppercase" }}>{label}</div>
+      {inner}
     </div>
   );
 }
@@ -46,7 +56,7 @@ export default function About() {
           <p className="section-label" style={{ marginBottom:"20px" }}>{ab.stats_label}</p>
         </RevealBlock>
         <div className="stats-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"20px" }}>
-          {ab.stats.map((s,i) => <StatCard key={s.label} value={s.value} label={s.label} index={i} />)}
+          {ab.stats.map((s,i) => <StatCard key={s.label} value={s.value} label={s.label} index={i} link={s.link} />)}
         </div>
       </div>
 

@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:rahimovdevs.tech)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(node -e \"const fs=require\\('fs'\\); console.log\\(Object.keys\\(require\\('./package.json'\\).dependencies||{}\\).join\\('\\\\n'\\)\\)\")",
+      "Bash(node -e \"require\\('sharp'\\)\")",
+      "Bash(npm install *)",
+      "Bash(node scripts/gen-favicon.mjs)",
+      "Bash(npm uninstall *)",
+      "Bash(node -e ' *)"
     ]
   }
 }

@@ -44,9 +44,34 @@ export default function GamesPage({ onBack }) {
   return (
     <>
       <style>{`
-        .gp-wrap  { width:100%; min-height:100vh; background:var(--bg); color:var(--text); }
+        .gp-wrap  { width:100%; min-height:100vh; background:var(--bg); color:var(--text); position:relative; }
+
+        /* grid-bg overlay identical to hero */
+        .gp-wrap::before {
+          content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+          background-image:
+            linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+          background-size:40px 40px;
+        }
+        /* scanline sweep */
+        .gp-wrap::after {
+          content:''; position:fixed; left:0; right:0; height:2px; pointer-events:none; z-index:1;
+          background:linear-gradient(transparent, rgba(0,255,136,0.06), transparent);
+          animation:scanline 10s linear infinite;
+        }
+
         .gp-header{ border-bottom:1px solid var(--border); background:var(--bg-nav); backdrop-filter:blur(12px); padding:0 24px; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-        .gp-inner { max-width:1100px; margin:0 auto; padding:40px 40px 80px; }
+        .gp-inner { max-width:1100px; margin:0 auto; padding:40px 40px 80px; position:relative; z-index:2; }
+
+        /* ── Card entrance animation ── */
+        @keyframes gp-card-in {
+          from { opacity:0; transform:translateY(24px) scale(0.96); }
+          to   { opacity:1; transform:translateY(0)    scale(1); }
+        }
+        .gp-card-enter {
+          animation: gp-card-in 0.4s cubic-bezier(0.22,1,0.36,1) both;
+        }
 
         /* ── Grid ── */
         .gp-grid  { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
@@ -135,21 +160,21 @@ export default function GamesPage({ onBack }) {
           {!active && (
             <>
               <div className="gp-hero">
-                <p style={{ fontFamily:"var(--font-mono)", fontSize:11, letterSpacing:4, color:"var(--green)", marginBottom:8 }}>{g.label}</p>
-                <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(26px,5vw,48px)", fontWeight:900, lineHeight:1.1, marginBottom:12 }}>
+                <p style={{ fontFamily:"var(--font-mono)", fontSize:11, letterSpacing:4, color:"var(--green)", marginBottom:8, animation:"fadeUp 0.5s ease both" }}>{g.label}</p>
+                <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(26px,5vw,48px)", fontWeight:900, lineHeight:1.1, marginBottom:12, animation:"fadeUp 0.5s 0.1s ease both", opacity:0 }}>
                   {g.heading} <span style={{ color:"var(--green)" }}>{g.heading2}</span>
                 </h1>
-                <p style={{ fontFamily:"var(--font-mono)", fontSize:11, color:"var(--text-muted)", letterSpacing:2 }}>
+                <p style={{ fontFamily:"var(--font-mono)", fontSize:11, color:"var(--text-muted)", letterSpacing:2, animation:"fadeUp 0.5s 0.2s ease both", opacity:0 }}>
                   {games.length} games — click any card to play
                 </p>
               </div>
 
               <div className="gp-grid">
-                {games.map(gm => (
+                {games.map((gm, i) => (
                   <div
                     key={gm.id}
-                    className="gp-card"
-                    style={{ "--accent": gm.color, "--accent-dim": gm.color + "66" }}
+                    className="gp-card gp-card-enter"
+                    style={{ "--accent": gm.color, "--accent-dim": gm.color + "66", animationDelay: `${i * 60}ms` }}
                     onClick={() => setActive(gm.id)}
                   >
                     <div className="gp-card-scan" />
