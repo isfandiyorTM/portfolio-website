@@ -1,6 +1,50 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useLang  } from "../i18n/LanguageContext";
+
+const GAME_NAMES = ["GAMES","MEMORY","SNAKE","TYPERАCER","QUIZ","WHACK-BUG","DEBUGGER","REACTION","FLAPPY"];
+
+function AnimatedGamesBtn({ onClick }) {
+  const [idx,   setIdx]   = useState(0);
+  const [phase, setPhase] = useState("show"); // "show" | "out" | "in"
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setPhase("out");
+      setTimeout(() => {
+        setIdx(i => (i + 1) % GAME_NAMES.length);
+        setPhase("in");
+        setTimeout(() => setPhase("show"), 280);
+      }, 260);
+    }, 2000);
+    return () => clearInterval(timerRef.current);
+  }, []);
+
+  const anim = phase === "out" ? "navSlideOut 0.26s ease forwards"
+             : phase === "in"  ? "navSlideIn  0.28s ease forwards"
+             : "none";
+
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        fontFamily:"var(--font-mono)", fontSize:"12px", letterSpacing:"2px",
+        padding:"6px 14px", border:"1px solid var(--green)",
+        background:"rgba(0,255,136,0.08)", color:"var(--green)",
+        cursor:"pointer", transition:"background 0.3s, box-shadow 0.3s",
+        marginLeft:"8px", textTransform:"uppercase",
+        minWidth:120, overflow:"hidden",
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background="rgba(0,255,136,0.16)"; e.currentTarget.style.boxShadow="0 0 12px rgba(0,255,136,0.2)"; }}
+      onMouseLeave={e => { e.currentTarget.style.background="rgba(0,255,136,0.08)"; e.currentTarget.style.boxShadow="none"; }}
+    >
+      <span style={{ display:"inline-block", animation: anim }}>
+        🎮 {GAME_NAMES[idx]}
+      </span>
+    </button>
+  );
+}
 
 const LANGS = [
   { code:"en", flag:"🇺🇸" },
@@ -65,9 +109,7 @@ export default function Navbar({ onGamesClick }) {
               {t.nav[key]}
             </button>
           ))}
-          <button onClick={onGamesClick} style={{ fontFamily:"var(--font-mono)", fontSize:"12px", letterSpacing:"2px", padding:"6px 14px", border:"1px solid var(--green)", background:"rgba(0,255,136,0.08)", color:"var(--green)", cursor:"pointer", transition:"all 0.3s", marginLeft:"8px", textTransform:"uppercase" }}>
-            🎮 {t.nav.games}
-          </button>
+          <AnimatedGamesBtn onClick={onGamesClick} />
 
           {/* Language flags */}
           <div className="lang-group" style={{ marginLeft:"8px" }}>

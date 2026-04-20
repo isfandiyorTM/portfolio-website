@@ -57,6 +57,17 @@ body {
 @keyframes pulse-glow { 0%,100%{box-shadow:0 0 8px #00ff8855} 50%{box-shadow:0 0 24px #00ff88cc} }
 @keyframes rotate-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 @keyframes flicker   { 0%,95%,100%{opacity:1} 96%,99%{opacity:0.6} }
+@keyframes float     { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-14px)} }
+@keyframes float-glow{ 0%,100%{box-shadow:0 8px 40px #00ff8822,0 0 0 1px var(--green-dark)} 50%{box-shadow:0 20px 60px #00ff8840,0 0 0 1px #00ff8866} }
+@keyframes ripple      { 0%{width:0;height:0;opacity:0.5} 100%{width:500px;height:500px;opacity:0} }
+@keyframes navSlideOut { to   { opacity:0; transform:translateY(-10px); } }
+@keyframes navSlideIn  { from { opacity:0; transform:translateY(10px);  } to { opacity:1; transform:translateY(0); } }
+@keyframes blink     { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+@keyframes border-pulse { 0%,100%{box-shadow:0 0 0 1px var(--green-dark),0 0 20px #00ff8800} 50%{box-shadow:0 0 0 1px var(--green),0 0 40px #00ff8844} }
+
+.hero-card-float { display:block; }
+@media(max-width:768px){ .hero-card-float { display:none; } }
+@media(max-width:768px){ .hero-mobile-cta { display:block !important; } }
 
 .reveal { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease,transform 0.7s ease; }
 .reveal.visible { opacity:1; transform:translateY(0); }

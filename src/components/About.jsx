@@ -2,11 +2,6 @@ import { useReveal } from "../hooks/useReveal";
 import { SKILLS } from "../constants/data";
 import { useLang } from "../i18n/LanguageContext";
 
-const STUDENT_URLS = [
-  "https://baxodirov-salohiddin.netlify.app/",
-  "https://portfolio-ahmadjon-ilhamov.netlify.app/",
-  "https://muhammadaziz-programmer.netlify.app/",
-];
 
 function StatCard({ value, label, index }) {
   const ref = useReveal();
@@ -55,72 +50,6 @@ export default function About() {
         </div>
       </div>
 
-      {/* ── Students ───────────────────────────────────────── */}
-      <div style={{ maxWidth:"1100px", margin:"0 auto", marginTop:"80px" }}>
-        <RevealBlock delay={0}>
-          <p className="section-label" style={{ marginBottom:"8px" }}>{ab.students_label}</p>
-          <h3 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(22px,3vw,32px)",
-                        fontWeight:900, marginBottom:"12px", letterSpacing:-0.5 }}>
-            {ab.students_heading}
-          </h3>
-          <p style={{ color:"var(--text-muted)", fontSize:14, lineHeight:1.7,
-                       marginBottom:"32px", maxWidth:500 }}>
-            {ab.students_sub}
-          </p>
-        </RevealBlock>
-
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)",
-                       gap:"20px" }} className="students-grid">
-          {ab.students.map((s, i) => (
-            <RevealBlock key={s.name} delay={i * 120}>
-              <a href={STUDENT_URLS[i]} target="_blank" rel="noopener noreferrer"
-                 style={{ textDecoration:"none", display:"block" }}>
-                <div className="student-card"
-                     style={{ padding:"24px", border:"1px solid var(--border)",
-                               cursor:"pointer", transition:"all .2s",
-                               background:"var(--surface)" }}
-                     onMouseEnter={e => {
-                       e.currentTarget.style.borderColor = "var(--green)";
-                       e.currentTarget.style.transform   = "translateY(-3px)";
-                     }}
-                     onMouseLeave={e => {
-                       e.currentTarget.style.borderColor = "var(--border)";
-                       e.currentTarget.style.transform   = "none";
-                     }}>
-                  {/* Avatar */}
-                  <div style={{ width:44, height:44, borderRadius:"50%",
-                                 background:"rgba(0,255,136,0.08)",
-                                 border:"1px solid var(--green-dark)",
-                                 display:"flex", alignItems:"center",
-                                 justifyContent:"center", marginBottom:14,
-                                 fontFamily:"var(--font-mono)", fontSize:12,
-                                 fontWeight:700, color:"var(--green)",
-                                 letterSpacing:1 }}>
-                    {s.init}
-                  </div>
-                  <div style={{ fontWeight:700, fontSize:15,
-                                 color:"var(--text)", marginBottom:4 }}>
-                    {s.name}
-                  </div>
-                  <div style={{ fontFamily:"var(--font-mono)", fontSize:10,
-                                 letterSpacing:2, color:"var(--green)",
-                                 marginBottom:10 }}>
-                    {s.tag}
-                  </div>
-                  <div style={{ fontSize:13, color:"var(--text-muted)",
-                                 lineHeight:1.6, marginBottom:16 }}>
-                    {s.desc}
-                  </div>
-                  <div style={{ fontFamily:"var(--font-mono)", fontSize:11,
-                                 color:"var(--green)", letterSpacing:1 }}>
-                    {ab.students_view}
-                  </div>
-                </div>
-              </a>
-            </RevealBlock>
-          ))}
-        </div>
-      </div>
 
     </section>
   );

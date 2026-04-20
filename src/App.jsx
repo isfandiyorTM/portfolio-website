@@ -5,6 +5,7 @@ import "./styles/global.css";
 import { ThemeProvider } from "./context/ThemeContext";
 import { LanguageProvider } from "./i18n/LanguageContext";
 
+import Cursor from "./components/Cursor";
 import LoadingScreen from "./components/Loadingscreen";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -16,6 +17,7 @@ import Footer from "./components/Footer";
 import GamesPage from "./pages/GamesPage";
 import ChontakPage from "./pages/ChontakPage";
 import HojiJalyuziPage from "./pages/HojiJalyuziPage";
+import RahimovDevsPage from "./pages/RahimovDevsPage";
 
 /* UI effects */
 function Scanline() {
@@ -73,6 +75,7 @@ function AppRoutes() {
       <Route path="/games" element={<GamesPage onBack={() => navigate("/")} />} />
       <Route path="/chontak" element={<ChontakPage />} />
       <Route path="/hoji-jalyuzi" element={<HojiJalyuziPage />} />
+      <Route path="/rahimovdevs" element={<RahimovDevsPage />} />
     </Routes>
   );
 }
@@ -84,6 +87,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
+        <Cursor />
         {!loaded && <LoadingScreen onDone={() => setLoaded(true)} />}
 
         <div

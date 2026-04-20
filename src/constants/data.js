@@ -7,6 +7,20 @@ export const SKILLS = [
 export const PROJECTS = [
   {
     id: "01",
+    key: "rahimovdevs",
+    name: "RahimovDevs",
+    desc: {
+      en: "A live platform showcasing web projects built by my students at Rahimov School — real apps, real code, shipped to the world.",
+      uz: "Rahimov Maktabidagi o'quvchilarim tomonidan qurilgan veb loyihalar platformasi — haqiqiy ilovalar, haqiqiy kod.",
+      ru: "Живая платформа с веб-проектами моих студентов из Школы Рахимова — реальные приложения, реальный код.",
+    },
+    stack: ["HTML", "CSS", "JavaScript", "React"],
+    statusKey: "live",
+    tags: ["Web"],
+    internalLink: "/rahimovdevs",
+  },
+  {
+    id: "02",
     key: "chontak",
     name: "Cho'ntak",
     desc: {
@@ -20,7 +34,7 @@ export const PROJECTS = [
     internalLink: "/chontak",
   },
   {
-    id: "02",
+    id: "03",
     key: "hojijalyuzi",
     name: "Hoji Jalyuzi",
     desc: {
@@ -33,36 +47,8 @@ export const PROJECTS = [
     tags: ["Flutter", "Dart"],
     internalLink: "/hoji-jalyuzi",
   },
-  {
-    id: "03",
-    key: "mentorhub",
-    name: "MentorHub",
-    desc: {
-      en: "A mentorship platform connecting IT students with experienced developers. Features real-time chat, session scheduling, and progress tracking.",
-      uz: "IT talabalarni tajribali dasturchilar bilan bog'lovchi mentorlik platformasi. Real vaqt chat, sessiya rejalashtirish va progress kuzatish.",
-      ru: "Платформа менторства для IT-студентов. Чат в реальном времени, планирование сессий и отслеживание прогресса.",
-    },
-    stack: ["Flutter", "Firebase", "Dart"],
-    statusKey: "live",
-    tags: ["Flutter", "Firebase"],
-    link: "https://github.com/isfandiyorTM",
-  },
-  {
-    id: "04",
-    key: "flutterkit",
-    name: "FlutterKit UI",
-    desc: {
-      en: "An open-source collection of 50+ production-ready Flutter widgets and screens, used by developers worldwide.",
-      uz: "50+ tayyor Flutter widget va ekranlar to'plami. Dunyo bo'ylab dasturchilar tomonidan ishlatiladi.",
-      ru: "Коллекция 50+ готовых Flutter-виджетов и экранов с открытым кодом.",
-    },
-    stack: ["Flutter", "Dart", "Pub.dev"],
-    statusKey: "open",
-    tags: ["Flutter", "Dart"],
-    link: "https://github.com/isfandiyorTM",
-  },
 ];
-export const FILTER_TAGS_KEYS = ["all", "Flutter", "Firebase", "Dart"];
+export const FILTER_TAGS_KEYS = ["all", "Flutter", "Dart", "Web"];
 export const SOCIAL_LINKS = {
   github:   "https://github.com/isfandiyorTM",
   linkedin: "https://www.linkedin.com/in/isfandiyor-madaminov-923a1a294/",
