@@ -4,6 +4,10 @@ import { useLang } from "../i18n/LanguageContext";
 const COLS = 18, ROWS = 18, CELL = 20;
 const DIRS = { ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0] };
 
+// Start with 3 segments moving right
+const INIT_SNAKE = [{x:9,y:9},{x:8,y:9},{x:7,y:9}];
+const INIT_DIR   = [1, 0];
+
 const spawnFood = (snake) => {
   let pos, attempts = 0;
   do {
@@ -17,62 +21,108 @@ export default function Snake() {
   const { t } = useLang();
   const g = t.games;
 
-  const [snake, setSnake]     = useState([{x:9,y:9}]);
-  const [dir, setDir]         = useState([1,0]);
-  const [food, setFood]       = useState({x:4,y:4});
+  const [snake, setSnake]     = useState(INIT_SNAKE);
+  const [dir,   setDir]       = useState(INIT_DIR);
+  const [food,  setFood]      = useState({x:4,y:4});
   const [running, setRunning] = useState(false);
-  const [dead, setDead]       = useState(false);
-  const [score, setScore]     = useState(0);
-  const [best, setBest]       = useState(() => { try{return parseInt(localStorage.getItem("snakeBest")||"0")}catch{return 0} });
-  const dirRef = useRef([1,0]);
+  const [dead,    setDead]    = useState(false);
+  const [dying,   setDying]   = useState(false);  // death animation phase
+  const [score,   setScore]   = useState(0);
+  const [best,    setBest]    = useState(() => { try{return parseInt(localStorage.getItem("snakeBest")||"0")}catch{return 0} });
+
+  // dirRef = committed direction (what the snake is actually moving)
+  // nextDirRef = buffered input (validated against dirRef, applied next tick)
+  const dirRef     = useRef(INIT_DIR);
+  const nextDirRef = useRef(null);
+  const deathTimer = useRef(null);
+
+  useEffect(() => () => clearTimeout(deathTimer.current), []);
 
   const reset = () => {
-    const s = [{x:9,y:9}];
-    setSnake(s); setDir([1,0]); dirRef.current=[1,0];
-    setFood(spawnFood(s)); setScore(0); setDead(false); setRunning(false);
+    clearTimeout(deathTimer.current);
+    const s = [...INIT_SNAKE];
+    dirRef.current  = INIT_DIR;
+    nextDirRef.current = null;
+    setSnake(s);
+    setDir(INIT_DIR);
+    setFood(spawnFood(s));
+    setScore(0);
+    setDead(false);
+    setDying(false);
+    setRunning(false);
+  };
+
+  // Key / D-pad input — buffer ONE direction ahead, validate against pending dir
+  const queueDir = ([ndx, ndy]) => {
+    const [pdx, pdy] = nextDirRef.current ?? dirRef.current;
+    if (ndx === -pdx && ndy === -pdy) return; // ignore 180° reversal
+    nextDirRef.current = [ndx, ndy];
   };
 
   useEffect(() => {
     const h = (e) => {
       if (DIRS[e.key]) {
         e.preventDefault();
-        const [dx,dy]=DIRS[e.key], [cx,cy]=dirRef.current;
-        if(dx!==-cx||dy!==-cy){ dirRef.current=[dx,dy]; setDir([dx,dy]); }
-        if(!running&&!dead) setRunning(true);
+        queueDir(DIRS[e.key]);
+        if (!running && !dead && !dying) setRunning(true);
       }
-      if(e.key===" "&&!dead) setRunning(r=>!r);
+      if (e.key === " " && !dead && !dying) setRunning(r => !r);
     };
-    window.addEventListener("keydown",h);
-    return () => window.removeEventListener("keydown",h);
-  }, [running,dead]);
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [running, dead, dying]);
 
   useEffect(() => {
-    if(!running||dead) return;
+    if (!running || dead || dying) return;
     const timer = setInterval(() => {
       setSnake(prev => {
-        const [dx,dy]=dirRef.current;
-        const head={x:(prev[0].x+dx+COLS)%COLS, y:(prev[0].y+dy+ROWS)%ROWS};
-        if(prev.some(s=>s.x===head.x&&s.y===head.y)){ setDead(true); setRunning(false); return prev; }
-        const ate=head.x===food.x&&head.y===food.y;
-        const next=ate?[head,...prev]:[head,...prev.slice(0,-1)];
-        if(ate){
-          setScore(s=>{const ns=s+10; setBest(b=>{const nb=Math.max(b,ns);try{localStorage.setItem("snakeBest",nb)}catch{}; return nb;}); return ns;});
+        // Apply buffered direction this tick
+        if (nextDirRef.current) {
+          dirRef.current     = nextDirRef.current;
+          nextDirRef.current = null;
+          setDir(dirRef.current);
+        }
+
+        const [dx, dy] = dirRef.current;
+        const head = { x:(prev[0].x+dx+COLS)%COLS, y:(prev[0].y+dy+ROWS)%ROWS };
+
+        // Self-collision: check against all body segments except the tail
+        // (tail vacates its cell this tick unless eating)
+        if (prev.slice(0, -1).some(s => s.x===head.x && s.y===head.y)) {
+          // Start dying sequence — freeze movement, glow for 2.5s then game over
+          setDying(true);
+          setRunning(false);
+          deathTimer.current = setTimeout(() => {
+            setDead(true);
+            setDying(false);
+          }, 2500);
+          return prev;
+        }
+
+        const ate  = head.x===food.x && head.y===food.y;
+        const next = ate ? [head,...prev] : [head,...prev.slice(0,-1)];
+        if (ate) {
+          setScore(s => {
+            const ns = s + 10;
+            setBest(b => { const nb=Math.max(b,ns); try{localStorage.setItem("snakeBest",nb)}catch{}; return nb; });
+            return ns;
+          });
           setFood(spawnFood(next));
         }
         return next;
       });
     }, 130);
     return () => clearInterval(timer);
-  }, [running,dead,food]);
+  }, [running, dead, dying, food]);
 
-  const moveDir = (ndx,ndy) => {
-    const [cx,cy]=dirRef.current;
-    if(ndx!==-cx||ndy!==-cy){ dirRef.current=[ndx,ndy]; setDir([ndx,ndy]); }
-    if(!running&&!dead) setRunning(true);
+  const moveDir = ([ndx, ndy]) => {
+    queueDir([ndx, ndy]);
+    if (!running && !dead && !dying) setRunning(true);
   };
 
-  const W=COLS*CELL, H=ROWS*CELL;
-  const [dx,dy] = dir;
+  /* ── Derived render values ── */
+  const W  = COLS*CELL, H = ROWS*CELL;
+  const [dx, dy] = dir;
   const head = snake[0];
   const hx = head.x*CELL + CELL/2;
   const hy = head.y*CELL + CELL/2;
@@ -80,24 +130,28 @@ export default function Snake() {
   const tx = tail.x*CELL + CELL/2;
   const ty = tail.y*CELL + CELL/2;
 
-  // Body path (all segments)
   const bodyPath = snake.map((s,i)=>`${i===0?'M':'L'}${s.x*CELL+CELL/2} ${s.y*CELL+CELL/2}`).join(' ');
 
-  // Eyes: forward + perpendicular offset
-  const eye1 = { x: hx + dx*4 + dy*4, y: hy + dy*4 - dx*4 };
-  const eye2 = { x: hx + dx*4 - dy*4, y: hy + dy*4 + dx*4 };
-
-  // Tongue: base at mouth, forked tips
-  const tBase  = { x: hx + dx*9,       y: hy + dy*9 };
+  const eye1  = { x: hx+dx*4+dy*4,  y: hy+dy*4-dx*4 };
+  const eye2  = { x: hx+dx*4-dy*4,  y: hy+dy*4+dx*4 };
+  const tBase  = { x: hx+dx*9,       y: hy+dy*9 };
   const tFork1 = { x: tBase.x+dx*3+dy*2, y: tBase.y+dy*3-dx*2 };
   const tFork2 = { x: tBase.x+dx*3-dy*2, y: tBase.y+dy*3+dx*2 };
 
-  // Food position
   const fx = food.x*CELL + CELL/2;
   const fy = food.y*CELL + CELL/2;
 
+  const headColor = dying ? "#ff3355" : "#00ff88";
+
   return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"12px" }}>
+      <style>{`
+        @keyframes snake-die {
+          0%,100% { opacity:1;   filter:drop-shadow(0 0 6px #ff3355); }
+          50%      { opacity:0.25; filter:drop-shadow(0 0 18px #ff0022); }
+        }
+        .snake-dying { animation: snake-die 0.45s ease-in-out infinite; }
+      `}</style>
 
       {/* Scores */}
       <div style={{ display:"flex", gap:"12px", width:"100%", maxWidth:`${W}px` }}>
@@ -110,17 +164,19 @@ export default function Snake() {
       </div>
 
       {/* Board */}
-      <div style={{ position:"relative", border:"1px solid var(--border)", lineHeight:0, width:"100%", maxWidth:`${W}px` }}>
+      <div style={{ position:"relative", border:`1px solid ${dying?"#ff3355":"var(--border)"}`, lineHeight:0, width:"100%", maxWidth:`${W}px`, transition:"border-color 0.2s" }}>
         <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ background:"var(--bg)", display:"block", width:"100%", height:"auto" }}>
           <defs>
-            {/* Gradient from tail (dark) to head (bright) */}
-            <linearGradient id="snakeGrad" gradientUnits="userSpaceOnUse"
-              x1={tx} y1={ty} x2={hx} y2={hy}>
+            <linearGradient id="snakeGrad" gradientUnits="userSpaceOnUse" x1={tx} y1={ty} x2={hx} y2={hy}>
               <stop offset="0%"   stopColor="#002210" />
               <stop offset="45%"  stopColor="#006633" />
               <stop offset="100%" stopColor="#00dd77" />
             </linearGradient>
-            {/* Food shine */}
+            <linearGradient id="snakeDyingGrad" gradientUnits="userSpaceOnUse" x1={tx} y1={ty} x2={hx} y2={hy}>
+              <stop offset="0%"   stopColor="#1a0008" />
+              <stop offset="45%"  stopColor="#660011" />
+              <stop offset="100%" stopColor="#ff2244" />
+            </linearGradient>
             <radialGradient id="foodGrad" cx="35%" cy="35%" r="60%">
               <stop offset="0%"   stopColor="#ff7799" />
               <stop offset="100%" stopColor="#cc1133" />
@@ -131,55 +187,47 @@ export default function Snake() {
           {Array.from({length:COLS+1}).map((_,i)=><line key={"v"+i} x1={i*CELL} y1={0} x2={i*CELL} y2={H} stroke="rgba(0,255,136,0.04)" strokeWidth="1"/>)}
           {Array.from({length:ROWS+1}).map((_,i)=><line key={"h"+i} x1={0} y1={i*CELL} x2={W} y2={i*CELL} stroke="rgba(0,255,136,0.04)" strokeWidth="1"/>)}
 
-          {/* ── Food (apple) ── */}
+          {/* Food */}
           <circle cx={fx} cy={fy} r={CELL/2-3} fill="url(#foodGrad)" />
-          {/* stem */}
-          <line x1={fx} y1={fy-CELL/2+3} x2={fx+2} y2={fy-CELL/2+7}
-            stroke="#00aa44" strokeWidth={1.5} strokeLinecap="round" />
-          {/* leaf */}
-          <path d={`M ${fx+2} ${fy-CELL/2+6} Q ${fx+7} ${fy-CELL/2+2} ${fx+6} ${fy-CELL/2+8}`}
-            fill="#00cc44" opacity={0.9} />
+          <line x1={fx} y1={fy-CELL/2+3} x2={fx+2} y2={fy-CELL/2+7} stroke="#00aa44" strokeWidth={1.5} strokeLinecap="round" />
+          <path d={`M ${fx+2} ${fy-CELL/2+6} Q ${fx+7} ${fy-CELL/2+2} ${fx+6} ${fy-CELL/2+8}`} fill="#00cc44" opacity={0.9} />
 
-          {/* ── Snake body (gradient stroke path) ── */}
-          {snake.length > 1 && (
-            <path d={bodyPath} fill="none"
-              stroke="url(#snakeGrad)"
-              strokeWidth={CELL-3}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          )}
+          {/* Snake group — apply dying animation class here */}
+          <g className={dying ? "snake-dying" : ""}>
+            {snake.length > 1 && (
+              <path d={bodyPath} fill="none"
+                stroke={dying ? "url(#snakeDyingGrad)" : "url(#snakeGrad)"}
+                strokeWidth={CELL-3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            )}
 
-          {/* ── Tongue (before head so it's behind) ── */}
-          {running && !dead && (
-            <>
-              <line x1={hx+dx*7} y1={hy+dy*7} x2={tBase.x} y2={tBase.y}
-                stroke="#ff3355" strokeWidth={1.5} strokeLinecap="round" />
-              <line x1={tBase.x} y1={tBase.y} x2={tFork1.x} y2={tFork1.y}
-                stroke="#ff3355" strokeWidth={1} strokeLinecap="round" />
-              <line x1={tBase.x} y1={tBase.y} x2={tFork2.x} y2={tFork2.y}
-                stroke="#ff3355" strokeWidth={1} strokeLinecap="round" />
-            </>
-          )}
+            {/* Tongue */}
+            {(running || dying) && !dead && (
+              <>
+                <line x1={hx+dx*7} y1={hy+dy*7} x2={tBase.x} y2={tBase.y} stroke="#ff3355" strokeWidth={1.5} strokeLinecap="round" />
+                <line x1={tBase.x} y1={tBase.y} x2={tFork1.x} y2={tFork1.y} stroke="#ff3355" strokeWidth={1} strokeLinecap="round" />
+                <line x1={tBase.x} y1={tBase.y} x2={tFork2.x} y2={tFork2.y} stroke="#ff3355" strokeWidth={1} strokeLinecap="round" />
+              </>
+            )}
 
-          {/* ── Head ── */}
-          <circle cx={hx} cy={hy} r={CELL/2} fill="#00ff88" />
-          {/* Head shine */}
-          <ellipse cx={hx-dx*1.5+dy*1.5} cy={hy-dy*1.5-dx*1.5} rx={3} ry={2} fill="rgba(255,255,255,0.25)" />
+            {/* Head */}
+            <circle cx={hx} cy={hy} r={CELL/2} fill={headColor} />
+            <ellipse cx={hx-dx*1.5+dy*1.5} cy={hy-dy*1.5-dx*1.5} rx={3} ry={2} fill="rgba(255,255,255,0.25)" />
 
-          {/* ── Eyes ── */}
-          <circle cx={eye1.x} cy={eye1.y} r={2.5} fill="white" />
-          <circle cx={eye2.x} cy={eye2.y} r={2.5} fill="white" />
-          {/* Pupils (look forward) */}
-          <circle cx={eye1.x+dx*0.9} cy={eye1.y+dy*0.9} r={1.3} fill="#001a08" />
-          <circle cx={eye2.x+dx*0.9} cy={eye2.y+dy*0.9} r={1.3} fill="#001a08" />
-          {/* Pupil glint */}
-          <circle cx={eye1.x+dx*0.3} cy={eye1.y+dy*0.3} r={0.45} fill="white" opacity={0.8} />
-          <circle cx={eye2.x+dx*0.3} cy={eye2.y+dy*0.3} r={0.45} fill="white" opacity={0.8} />
+            {/* Eyes */}
+            <circle cx={eye1.x} cy={eye1.y} r={2.5} fill="white" />
+            <circle cx={eye2.x} cy={eye2.y} r={2.5} fill="white" />
+            <circle cx={eye1.x+dx*0.9} cy={eye1.y+dy*0.9} r={1.3} fill={dying?"#330000":"#001a08"} />
+            <circle cx={eye2.x+dx*0.9} cy={eye2.y+dy*0.9} r={1.3} fill={dying?"#330000":"#001a08"} />
+            <circle cx={eye1.x+dx*0.3} cy={eye1.y+dy*0.3} r={0.45} fill="white" opacity={0.8} />
+            <circle cx={eye2.x+dx*0.3} cy={eye2.y+dy*0.3} r={0.45} fill="white" opacity={0.8} />
+          </g>
         </svg>
 
-        {/* Pause / Game Over / Start overlay */}
-        {!running && (
+        {/* Overlays: start / pause / game over */}
+        {!running && !dying && (
           <div style={{ position:"absolute", inset:0, background:"rgba(5,10,15,0.88)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"12px" }}>
             {dead ? (
               <>
@@ -203,13 +251,14 @@ export default function Snake() {
       {/* D-pad */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(3,52px)", gridTemplateRows:"repeat(2,52px)", gap:"6px", marginTop:"4px" }}>
         {[
-          {label:"↑",ndx:0,ndy:-1,row:1,col:2},
-          {label:"←",ndx:-1,ndy:0,row:2,col:1},
-          {label:"↓",ndx:0,ndy:1, row:2,col:2},
-          {label:"→",ndx:1,ndy:0, row:2,col:3},
-        ].map(({label,ndx,ndy,row,col})=>(
-          <button key={label} onClick={()=>moveDir(ndx,ndy)}
-            onTouchStart={e=>{ e.preventDefault(); moveDir(ndx,ndy); }}
+          {label:"↑", d:[0,-1],  row:1, col:2},
+          {label:"←", d:[-1,0],  row:2, col:1},
+          {label:"↓", d:[0,1],   row:2, col:2},
+          {label:"→", d:[1,0],   row:2, col:3},
+        ].map(({label, d, row, col}) => (
+          <button key={label}
+            onClick={() => moveDir(d)}
+            onTouchStart={e=>{ e.preventDefault(); moveDir(d); }}
             style={{
               gridRow:row, gridColumn:col,
               background:"var(--bg-card)", border:"1px solid var(--border)",
@@ -222,6 +271,7 @@ export default function Snake() {
           </button>
         ))}
       </div>
+
       <div style={{ fontFamily:"var(--font-mono)", fontSize:"10px", color:"var(--text-muted)", letterSpacing:"2px", textAlign:"center" }}>
         {g.snake_dpad}
       </div>
