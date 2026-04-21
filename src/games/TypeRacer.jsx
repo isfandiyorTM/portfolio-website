@@ -439,7 +439,6 @@ export default function TypeRacer() {
         {Object.entries(MODE_META).map(([m, meta]) => (
           <button key={m} className={`tr-mode ${mode === m ? "active" : ""}`} onClick={() => handleModeChange(m)}>
             {meta.icon} {meta.label}
-            <span style={{ opacity: 0.4, fontSize: 9, marginLeft: 5 }}>— {meta.hint}</span>
           </button>
         ))}
       </div>
