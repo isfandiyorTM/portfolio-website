@@ -1,10 +1,14 @@
 import { useEffect, useRef } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 const CHARS = "01><[]{}#$%∑∆∏∫アイウエオカキクケコ?!";
 const FS = 13;
 
 export default function MatrixRain({ style }) {
   const ref = useRef(null);
+  const { dark } = useTheme();
+  const darkRef = useRef(dark);
+  darkRef.current = dark;
 
   useEffect(() => {
     const canvas = ref.current;
@@ -32,7 +36,7 @@ export default function MatrixRain({ style }) {
       if (ts - last < 180) return; // ~5-6 fps — slow, deliberate fall
       last = ts;
 
-      ctx.fillStyle = "rgba(5,10,15,0.12)";
+      ctx.fillStyle = darkRef.current ? "rgba(5,10,15,0.12)" : "rgba(240,250,245,0.15)";
       ctx.fillRect(0, 0, W, H);
       ctx.font = `${FS}px 'Share Tech Mono', monospace`;
 
@@ -41,7 +45,11 @@ export default function MatrixRain({ style }) {
         const y = drops[i] * FS;
         // Lead char bright white-green, trail is darker green
         const isLead = drops[i] > 0 && Math.random() > 0.85;
-        ctx.fillStyle = isLead ? "#ccffdd" : (drops[i] > 0 ? "#00cc66" : "#00ff88");
+        if (darkRef.current) {
+          ctx.fillStyle = isLead ? "#ccffdd" : (drops[i] > 0 ? "#00cc66" : "#00ff88");
+        } else {
+          ctx.fillStyle = isLead ? "#007733" : (drops[i] > 0 ? "#009944" : "#00aa55");
+        }
         ctx.fillText(ch, i * FS, y);
 
         if (y > H && Math.random() > 0.975) drops[i] = 0;

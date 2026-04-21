@@ -35,7 +35,7 @@ function ProjectCard({ project, index }) {
         alignItems:"flex-start", marginBottom:16, flexWrap:"wrap", gap:12,
       }}>
         <div style={{ display:"flex", alignItems:"center", gap:20 }}>
-          <span style={{ fontFamily:"var(--font-display)", fontSize:11, color:"#1a4a2a", letterSpacing:2 }}>
+          <span style={{ fontFamily:"var(--font-display)", fontSize:11, color:"var(--text-muted)", letterSpacing:2 }}>
             {project.id}
           </span>
           <h3 style={{
@@ -47,7 +47,7 @@ function ProjectCard({ project, index }) {
           </h3>
           <span style={{
             fontFamily:"var(--font-mono)", fontSize:11,
-            color: hovered ? "var(--green)" : "#1a4a2a",
+            color: hovered ? "var(--green)" : "var(--text-muted)",
             transition:"color .3s, transform .3s",
             display:"inline-block",
             transform: hovered ? "translateX(4px)" : "none",
@@ -69,8 +69,8 @@ function ProjectCard({ project, index }) {
         {project.stack.map((tech) => (
           <span key={tech} style={{
             fontFamily:"var(--font-mono)", fontSize:11, letterSpacing:1,
-            color:"var(--green-dim)", background:"#001a0d",
-            padding:"3px 10px", border:"1px solid var(--green-dark)",
+            color:"var(--green-dim)", background:"var(--bg-card)",
+            padding:"3px 10px", border:"1px solid var(--border)",
           }}>
             {tech}
           </span>
