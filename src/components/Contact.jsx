@@ -3,7 +3,7 @@ import { useReveal } from "../hooks/useReveal";
 import { SOCIAL_LINKS } from "../constants/data";
 import { useLang } from "../i18n/LanguageContext";
 
-const CONTACT_EMAIL = "madaminovmuhammadbilol1@gmail.com";
+const CONTACT_EMAIL = "isfandiyormadaminov12@gmail.com";
 
 const GithubIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
