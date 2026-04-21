@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useReveal } from "../hooks/useReveal";
+import { useScrollTypewriter } from "../hooks/useScrollTypewriter";
 import { SOCIAL_LINKS } from "../constants/data";
 import { useLang } from "../i18n/LanguageContext";
 import { useTheme } from "../context/ThemeContext";
@@ -40,6 +41,10 @@ export default function Contact() {
   const { dark } = useTheme();
   const githubColor = dark ? "#f0f6fc" : "#24292f";
 
+  const { ref: labelRef, displayed: labelTxt, done: labelDone } = useScrollTypewriter(c.label,    40);
+  const { ref: h1Ref,   displayed: h1Txt,   done: h1Done }    = useScrollTypewriter(c.heading,   28);
+  const { ref: h2Ref,   displayed: h2Txt,   done: h2Done }    = useScrollTypewriter(h1Done ? c.heading2 : "", 28);
+
   const [form, setForm]     = useState({ name:"", email:"", message:"" });
   const [status, setStatus] = useState("idle");
 
@@ -66,9 +71,13 @@ export default function Contact() {
         <div style={{ maxWidth:"1100px", margin:"0 auto" }}>
 
           <div ref={titleRef} className="reveal" style={{ textAlign:"center", marginBottom:"56px" }}>
-            <p className="section-label">{c.label}</p>
+            <p ref={labelRef} className="section-label">
+              {labelTxt}{!labelDone && <span className="tw-cursor">▋</span>}
+            </p>
             <h2 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(28px,5vw,52px)", fontWeight:900, lineHeight:1.2 }}>
-              {c.heading}<br /><span style={{ color:"var(--green)" }}>{c.heading2}</span>
+              <span ref={h1Ref}>{h1Txt}{!h1Done && <span className="tw-cursor">▋</span>}</span>
+              <br />
+              <span ref={h2Ref} style={{ color:"var(--green)" }}>{h2Txt}{h1Done && !h2Done && <span className="tw-cursor">▋</span>}</span>
             </h2>
           </div>
 
@@ -77,16 +86,36 @@ export default function Contact() {
               <p style={{ color:"var(--text-muted)", lineHeight:1.8, marginBottom:"32px" }}>{c.desc}</p>
               <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
                 <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-                  <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", color:githubColor, borderColor:githubColor }}><GithubIcon /> GitHub</button>
+                  <button className="btn btn-secondary" style={{
+                    width:"100%", justifyContent:"center",
+                    color: githubColor, borderColor: githubColor,
+                    background: dark ? "rgba(36,41,47,0.22)" : "rgba(36,41,47,0.08)",
+                    boxShadow: "0 2px 14px rgba(36,41,47,0.2)",
+                  }}><GithubIcon /> GitHub</button>
                 </a>
                 <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-                  <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", color:"#0077b5", borderColor:"#0077b5" }}><LinkedinIcon /> LinkedIn</button>
+                  <button className="btn btn-secondary" style={{
+                    width:"100%", justifyContent:"center",
+                    color:"#0077b5", borderColor:"#0077b5",
+                    background: "rgba(0,119,181,0.1)",
+                    boxShadow: "0 2px 14px rgba(0,119,181,0.18)",
+                  }}><LinkedinIcon /> LinkedIn</button>
                 </a>
                 <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-                  <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", gap:"8px", color:"#ff0000", borderColor:"#ff0000" }}><YoutubeIcon /> YouTube</button>
+                  <button className="btn btn-secondary" style={{
+                    width:"100%", justifyContent:"center", gap:"8px",
+                    color:"#ff0000", borderColor:"#ff0000",
+                    background: "rgba(255,0,0,0.08)",
+                    boxShadow: "0 2px 14px rgba(255,0,0,0.15)",
+                  }}><YoutubeIcon /> YouTube</button>
                 </a>
                 <a href={SOCIAL_LINKS.telegram} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-                  <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", gap:"8px", color:"#29b6f6", borderColor:"#29b6f6" }}><TelegramIcon /> Telegram</button>
+                  <button className="btn btn-secondary" style={{
+                    width:"100%", justifyContent:"center", gap:"8px",
+                    color:"#29b6f6", borderColor:"#29b6f6",
+                    background: "rgba(41,182,246,0.08)",
+                    boxShadow: "0 2px 14px rgba(41,182,246,0.15)",
+                  }}><TelegramIcon /> Telegram</button>
                 </a>
               </div>
             </div>

@@ -16,7 +16,7 @@ export default function WhackABug() {
   const [best, setBest]         = useState(() => { try{return parseInt(localStorage.getItem("whackBest")||"0")}catch{return 0} });
   const intervalsRef = useRef([]);
 
-  const clearAll = () => { intervalsRef.current.forEach(id=>clearTimeout(clearInterval(id))); intervalsRef.current=[]; };
+  const clearAll = () => { intervalsRef.current.forEach(id=>{ clearInterval(id); clearTimeout(id); }); intervalsRef.current=[]; };
 
   const spawnBug = () => {
     const pos = Math.floor(Math.random()*12);

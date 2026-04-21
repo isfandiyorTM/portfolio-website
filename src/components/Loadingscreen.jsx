@@ -13,7 +13,7 @@ export default function LoadingScreen({ onDone }) {
 
   return (
     <div style={{
-      position: "fixed", inset: 0, zIndex: 99999,
+      position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999,
       background: "#050a0f",
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
@@ -21,6 +21,7 @@ export default function LoadingScreen({ onDone }) {
       opacity: fadeOut ? 0 : 1,
       transition: "opacity 0.8s ease",
       pointerEvents: fadeOut ? "none" : "all",
+      padding: "20px",
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');

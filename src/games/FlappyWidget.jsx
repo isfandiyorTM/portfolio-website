@@ -48,7 +48,7 @@ export default function FlappyWidget() {
     const handleKey = (e) => { if (e.code === "Space") { e.preventDefault(); flap(); } };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  });
+  }, [phase]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -128,6 +128,8 @@ const translations = {
       tr_mode_medium:"Medium", tr_hint_medium:"Sentences",
       tr_mode_code:"Code",   tr_hint_code:"Flutter / Dart",
       tr_mode_quotes:"Quotes", tr_hint_quotes:"Dev quotes",
+      tr_len_label:"LENGTH",
+      tr_len_short:"Short", tr_len_medium:"Medium", tr_len_long:"Long", tr_len_marathon:"Marathon",
     },
     chontak: {
       back:        "← BACK",
@@ -335,6 +337,8 @@ const translations = {
       tr_mode_medium:"O'rta", tr_hint_medium:"Jumlalar",
       tr_mode_code:"Kod",    tr_hint_code:"Flutter / Dart",
       tr_mode_quotes:"Iqtiboslar", tr_hint_quotes:"Dasturchi iqtiboslari",
+      tr_len_label:"UZUNLIK",
+      tr_len_short:"Qisqa", tr_len_medium:"O'rta", tr_len_long:"Uzun", tr_len_marathon:"Marafon",
     },
     chontak: {
       back:        "← ORQAGA",
@@ -542,6 +546,8 @@ const translations = {
       tr_mode_medium:"Средний", tr_hint_medium:"Предложения",
       tr_mode_code:"Код",     tr_hint_code:"Flutter / Dart",
       tr_mode_quotes:"Цитаты", tr_hint_quotes:"Цитаты разработчиков",
+      tr_len_label:"ДЛИНА",
+      tr_len_short:"Короткий", tr_len_medium:"Средний", tr_len_long:"Длинный", tr_len_marathon:"Марафон",
     },
     chontak: {
       back:        "← НАЗАД",

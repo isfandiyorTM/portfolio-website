@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useReveal } from "../hooks/useReveal";
+import { useScrollTypewriter } from "../hooks/useScrollTypewriter";
 import { useLang } from "../i18n/LanguageContext";
 import { PROJECTS, FILTER_TAGS_KEYS } from "../constants/data";
 
@@ -85,6 +86,10 @@ export default function Projects() {
   const titleRef = useReveal();
   const { t, lang } = useLang();
 
+  const { ref: labelRef,  displayed: labelTxt,  done: labelDone  } = useScrollTypewriter(t.projects.label,    40);
+  const { ref: h1Ref,     displayed: h1Txt,     done: h1Done     } = useScrollTypewriter(t.projects.heading,  28);
+  const { ref: h2Ref,     displayed: h2Txt,     done: h2Done     } = useScrollTypewriter(h1Done ? t.projects.heading2 : "", 28);
+
   const filterLabel = (key) => key === "all" ? t.projects.filter_all : key;
 
   const filtered = activeFilter === "all"
@@ -95,9 +100,13 @@ export default function Projects() {
     <section id="projects" style={{ padding:"120px 40px", width:"100%" }}>
       <div style={{ maxWidth:1100, margin:"0 auto" }}>
         <div ref={titleRef} className="reveal">
-          <p className="section-label">{t.projects.label}</p>
+          <p ref={labelRef} className="section-label">
+            {labelTxt}{!labelDone && <span className="tw-cursor">▋</span>}
+          </p>
           <h2 className="section-title">
-            {t.projects.heading}<br /><span>{t.projects.heading2}</span>
+            <span ref={h1Ref}>{h1Txt}{!h1Done && <span className="tw-cursor">▋</span>}</span>
+            <br />
+            <span ref={h2Ref}>{h2Txt}{h1Done && !h2Done && <span className="tw-cursor">▋</span>}</span>
           </h2>
         </div>
 

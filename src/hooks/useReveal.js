@@ -9,6 +9,7 @@ export function useReveal(threshold = 0.1) {
 
     // Small timeout ensures DOM is fully ready before observing
     const timer = setTimeout(() => {
+      const isMobile = window.innerWidth < 768;
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
@@ -16,7 +17,7 @@ export function useReveal(threshold = 0.1) {
             observer.unobserve(el);
           }
         },
-        { threshold, rootMargin: "0px 0px -50px 0px" }
+        { threshold, rootMargin: isMobile ? "0px 0px -10px 0px" : "0px 0px -50px 0px" }
       );
       observer.observe(el);
 
