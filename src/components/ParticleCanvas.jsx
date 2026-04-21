@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 /* ── 3D Particle Field ─────────────────────────────────────────────────
    Pure canvas, zero dependencies.
@@ -34,6 +35,9 @@ export default function ParticleCanvas({ style }) {
   const targetCam = useRef({ rotX: 0, rotY: 0 });
   const rafId     = useRef(null);
   const time      = useRef(0);
+  const { dark }  = useTheme();
+  const darkRef   = useRef(dark);
+  darkRef.current = dark;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -130,7 +134,9 @@ export default function ParticleCanvas({ style }) {
             ctx.beginPath();
             ctx.moveTo(pa.x, pa.y);
             ctx.lineTo(pb.x, pb.y);
-            ctx.strokeStyle = `rgba(255,255,255,${opacity})`;
+            ctx.strokeStyle = darkRef.current
+              ? `rgba(255,255,255,${opacity})`
+              : `rgba(0,100,50,${opacity})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -145,7 +151,9 @@ export default function ParticleCanvas({ style }) {
 
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+        ctx.fillStyle = darkRef.current
+          ? `rgba(255,255,255,${opacity})`
+          : `rgba(0,120,60,${opacity})`;
         ctx.fill();
       });
 

@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useReveal } from "../hooks/useReveal";
 import { SOCIAL_LINKS } from "../constants/data";
 import { useLang } from "../i18n/LanguageContext";
+import { useTheme } from "../context/ThemeContext";
 
 const CONTACT_EMAIL = "isfandiyormadaminov12@gmail.com";
 
@@ -36,6 +37,8 @@ export default function Contact() {
   const formRevealRef = useReveal();
   const { t } = useLang();
   const c = t.contact;
+  const { dark } = useTheme();
+  const githubColor = dark ? "#f0f6fc" : "#24292f";
 
   const [form, setForm]     = useState({ name:"", email:"", message:"" });
   const [status, setStatus] = useState("idle");
@@ -74,7 +77,7 @@ export default function Contact() {
               <p style={{ color:"var(--text-muted)", lineHeight:1.8, marginBottom:"32px" }}>{c.desc}</p>
               <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
                 <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-                  <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", color:"#f0f6fc", borderColor:"#f0f6fc" }}><GithubIcon /> GitHub</button>
+                  <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", color:githubColor, borderColor:githubColor }}><GithubIcon /> GitHub</button>
                 </a>
                 <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
                   <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", color:"#0077b5", borderColor:"#0077b5" }}><LinkedinIcon /> LinkedIn</button>
