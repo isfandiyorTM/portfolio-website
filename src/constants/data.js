@@ -50,7 +50,8 @@ export const PROJECTS = [
 ];
 export const FILTER_TAGS_KEYS = ["all", "Flutter", "Dart", "Web"];
 export const SOCIAL_LINKS = {
-  github:   "https://github.com/isfandiyorTM",
-  linkedin: "https://www.linkedin.com/in/isfandiyor-madaminov-923a1a294/",
-  youtube:  "https://www.youtube.com/@isfandiyor_madaminov",
+  github:    "https://github.com/isfandiyorTM",
+  linkedin:  "https://www.linkedin.com/in/isfandiyor-madaminov-923a1a294/",
+  youtube:   "https://www.youtube.com/@isfandiyor_madaminov",
+  telegram:  "https://t.me/isfandiyor_madaminov",
 };

@@ -2,11 +2,8 @@ import { useState, useRef } from "react";
 import { useReveal } from "../hooks/useReveal";
 import { SOCIAL_LINKS } from "../constants/data";
 import { useLang } from "../i18n/LanguageContext";
-import emailjs from "@emailjs/browser";
 
-const EMAILJS_SERVICE_ID  = "YOUR_SERVICE_ID";
-const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
-const EMAILJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";
+const CONTACT_EMAIL = "madaminovmuhammadbilol1@gmail.com";
 
 const GithubIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -26,6 +23,12 @@ const YoutubeIcon = () => (
   </svg>
 );
 
+const TelegramIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+  </svg>
+);
+
 export default function Contact() {
   const formRef       = useRef(null);
   const titleRef      = useReveal();
@@ -39,14 +42,14 @@ export default function Contact() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if(!form.name||!form.email||!form.message) return;
-    setStatus("sending");
-    try {
-      await emailjs.sendForm(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, formRef.current, EMAILJS_PUBLIC_KEY);
-      setStatus("success"); setForm({ name:"", email:"", message:"" });
-    } catch { setStatus("error"); }
+    if (!form.name || !form.email || !form.message) return;
+    const subject = encodeURIComponent(`Portfolio Contact: ${form.name}`);
+    const body    = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`);
+    window.open(`mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`);
+    setStatus("success");
+    setForm({ name:"", email:"", message:"" });
   };
 
   return (
@@ -79,6 +82,9 @@ export default function Contact() {
                 <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
                   <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", gap:"8px", color:"#ff0000", borderColor:"#ff0000" }}><YoutubeIcon /> YouTube</button>
                 </a>
+                <a href={SOCIAL_LINKS.telegram} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
+                  <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", gap:"8px", color:"#29b6f6", borderColor:"#29b6f6" }}><TelegramIcon /> Telegram</button>
+                </a>
               </div>
             </div>
 
@@ -96,11 +102,14 @@ export default function Contact() {
                   <label className="form-label">{c.message}</label>
                   <textarea className="form-input" name="message" placeholder={c.placeholder_message} rows={5} value={form.message} onChange={handleChange} required />
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ justifyContent:"center", opacity:status==="sending"?0.7:1 }} disabled={status==="sending"}>
-                  {status==="sending" ? c.sending : c.send}
+                <button type="submit" className="btn btn-primary" style={{ justifyContent:"center" }}>
+                  {c.send}
                 </button>
-                {status==="success" && <p style={{ color:"var(--green)", fontFamily:"var(--font-mono)", fontSize:"13px", letterSpacing:"2px" }}>{c.success}</p>}
-                {status==="error"   && <p style={{ color:"#ff4466",    fontFamily:"var(--font-mono)", fontSize:"13px", letterSpacing:"2px" }}>{c.error}</p>}
+                {status === "success" && (
+                  <p style={{ color:"var(--green)", fontFamily:"var(--font-mono)", fontSize:"13px", letterSpacing:"2px" }}>
+                    {c.success}
+                  </p>
+                )}
               </form>
             </div>
           </div>
