@@ -451,7 +451,7 @@ export default function TypeRacer() {
           </span>
           {LEN_META.map(l => (
             <button key={l.key} className={`tr-len ${lenKey === l.key ? "active" : ""}`} onClick={() => handleLenChange(l.key)}>
-              {l.label} <span style={{ opacity:0.4 }}>{l.hint}</span>
+              {l.label}
             </button>
           ))}
         </div>
