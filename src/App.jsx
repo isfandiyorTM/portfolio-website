@@ -54,7 +54,7 @@ function Divider() {
 /* Portfolio page */
 function Portfolio({ onGamesClick }) {
   return (
-    <div style={{ width: "100%", minHeight: "100vh", background: "var(--bg)", overflowX: "hidden" }}>
+    <div style={{ width: "100%", maxWidth: "100vw", minHeight: "100vh", background: "var(--bg)", overflowX: "hidden" }}>
       <Scanline />
       <PlasmaBlobs />
       <ScrollProgress />

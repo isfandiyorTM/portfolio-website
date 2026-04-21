@@ -96,11 +96,11 @@ export default function PlasmaBlobs() {
   return (
     <div
       ref={wrapRef}
-      style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, opacity: 0, transition: "opacity 0.6s ease" }}
+      style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none", zIndex: 0, opacity: 0, transition: "opacity 0.6s ease", overflow: "hidden" }}
     >
-      <div ref={b1Ref} style={{ ...base, left: "20%", top: "35%", width: 700, height: 700, background: "radial-gradient(circle, rgba(0,255,136,0.18) 0%, transparent 65%)", animation: "plasma-drift-a 9s ease-in-out infinite" }} />
-      <div ref={b2Ref} style={{ ...base, left: "80%", top: "65%", width: 600, height: 600, background: "radial-gradient(circle, rgba(0,200,100,0.13) 0%, transparent 65%)", animation: "plasma-drift-b 12s ease-in-out infinite" }} />
-      <div ref={b3Ref} style={{ ...base, left: "50%", top: "50%", width: 500, height: 500, background: "radial-gradient(circle, rgba(0,255,136,0.10) 0%, transparent 70%)", animation: "plasma-drift-c 7s ease-in-out infinite" }} />
+      <div ref={b1Ref} style={{ ...base, left: "20%", top: "35%", width: "min(700px,120vw)", height: "min(700px,120vw)", background: "radial-gradient(circle, rgba(0,255,136,0.18) 0%, transparent 65%)", animation: "plasma-drift-a 9s ease-in-out infinite" }} />
+      <div ref={b2Ref} style={{ ...base, left: "80%", top: "65%", width: "min(600px,100vw)", height: "min(600px,100vw)", background: "radial-gradient(circle, rgba(0,200,100,0.13) 0%, transparent 65%)", animation: "plasma-drift-b 12s ease-in-out infinite" }} />
+      <div ref={b3Ref} style={{ ...base, left: "50%", top: "50%", width: "min(500px,90vw)",  height: "min(500px,90vw)",  background: "radial-gradient(circle, rgba(0,255,136,0.10) 0%, transparent 70%)", animation: "plasma-drift-c 7s ease-in-out infinite" }} />
     </div>
   );
 }
