@@ -4,6 +4,7 @@ import { useLang } from "../i18n/LanguageContext";
 import ParticleCanvas from "./ParticleCanvas";
 import MatrixRain from "./MatrixRain";
 import CodeFloat from "./CodeFloat";
+import ResumeModal from "./ResumeModal";
 
 
 function GlitchText({ text }) {
@@ -164,6 +165,7 @@ export default function Hero() {
   const { t }            = useLang();
   const { displayed, done } = useTypewriter(t.hero.title, 800);
   const scrollTo = id => document.getElementById(id)?.scrollIntoView({ behavior:"smooth" });
+  const [resumeOpen, setResumeOpen] = useState(false);
 
   const sectionRef   = useRef(null);
   const textRef      = useRef(null);
@@ -242,7 +244,7 @@ export default function Hero() {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
-  return (
+  return (<>
     <section
       ref={sectionRef}
       id="home"
@@ -281,9 +283,7 @@ export default function Hero() {
           <div style={{ display:"flex", gap:"16px", flexWrap:"wrap", animation:"fadeUp 0.8s 0.8s ease both", opacity:0 }}>
             <button className="btn btn-primary"   onClick={() => scrollTo("projects")}>{t.hero.cta_projects}</button>
             <button className="btn btn-secondary" onClick={() => scrollTo("contact")}>{t.hero.cta_contact}</button>
-            <a href="/resume.pdf" download style={{ textDecoration:"none" }}>
-              <button className="btn btn-secondary">{t.hero.cta_cv}</button>
-            </a>
+            <button className="btn btn-secondary" onClick={() => setResumeOpen(true)}>{t.hero.cta_cv}</button>
           </div>
 
           {/* Mobile-only rahimovdevs CTA */}
@@ -321,5 +321,7 @@ export default function Hero() {
         <PressButton glitch={glitch} />
       </div>
     </section>
-  );
+
+    {resumeOpen && <ResumeModal onClose={() => setResumeOpen(false)} />}
+  </>);
 }

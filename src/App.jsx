@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import "./styles/global.css";
 
 import { ThemeProvider } from "./context/ThemeContext";
@@ -7,6 +7,8 @@ import { LanguageProvider } from "./i18n/LanguageContext";
 
 import Cursor from "./components/Cursor";
 import LoadingScreen from "./components/Loadingscreen";
+import ScrollProgress from "./components/ScrollProgress";
+import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
@@ -19,6 +21,7 @@ import GamesPage from "./pages/GamesPage";
 import ChontakPage from "./pages/ChontakPage";
 import HojiJalyuziPage from "./pages/HojiJalyuziPage";
 import RahimovDevsPage from "./pages/RahimovDevsPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 /* UI effects */
 function Scanline() {
@@ -53,8 +56,8 @@ function Portfolio({ onGamesClick }) {
   return (
     <div style={{ width: "100%", minHeight: "100vh", background: "var(--bg)", overflowX: "hidden" }}>
       <Scanline />
-      {/* B3 — Plasma blobs visible only in About/Projects/Contact, fades on Hero and Footer */}
       <PlasmaBlobs />
+      <ScrollProgress />
       <Navbar onGamesClick={onGamesClick} />
       <Hero />
       <Divider />
@@ -64,6 +67,17 @@ function Portfolio({ onGamesClick }) {
       <Divider />
       <Contact />
       <Footer />
+      <ScrollToTop />
+    </div>
+  );
+}
+
+/* Page transition wrapper */
+function PageTransition({ children }) {
+  const location = useLocation();
+  return (
+    <div key={location.pathname} style={{ animation: "pageFade 0.35s ease both" }}>
+      {children}
     </div>
   );
 }
@@ -73,13 +87,16 @@ function AppRoutes() {
   const navigate = useNavigate();
 
   return (
-    <Routes>
-      <Route path="/" element={<Portfolio onGamesClick={() => navigate("/games")} />} />
-      <Route path="/games" element={<GamesPage onBack={() => navigate("/")} />} />
-      <Route path="/chontak" element={<ChontakPage />} />
-      <Route path="/hoji-jalyuzi" element={<HojiJalyuziPage />} />
-      <Route path="/rahimovdevs" element={<RahimovDevsPage />} />
-    </Routes>
+    <PageTransition>
+      <Routes>
+        <Route path="/" element={<Portfolio onGamesClick={() => navigate("/games")} />} />
+        <Route path="/games" element={<GamesPage onBack={() => navigate("/")} />} />
+        <Route path="/chontak" element={<ChontakPage />} />
+        <Route path="/hoji-jalyuzi" element={<HojiJalyuziPage />} />
+        <Route path="/rahimovdevs" element={<RahimovDevsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </PageTransition>
   );
 }
 

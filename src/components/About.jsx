@@ -1,23 +1,25 @@
 import { useReveal } from "../hooks/useReveal";
+import { useCountUp } from "../hooks/useCountUp";
 import { SKILLS } from "../constants/data";
 import { useLang } from "../i18n/LanguageContext";
 
 
 function StatCard({ value, label, index, link }) {
-  const ref = useReveal();
+  const revealRef = useReveal();
+  const { ref: countRef, display } = useCountUp(value);
   const inner = <>
-    <div style={{ fontFamily:"var(--font-display)", fontSize:"clamp(28px,5vw,44px)", fontWeight:900, color:"var(--green)", marginBottom:"6px" }}>{value}</div>
+    <div ref={countRef} style={{ fontFamily:"var(--font-display)", fontSize:"clamp(28px,5vw,44px)", fontWeight:900, color:"var(--green)", marginBottom:"6px" }}>{display}</div>
     <div style={{ fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"2px", color:"var(--text-muted)", textTransform:"uppercase" }}>{label}</div>
   </>;
   if (link) return (
-    <a ref={ref} href={link} target="_blank" rel="noopener noreferrer"
+    <a ref={revealRef} href={link} target="_blank" rel="noopener noreferrer"
       className="stat-card reveal" style={{ transitionDelay:`${index*120}ms`, textDecoration:"none", display:"block", cursor:"pointer" }}
       onMouseEnter={e => { e.currentTarget.style.borderColor="var(--green)"; e.currentTarget.style.boxShadow="0 0 18px rgba(0,255,136,0.25)"; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor=""; e.currentTarget.style.boxShadow=""; }}
     >{inner}</a>
   );
   return (
-    <div ref={ref} className="stat-card reveal" style={{ transitionDelay:`${index*120}ms` }}>
+    <div ref={revealRef} className="stat-card reveal" style={{ transitionDelay:`${index*120}ms` }}>
       {inner}
     </div>
   );
