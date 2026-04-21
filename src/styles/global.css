@@ -64,7 +64,7 @@ body {
 @keyframes navSlideIn  { from { opacity:0; transform:translateY(10px);  } to { opacity:1; transform:translateY(0); } }
 @keyframes blink     { 0%,49%{opacity:1} 50%,100%{opacity:0} }
 .tw-cursor { display:inline-block; color:var(--green); animation:blink 0.7s step-end infinite; margin-left:1px; }
-@keyframes pageFade  { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pageFade  { from{opacity:0;transform:translateY(10px);filter:blur(6px)} to{opacity:1;transform:translateY(0);filter:blur(0px)} }
 @keyframes border-pulse { 0%,100%{box-shadow:0 0 0 1px var(--green-dark),0 0 20px #00ff8800} 50%{box-shadow:0 0 0 1px var(--green),0 0 40px #00ff8844} }
 
 /* ── B3 — Plasma blob drifts ── */

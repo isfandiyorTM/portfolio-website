@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useReveal } from "../hooks/useReveal";
 import { useScrollTypewriter } from "../hooks/useScrollTypewriter";
 import { SOCIAL_LINKS } from "../constants/data";
@@ -46,7 +46,16 @@ export default function Contact() {
   const { ref: h2Ref,   displayed: h2Txt,   done: h2Done }    = useScrollTypewriter(h1Done ? c.heading2 : "", 28);
 
   const [form, setForm]     = useState({ name:"", email:"", message:"" });
-  const [status, setStatus] = useState("idle");
+  const [toast, setToast]   = useState(null); // { msg, type: "success"|"error" }
+  const toastTimer          = useRef(null);
+
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  const showToast = (msg, type = "success") => {
+    setToast({ msg, type });
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 4000);
+  };
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -56,7 +65,7 @@ export default function Contact() {
     const subject = encodeURIComponent(`Portfolio Contact: ${form.name}`);
     const body    = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`);
     window.open(`mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`);
-    setStatus("success");
+    showToast(c.success, "success");
     setForm({ name:"", email:"", message:"" });
   };
 
@@ -65,7 +74,24 @@ export default function Contact() {
       <style>{`
         .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; }
         @media(max-width:768px){ .contact-section{ padding:60px 20px !important; } .contact-grid{ grid-template-columns:1fr !important; gap:32px !important; } }
+        @keyframes toastIn  { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes toastOut { from{opacity:1;transform:translateY(0)}    to{opacity:0;transform:translateY(-8px)} }
+        .contact-toast {
+          position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
+          padding:14px 28px; font-family:var(--font-mono); font-size:12px; letter-spacing:2px;
+          border:1px solid; z-index:99998; white-space:nowrap;
+          animation: toastIn 0.35s ease both;
+          backdrop-filter: blur(8px);
+        }
+        .contact-toast.success { color:#00ff88; border-color:#00ff88; background:rgba(0,255,136,0.08); }
+        .contact-toast.error   { color:#ff4466; border-color:#ff4466; background:rgba(255,68,102,0.08); }
       `}</style>
+
+      {toast && (
+        <div key={toast.msg + Date.now()} className={`contact-toast ${toast.type}`}>
+          {toast.type === "success" ? "✓ " : "✕ "}{toast.msg}
+        </div>
+      )}
 
       <section id="contact" className="grid-bg contact-section" style={{ padding:"120px 40px", width:"100%" }}>
         <div style={{ maxWidth:"1100px", margin:"0 auto" }}>
@@ -137,11 +163,6 @@ export default function Contact() {
                 <button type="submit" className="btn btn-primary" style={{ justifyContent:"center" }}>
                   {c.send}
                 </button>
-                {status === "success" && (
-                  <p style={{ color:"var(--green)", fontFamily:"var(--font-mono)", fontSize:"13px", letterSpacing:"2px" }}>
-                    {c.success}
-                  </p>
-                )}
               </form>
             </div>
           </div>

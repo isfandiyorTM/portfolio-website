@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 
-export default function PlasmaBlobs() {
+const PlasmaBlobs = memo(function PlasmaBlobs() {
   const wrapRef = useRef(null);
   const b1Ref   = useRef(null);
   const b2Ref   = useRef(null);
@@ -103,4 +103,6 @@ export default function PlasmaBlobs() {
       <div ref={b3Ref} style={{ ...base, left: "50%", top: "50%", width: "min(500px,90vw)",  height: "min(500px,90vw)",  background: "radial-gradient(circle, rgba(0,255,136,0.10) 0%, transparent 70%)", animation: "plasma-drift-c 7s ease-in-out infinite" }} />
     </div>
   );
-}
+});
+
+export default PlasmaBlobs;

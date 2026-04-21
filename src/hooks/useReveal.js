@@ -1,30 +1,25 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 export function useReveal(threshold = 0.1) {
   const ref = useRef(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    // Small timeout ensures DOM is fully ready before observing
-    const timer = setTimeout(() => {
-      const isMobile = window.innerWidth < 768;
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            el.classList.add("visible");
-            observer.unobserve(el);
-          }
-        },
-        { threshold, rootMargin: isMobile ? "0px 0px -10px 0px" : "0px 0px -50px 0px" }
-      );
-      observer.observe(el);
+    const isMobile = window.innerWidth < 768;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("visible");
+          observer.unobserve(el);
+        }
+      },
+      { threshold, rootMargin: isMobile ? "0px 0px -10px 0px" : "0px 0px -50px 0px" }
+    );
+    observer.observe(el);
 
-      return () => observer.disconnect();
-    }, 100);
-
-    return () => clearTimeout(timer);
+    return () => observer.disconnect();
   }, [threshold]);
 
   return ref;

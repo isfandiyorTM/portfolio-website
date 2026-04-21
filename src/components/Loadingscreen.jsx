@@ -4,11 +4,33 @@ export default function LoadingScreen({ onDone }) {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      setFadeOut(true);
-      setTimeout(onDone, 800);
-    }, 2800);
-    return () => clearTimeout(t);
+    const MIN_MS = 1400;
+    const start  = Date.now();
+    let fired    = false;
+
+    const finish = () => {
+      if (fired) return;
+      fired = true;
+      const remaining = Math.max(0, MIN_MS - (Date.now() - start));
+      setTimeout(() => {
+        setFadeOut(true);
+        setTimeout(onDone, 800);
+      }, remaining);
+    };
+
+    if (document.readyState === "complete") {
+      finish();
+    } else {
+      window.addEventListener("load", finish, { once: true });
+    }
+
+    // Hard cap: never show more than 4s regardless of load state
+    const cap = setTimeout(finish, 4000);
+
+    return () => {
+      window.removeEventListener("load", finish);
+      clearTimeout(cap);
+    };
   }, []);
 
   return (
@@ -96,7 +118,7 @@ export default function LoadingScreen({ onDone }) {
         <div style={{
           height: "100%",
           background: "linear-gradient(to right, transparent, #00ff88, transparent)",
-          animation: "lineFill 2.4s ease forwards",
+          animation: "lineFill 1.4s ease forwards",
         }} />
       </div>
 

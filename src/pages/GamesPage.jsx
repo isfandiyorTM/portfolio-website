@@ -1,13 +1,14 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useLang } from "../i18n/LanguageContext";
-import Snake           from "../games/Snake";
-import TypeRacer       from "../games/TypeRacer";
-import Quiz            from "../games/Quiz";
-import WhackABug       from "../games/WhackABug";
-import MemoryCard      from "../games/MemoryCard";
-import DebugChallenge  from "../games/DebugChallenge";
-import ReactionTest    from "../games/ReactionTest";
-import FlappyWidget    from "../games/FlappyWidget";
+
+const Snake          = lazy(() => import("../games/Snake"));
+const TypeRacer      = lazy(() => import("../games/TypeRacer"));
+const Quiz           = lazy(() => import("../games/Quiz"));
+const WhackABug      = lazy(() => import("../games/WhackABug"));
+const MemoryCard     = lazy(() => import("../games/MemoryCard"));
+const DebugChallenge = lazy(() => import("../games/DebugChallenge"));
+const ReactionTest   = lazy(() => import("../games/ReactionTest"));
+const FlappyWidget   = lazy(() => import("../games/FlappyWidget"));
 
 const GAME_COMPONENTS = {
   memory: MemoryCard, snake: Snake, typeracer: TypeRacer, quiz: Quiz,
@@ -359,7 +360,13 @@ export default function GamesPage({ onBack }) {
                 <div style={{ marginLeft:"auto", fontSize:32 }}>{current.icon}</div>
               </div>
 
-              <GameComp key={active} />
+              <Suspense fallback={
+                <div style={{ padding:"60px", textAlign:"center", fontFamily:"var(--font-mono)", fontSize:12, letterSpacing:3, color:"var(--text-muted)" }}>
+                  LOADING...
+                </div>
+              }>
+                <GameComp key={active} />
+              </Suspense>
 
               {/* Game switcher strip */}
               <div style={{ marginTop:40, paddingTop:24, borderTop:"1px solid var(--border)" }}>

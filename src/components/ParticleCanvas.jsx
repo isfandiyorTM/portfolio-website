@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { useTheme } from "../context/ThemeContext";
 
 /* ── 3D Particle Field ─────────────────────────────────────────────────
@@ -28,7 +28,7 @@ function randomSphere(r) {
   };
 }
 
-export default function ParticleCanvas({ style }) {
+const ParticleCanvas = memo(function ParticleCanvas({ style }) {
   const canvasRef = useRef(null);
   const mouse     = useRef({ x: 0, y: 0 });
   const camera    = useRef({ rotX: 0, rotY: 0 });
@@ -180,4 +180,6 @@ export default function ParticleCanvas({ style }) {
       }}
     />
   );
-}
+});
+
+export default ParticleCanvas;

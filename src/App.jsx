@@ -77,7 +77,7 @@ function Portfolio({ onGamesClick }) {
 function PageTransition({ children }) {
   const location = useLocation();
   return (
-    <div key={location.pathname} style={{ animation: "pageFade 0.35s ease both" }}>
+    <div key={location.pathname} style={{ animation: "pageFade 0.45s ease both" }}>
       {children}
     </div>
   );
