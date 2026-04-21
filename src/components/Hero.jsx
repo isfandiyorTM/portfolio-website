@@ -251,7 +251,7 @@ export default function Hero() {
       style={{ minHeight:"100vh", position:"relative", overflow:"hidden", display:"flex", alignItems:"center", padding:"100px 40px 60px", width:"100%" }}
     >
       {/* B1 — Matrix Rain */}
-      <div style={{ position:"absolute", inset:0, zIndex:0, opacity:0.18, pointerEvents:"none", filter:"blur(1.2px)" }}>
+      <div style={{ position:"absolute", inset:0, zIndex:0, opacity:0.07, pointerEvents:"none", filter:"blur(0.8px)" }}>
         <MatrixRain style={{ width:"100%", height:"100%" }} />
       </div>
 

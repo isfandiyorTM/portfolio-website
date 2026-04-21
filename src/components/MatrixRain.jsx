@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useTheme } from "../context/ThemeContext";
 
 const CHARS = "01><[]{}#$%∑∆∏∫アイウエオカキクケコ?!";
-const FS = 13;
+const FS = 9;
 
 export default function MatrixRain({ style }) {
   const ref = useRef(null);
