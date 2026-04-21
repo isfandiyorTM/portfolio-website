@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 const RESUME = {
   name:    "ISFANDIYOR MADAMINOV",
   title:   "Flutter Mobile Developer & IT Mentor",
@@ -96,13 +94,6 @@ const RESUME = {
 };
 
 export default function ResumePage() {
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("print") === "1") {
-      const t = setTimeout(() => window.print(), 900);
-      return () => clearTimeout(t);
-    }
-  }, []);
-
   return (
     <>
       <style>{`

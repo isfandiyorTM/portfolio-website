@@ -284,7 +284,7 @@ function ModalInner({ onClose }) {
               .modal-dl-arrow { display:inline-block; animation:modal-dl-bounce 1.1s ease-in-out infinite; margin-right:3px; }
             `}</style>
             <a
-              href="/resume?print=1"
+              href="/resume"
               target="_blank"
               rel="noopener noreferrer"
               style={{ textDecoration: "none" }}
