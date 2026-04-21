@@ -83,6 +83,46 @@ export default function About() {
         <div className="stats-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"20px" }}>
           {ab.stats.map((s,i) => <StatCard key={s.label} value={s.value} label={s.label} index={i} link={s.link} />)}
         </div>
+
+        {/* ── Experience Timeline ── */}
+        <RevealBlock delay={0}>
+          <p className="section-label" style={{ marginTop:"80px", marginBottom:"40px" }}>
+            {ab.experience_label}
+          </p>
+        </RevealBlock>
+        <div style={{ position:"relative", paddingLeft:"28px" }}>
+          {/* Vertical line */}
+          <div style={{ position:"absolute", left:"6px", top:"8px", bottom:"8px", width:"1px", background:"linear-gradient(to bottom, var(--green) 0%, var(--green-dark) 100%)" }} />
+
+          {ab.experience?.map((item, i) => (
+            <RevealBlock key={i} delay={i * 80}>
+              <div style={{ position:"relative", marginBottom: i < ab.experience.length - 1 ? "40px" : 0 }}>
+                {/* Diamond dot */}
+                <div style={{ position:"absolute", left:"-25px", top:"5px", width:"10px", height:"10px", background:"var(--green)", transform:"rotate(45deg)", boxShadow:"0 0 8px rgba(0,255,136,0.5)" }} />
+
+                <div style={{ fontFamily:"var(--font-mono)", fontSize:"9px", letterSpacing:"3px", color:"var(--green)", marginBottom:"5px" }}>
+                  {item.period}
+                </div>
+                <div style={{ fontFamily:"var(--font-display)", fontSize:"15px", fontWeight:700, color:"var(--text)", marginBottom:"2px" }}>
+                  {item.role}
+                </div>
+                <div style={{ fontFamily:"var(--font-mono)", fontSize:"11px", color:"var(--green-dim)", marginBottom:"10px" }}>
+                  {item.place}
+                </div>
+                <p style={{ color:"var(--text-muted)", fontSize:"13px", lineHeight:1.8, marginBottom:"12px" }}>
+                  {item.desc}
+                </p>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:"6px" }}>
+                  {item.tags.map(tag => (
+                    <span key={tag} style={{ fontFamily:"var(--font-mono)", fontSize:"9px", letterSpacing:"1px", padding:"3px 9px", border:"1px solid var(--border)", color:"var(--text-muted)", background:"var(--bg-card)" }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </RevealBlock>
+          ))}
+        </div>
       </div>
     </section>
   );
