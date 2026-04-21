@@ -170,6 +170,89 @@ const calcWpm = (correctChars, startMs) => {
   return Math.round(correctChars / 5 / mins);
 };
 
+const wpmRating = (wpm) => {
+  if (wpm >= 90) return { label: "S", color: "#00ff88" };
+  if (wpm >= 70) return { label: "A", color: "#4ade80" };
+  if (wpm >= 50) return { label: "B", color: "#ffcc44" };
+  if (wpm >= 30) return { label: "C", color: "#fb923c" };
+  return { label: "D", color: "#ff3c3c" };
+};
+
+/* ── Visual Keyboard ──────────────────────────────────────────────────── */
+const KB_ROWS = [
+  ["1","2","3","4","5","6","7","8","9","0","-","="],
+  ["q","w","e","r","t","y","u","i","o","p","[","]"],
+  ["a","s","d","f","g","h","j","k","l",";","'"],
+  ["z","x","c","v","b","n","m",",",".","/"],
+  [" "],
+];
+
+function KeyboardViz({ nextKey, pressedKey, pressedCorrect }) {
+  return (
+    <div style={{
+      padding: "14px 10px 10px",
+      background: "var(--bg-card)",
+      border: "1px solid var(--border)",
+      marginTop: 14,
+      userSelect: "none",
+    }}>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: 3, color: "var(--text-muted)", textAlign: "center", marginBottom: 10 }}>
+        KEYBOARD
+      </div>
+      {KB_ROWS.map((row, ri) => (
+        <div key={ri} style={{ display: "flex", gap: 3, justifyContent: "center", marginBottom: 3 }}>
+          {row.map(key => {
+            const isSpace   = key === " ";
+            const isNext    = nextKey === key;
+            const isPressed = pressedKey === key;
+            const correct   = isPressed && pressedCorrect;
+            const wrong     = isPressed && !pressedCorrect;
+
+            return (
+              <div
+                key={key}
+                style={{
+                  width:    isSpace ? "min(220px, 55vw)" : "clamp(20px, 4vw, 28px)",
+                  height:   "clamp(22px, 3.5vw, 28px)",
+                  display:  "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: isSpace ? 8 : "clamp(8px, 1.8vw, 10px)",
+                  letterSpacing: isSpace ? 3 : 0,
+                  border: "1px solid",
+                  borderColor: correct ? "var(--green)"
+                              : wrong  ? "#ff3c3c"
+                              : isNext ? "rgba(0,255,136,0.55)"
+                              : "var(--border)",
+                  background: correct ? "rgba(0,255,136,0.18)"
+                             : wrong  ? "rgba(255,60,60,0.18)"
+                             : isNext ? "rgba(0,255,136,0.06)"
+                             : "var(--bg)",
+                  color: correct ? "var(--green)"
+                       : wrong   ? "#ff3c3c"
+                       : isNext  ? "var(--green)"
+                       : "var(--text-muted)",
+                  boxShadow: correct ? "0 0 10px rgba(0,255,136,0.35)"
+                           : wrong   ? "0 0 10px rgba(255,60,60,0.35)"
+                           : isNext  ? "0 0 6px rgba(0,255,136,0.18)"
+                           : "none",
+                  transition: "background 0.1s, border-color 0.1s, box-shadow 0.1s, color 0.1s",
+                  borderRadius: 2,
+                  flexShrink: 0,
+                }}
+              >
+                {isSpace ? "SPACE" : key.toUpperCase()}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── Main component ───────────────────────────────────────────────────── */
 export default function TypeRacer() {
   const { t, lang } = useLang();
   const g = t.games;
@@ -188,16 +271,20 @@ export default function TypeRacer() {
     { key: "marathon", lines: 9, label: g.tr_len_marathon ?? "Marathon", hint: "~9 lines" },
   ];
 
-  const [mode,    setMode]   = useState("easy");
-  const [lenKey,  setLenKey] = useState("short");
-  const [text,    setText]   = useState(() => pickMulti("easy", "en", 1));
-  const [typed,   setTyped]  = useState("");
-  const [phase,   setPhase]  = useState("idle");
-  const [wpm,     setWpm]    = useState(0);
-  const [acc,     setAcc]    = useState(100);
+  const [mode,    setMode]    = useState("easy");
+  const [lenKey,  setLenKey]  = useState("short");
+  const [text,    setText]    = useState(() => pickMulti("easy", "en", 1));
+  const [typed,   setTyped]   = useState("");
+  const [phase,   setPhase]   = useState("idle");
+  const [wpm,     setWpm]     = useState(0);
+  const [acc,     setAcc]     = useState(100);
   const [elapsed, setElapsed] = useState(0);
-  const [best,    setBest]   = useState(() => { try { return parseInt(localStorage.getItem("typeracerBest") || "0") || 0; } catch { return 0; } });
+  const [best,    setBest]    = useState(() => { try { return parseInt(localStorage.getItem("typeracerBest") || "0") || 0; } catch { return 0; } });
   const [newBest, setNewBest] = useState(false);
+
+  // keyboard state
+  const [pressedKey,     setPressedKey]     = useState(null);
+  const [pressedCorrect, setPressedCorrect] = useState(true);
 
   const inputRef    = useRef(null);
   const startRef    = useRef(null);
@@ -205,6 +292,12 @@ export default function TypeRacer() {
   const errorsRef   = useRef(new Set());
   const keyRef      = useRef({ total: 0, correct: 0 });
   const typedRef    = useRef("");
+  const textRef     = useRef(text);
+  const phaseRef    = useRef("idle");
+  const pressTimer  = useRef(null);
+
+  textRef.current  = text;
+  phaseRef.current = phase;
 
   const clearTimer = () => { if (intervalRef.current) clearInterval(intervalRef.current); };
 
@@ -220,7 +313,27 @@ export default function TypeRacer() {
     }, 200);
   };
 
-  useEffect(() => () => clearTimer(), []);
+  useEffect(() => () => { clearTimer(); clearTimeout(pressTimer.current); }, []);
+
+  // track physical key presses for keyboard visualization
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (phaseRef.current === "done") return;
+      const raw = e.key;
+      const key = raw === " " ? " " : raw.length === 1 ? raw.toLowerCase() : null;
+      if (!key) return;
+
+      const nextChar = textRef.current[typedRef.current.length];
+      const isCorrect = nextChar !== undefined && (key === nextChar || key === nextChar.toLowerCase());
+
+      setPressedKey(key);
+      setPressedCorrect(isCorrect);
+      clearTimeout(pressTimer.current);
+      pressTimer.current = setTimeout(() => setPressedKey(null), 240);
+    };
+    window.addEventListener("keydown", onKeyDown, { passive: true });
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   const getLinesForKey = (key) => LEN_META.find(l => l.key === key)?.lines ?? 1;
 
@@ -235,12 +348,15 @@ export default function TypeRacer() {
     setAcc(100);
     setElapsed(0);
     setNewBest(false);
+    setPressedKey(null);
     const m  = newMode   ?? mode;
     const lk = newLenKey ?? lenKey;
     const tx = newText   ?? pickMulti(m, lang, getLinesForKey(lk));
     setMode(m);
     setLenKey(lk);
     setText(tx);
+    textRef.current  = tx;
+    phaseRef.current = "idle";
     setTimeout(() => inputRef.current?.focus(), 50);
   }, [mode, lenKey, lang]);
 
@@ -251,6 +367,7 @@ export default function TypeRacer() {
     if (phase === "idle" && val.length > 0) {
       startRef.current = Date.now();
       setPhase("typing");
+      phaseRef.current = "typing";
       startTimer(text);
     }
 
@@ -276,6 +393,7 @@ export default function TypeRacer() {
       setAcc(finalAcc);
       setElapsed(finalSecs);
       setPhase("done");
+      phaseRef.current = "done";
       if (finalWpm > best) {
         setBest(finalWpm);
         setNewBest(true);
@@ -288,69 +406,83 @@ export default function TypeRacer() {
   const handleLenChange  = (lk) => reset(mode, lk, null);
 
   const progress = text.length > 0 ? (typed.length / text.length) * 100 : 0;
-  const currentLen = LEN_META.find(l => l.key === lenKey);
+  const nextChar = phase !== "done" && text.length > 0 ? text[typed.length] : null;
+  const nextKey  = nextChar === " " ? " " : nextChar?.toLowerCase() ?? null;
+  const rating   = wpmRating(wpm);
 
   return (
     <div style={{ userSelect: "none" }}>
       <style>{`
         .tr-mode { font-family:var(--font-mono); font-size:10px; letter-spacing:2px; padding:7px 12px; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; transition:all 0.2s; text-transform:uppercase; white-space:nowrap; }
-        .tr-mode.active { border-color:var(--green); background:rgba(0,255,136,0.08); color:var(--green); }
+        .tr-mode.active { border-color:var(--green); background:rgba(0,255,136,0.08); color:var(--green); box-shadow:0 0 12px rgba(0,255,136,0.12); }
         .tr-mode:hover:not(.active) { border-color:var(--green-dim); color:var(--text); }
         .tr-len { font-family:var(--font-mono); font-size:9px; letter-spacing:2px; padding:5px 10px; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; transition:all 0.2s; text-transform:uppercase; }
-        .tr-len.active { border-color:#7c3aed; background:rgba(124,58,237,0.1); color:#a78bfa; }
+        .tr-len.active { border-color:#7c3aed; background:rgba(124,58,237,0.1); color:#a78bfa; box-shadow:0 0 8px rgba(124,58,237,0.15); }
         .tr-len:hover:not(.active) { border-color:var(--green-dim); color:var(--text); }
         .tr-char { font-family:var(--font-mono); font-size:17px; line-height:2; }
         .tr-char.correct  { color:var(--green); }
         .tr-char.wrong    { color:#ff3c3c; background:rgba(255,60,60,0.15); border-radius:2px; }
         .tr-char.cursor   { outline:1px solid var(--green); background:rgba(0,255,136,0.12); animation:blink 1s step-end infinite; }
         .tr-char.pending  { color:var(--text-muted); opacity:0.45; }
+        .tr-stat-card { border:1px solid var(--border); background:var(--bg); padding:10px 6px; text-align:center; transition:border-color 0.3s; }
         @media(max-width:600px){ .tr-char { font-size:14px !important; } }
-        @keyframes tr-nb { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+        @keyframes tr-nb { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
         .tr-nb { animation:tr-nb 0.5s ease; color:#ffcc44 !important; }
+        @keyframes tr-done-in { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        .tr-done { animation:tr-done-in 0.35s ease both; }
+        @keyframes tr-rating { 0%{transform:scale(0.5);opacity:0} 60%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+        .tr-rating-badge { animation:tr-rating 0.4s 0.1s ease both; }
       `}</style>
 
       {/* Mode selector */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
         {Object.entries(MODE_META).map(([m, meta]) => (
           <button key={m} className={`tr-mode ${mode === m ? "active" : ""}`} onClick={() => handleModeChange(m)}>
-            {meta.icon} {meta.label}<span style={{ opacity: 0.45, fontSize: 9, marginLeft: 4 }}>— {meta.hint}</span>
+            {meta.icon} {meta.label}
+            <span style={{ opacity: 0.4, fontSize: 9, marginLeft: 5 }}>— {meta.hint}</span>
           </button>
         ))}
       </div>
 
-      {/* Length selector — hidden for quotes mode (always 1 quote) */}
+      {/* Length selector */}
       {mode !== "quotes" && (
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14, alignItems: "center" }}>
           <span style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:2, color:"var(--text-muted)", marginRight:4 }}>
             {g.tr_len_label ?? "LENGTH"}:
           </span>
           {LEN_META.map(l => (
             <button key={l.key} className={`tr-len ${lenKey === l.key ? "active" : ""}`} onClick={() => handleLenChange(l.key)}>
-              {l.label} <span style={{ opacity:0.45 }}>{l.hint}</span>
+              {l.label} <span style={{ opacity:0.4 }}>{l.hint}</span>
             </button>
           ))}
         </div>
       )}
-      {mode === "quotes" && <div style={{ marginBottom: 16 }} />}
+      {mode === "quotes" && <div style={{ marginBottom: 14 }} />}
 
       {/* Stats bar */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginBottom: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6, marginBottom: 12 }}>
         {[
-          { label: g.wpm,    value: phase === "idle" ? "—" : wpm,                      color: "var(--green)" },
-          { label: g.acc,    value: phase === "idle" ? "—" : acc + "%",                color: acc >= 95 ? "var(--green)" : acc >= 80 ? "#ffcc44" : "#ff3c3c" },
-          { label: g.errors, value: phase === "idle" ? "—" : errorsRef.current.size,   color: errorsRef.current.size === 0 ? "var(--green)" : "#ff6060" },
-          { label: g.time,   value: phase === "idle" ? "—" : elapsed + "s",            color: "var(--text-muted)" },
+          { label: g.wpm,    value: phase === "idle" ? "—" : wpm,                    color: phase === "typing" ? "var(--green)" : "var(--text)" },
+          { label: g.acc,    value: phase === "idle" ? "—" : acc + "%",              color: acc >= 95 ? "var(--green)" : acc >= 80 ? "#ffcc44" : "#ff3c3c" },
+          { label: g.errors, value: phase === "idle" ? "—" : errorsRef.current.size, color: errorsRef.current.size === 0 ? "var(--green)" : "#ff6060" },
+          { label: g.time,   value: phase === "idle" ? "—" : elapsed + "s",          color: "var(--text-muted)" },
         ].map(s => (
-          <div key={s.label} style={{ border: "1px solid var(--border)", background: "var(--bg)", padding: "10px 8px", textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: 2, color: "var(--text-muted)", marginTop: 4 }}>{s.label}</div>
+          <div key={s.label} className="tr-stat-card">
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: 2, color: "var(--text-muted)", marginTop: 5 }}>{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: 2, background: "var(--border)", marginBottom: 14 }}>
-        <div style={{ height: "100%", width: progress + "%", background: "var(--green)", transition: "width 0.1s", boxShadow: "0 0 5px var(--green)" }} />
+      <div style={{ height: 2, background: "var(--border)", marginBottom: 12, position: "relative" }}>
+        <div style={{
+          height: "100%",
+          width: progress + "%",
+          background: progress === 100 ? "var(--green)" : "var(--green)",
+          transition: "width 0.1s linear",
+          boxShadow: "0 0 6px var(--green)",
+        }} />
       </div>
 
       {phase !== "done" ? (
@@ -360,15 +492,18 @@ export default function TypeRacer() {
             onClick={() => inputRef.current?.focus()}
             style={{
               background: "var(--bg)",
-              border: "1px solid var(--green-dark)",
-              padding: mode === "quotes" ? "32px 32px" : "20px 22px",
-              marginBottom: 14,
+              border: "1px solid",
+              borderColor: phase === "typing" ? "rgba(0,255,136,0.3)" : "var(--green-dark)",
+              borderLeft: `3px solid ${phase === "typing" ? "var(--green)" : "var(--green-dark)"}`,
+              padding: mode === "quotes" ? "28px 28px" : "18px 20px",
+              marginBottom: 0,
               cursor: "text",
               lineHeight: mode === "quotes" ? 2.4 : 2,
               wordBreak: "break-word",
-              maxHeight: "260px",
+              maxHeight: "240px",
               overflowY: "auto",
               textAlign: mode === "quotes" ? "center" : "left",
+              transition: "border-color 0.3s",
             }}
           >
             {[...text].map((ch, i) => {
@@ -381,7 +516,7 @@ export default function TypeRacer() {
                 <span
                   key={i}
                   className={cls}
-                  style={inAuthor && i >= typed.length ? { opacity: 0.55, fontStyle: "italic" } : undefined}
+                  style={inAuthor && i >= typed.length ? { opacity: 0.5, fontStyle: "italic" } : undefined}
                 >
                   {ch === " " ? " " : ch}
                 </span>
@@ -403,40 +538,82 @@ export default function TypeRacer() {
             autoFocus
           />
 
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-muted)", letterSpacing: 2, textAlign: "center", marginBottom: 14 }}>
-            {phase === "idle" ? g.tr_start_hint : `${text.length - typed.length} ${g.tr_remaining}`}
-          </div>
+          {/* Keyboard */}
+          <KeyboardViz nextKey={nextKey} pressedKey={pressedKey} pressedCorrect={pressedCorrect} />
 
-          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
-            <button className="btn btn-secondary" style={{ fontSize: 11, padding: "8px 14px", letterSpacing: 2 }} onClick={() => reset(mode, lenKey, pickMulti(mode, lang, getLinesForKey(lenKey)))}>{g.tr_new_text}</button>
-            {phase === "typing" && (
-              <button className="btn btn-secondary" style={{ fontSize: 11, padding: "8px 14px", letterSpacing: 2 }} onClick={() => reset(mode, lenKey, text)}>{g.tr_retry}</button>
-            )}
+          {/* Bottom bar */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-muted)", letterSpacing: 2 }}>
+              {phase === "idle"
+                ? g.tr_start_hint
+                : `${text.length - typed.length} ${g.tr_remaining}`}
+            </div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button className="btn btn-secondary" style={{ fontSize: 11, padding: "7px 14px", letterSpacing: 2 }}
+                onClick={() => reset(mode, lenKey, pickMulti(mode, lang, getLinesForKey(lenKey)))}>
+                {g.tr_new_text}
+              </button>
+              {phase === "typing" && (
+                <button className="btn btn-secondary" style={{ fontSize: 11, padding: "7px 14px", letterSpacing: 2 }}
+                  onClick={() => reset(mode, lenKey, text)}>
+                  {g.tr_retry}
+                </button>
+              )}
+            </div>
           </div>
         </>
       ) : (
-        <div style={{ border: "1px solid var(--green)", background: "rgba(0,255,136,0.04)", padding: "28px 24px", textAlign: "center" }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: 4, color: "var(--green)", marginBottom: 16 }}>// RESULTS</div>
+        /* Results screen */
+        <div className="tr-done" style={{ border: "1px solid var(--green)", background: "rgba(0,255,136,0.03)", padding: "32px 24px", textAlign: "center" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: 4, color: "var(--green)", marginBottom: 20 }}>// RESULTS</div>
 
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 56, fontWeight: 900, color: "var(--green)", lineHeight: 1 }}>{wpm}</span>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 16, color: "var(--text-muted)" }}>WPM</span>
+          {/* WPM + rating */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, marginBottom: 6 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: 64, fontWeight: 900, color: "var(--green)", lineHeight: 1 }}>{wpm}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--text-muted)" }}>WPM</span>
+              </div>
+              {newBest && (
+                <div className="tr-nb" style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: 3, marginTop: 4 }}>{g.tr_new_best}</div>
+              )}
+            </div>
+            <div
+              className="tr-rating-badge"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: 40,
+                fontWeight: 900,
+                color: rating.color,
+                border: `2px solid ${rating.color}`,
+                width: 64,
+                height: 64,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: `0 0 20px ${rating.color}44`,
+              }}
+            >
+              {rating.label}
+            </div>
           </div>
 
-          {newBest && (
-            <div className="tr-nb" style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: 3, marginBottom: 14 }}>{g.tr_new_best}</div>
-          )}
-
-          <div style={{ display: "flex", justifyContent: "center", gap: 24, flexWrap: "wrap", marginBottom: 24, marginTop: 8 }}>
+          {/* Detail stats */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 0, flexWrap: "wrap", margin: "20px 0 24px", border: "1px solid var(--border)" }}>
             {[
-              { label: g.acc,    value: acc + "%" },
-              { label: g.errors, value: errorsRef.current.size },
-              { label: g.time,   value: elapsed + "s" },
-              { label: g.best,   value: best + " " + g.wpm },
-            ].map(s => (
-              <div key={s.label} style={{ fontFamily: "var(--font-mono)", textAlign: "center" }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: "var(--text)" }}>{s.value}</div>
-                <div style={{ fontSize: 9, letterSpacing: 2, color: "var(--text-muted)", marginTop: 2 }}>{s.label}</div>
+              { label: g.acc,    value: acc + "%",         color: acc >= 95 ? "var(--green)" : acc >= 80 ? "#ffcc44" : "#ff3c3c" },
+              { label: g.errors, value: errorsRef.current.size, color: errorsRef.current.size === 0 ? "var(--green)" : "#ff6060" },
+              { label: g.time,   value: elapsed + "s",     color: "var(--text)" },
+              { label: g.best,   value: best + " wpm",     color: "var(--green-dim)" },
+            ].map((s, i) => (
+              <div key={s.label} style={{
+                fontFamily: "var(--font-mono)", textAlign: "center",
+                flex: "1 1 80px",
+                padding: "14px 8px",
+                borderRight: i < 3 ? "1px solid var(--border)" : "none",
+              }}>
+                <div style={{ fontSize: 22, fontWeight: 700, color: s.color }}>{s.value}</div>
+                <div style={{ fontSize: 8, letterSpacing: 2, color: "var(--text-muted)", marginTop: 4 }}>{s.label}</div>
               </div>
             ))}
           </div>
