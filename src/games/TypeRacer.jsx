@@ -160,7 +160,7 @@ const CODE_CONTENT = [
 const pickMulti = (mode, lang, lines) => {
   const bank = mode === "code" ? CODE_CONTENT : (CONTENT[lang]?.[mode] ?? CONTENT.en[mode]);
   const shuffled = [...bank].sort(() => Math.random() - 0.5);
-  const count = Math.min(lines, shuffled.length);
+  const count = mode === "quotes" ? 1 : Math.min(lines, shuffled.length);
   return shuffled.slice(0, count).join(" ");
 };
 
@@ -318,17 +318,20 @@ export default function TypeRacer() {
         ))}
       </div>
 
-      {/* Length selector */}
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16, alignItems: "center" }}>
-        <span style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:2, color:"var(--text-muted)", marginRight:4 }}>
-          {g.tr_len_label ?? "LENGTH"}:
-        </span>
-        {LEN_META.map(l => (
-          <button key={l.key} className={`tr-len ${lenKey === l.key ? "active" : ""}`} onClick={() => handleLenChange(l.key)}>
-            {l.label} <span style={{ opacity:0.45 }}>{l.hint}</span>
-          </button>
-        ))}
-      </div>
+      {/* Length selector — hidden for quotes mode (always 1 quote) */}
+      {mode !== "quotes" && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16, alignItems: "center" }}>
+          <span style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:2, color:"var(--text-muted)", marginRight:4 }}>
+            {g.tr_len_label ?? "LENGTH"}:
+          </span>
+          {LEN_META.map(l => (
+            <button key={l.key} className={`tr-len ${lenKey === l.key ? "active" : ""}`} onClick={() => handleLenChange(l.key)}>
+              {l.label} <span style={{ opacity:0.45 }}>{l.hint}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {mode === "quotes" && <div style={{ marginBottom: 16 }} />}
 
       {/* Stats bar */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginBottom: 14 }}>
@@ -358,22 +361,29 @@ export default function TypeRacer() {
             style={{
               background: "var(--bg)",
               border: "1px solid var(--green-dark)",
-              padding: "20px 22px",
+              padding: mode === "quotes" ? "32px 32px" : "20px 22px",
               marginBottom: 14,
               cursor: "text",
-              lineHeight: 2,
+              lineHeight: mode === "quotes" ? 2.4 : 2,
               wordBreak: "break-word",
               maxHeight: "260px",
               overflowY: "auto",
+              textAlign: mode === "quotes" ? "center" : "left",
             }}
           >
             {[...text].map((ch, i) => {
+              const authorStart = mode === "quotes" ? text.lastIndexOf(" - ") : -1;
+              const inAuthor    = authorStart !== -1 && i >= authorStart;
               let cls = "tr-char pending";
-              if (i < typed.length)    cls = typed[i] === ch ? "tr-char correct" : "tr-char wrong";
+              if (i < typed.length)       cls = typed[i] === ch ? "tr-char correct" : "tr-char wrong";
               else if (i === typed.length) cls = "tr-char pending cursor";
               return (
-                <span key={i} className={cls}>
-                  {ch === " " ? " " : ch}
+                <span
+                  key={i}
+                  className={cls}
+                  style={inAuthor && i >= typed.length ? { opacity: 0.55, fontStyle: "italic" } : undefined}
+                >
+                  {ch === " " ? " " : ch}
                 </span>
               );
             })}
