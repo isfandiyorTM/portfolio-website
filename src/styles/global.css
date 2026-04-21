@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body, #root { width: 100%; min-height: 100vh; }
+html, body, #root { width: 100%; min-height: 100vh; max-width: 100vw; overflow-x: hidden; }
 html { scroll-behavior: smooth; }
 
 /* ── Dark theme (default) ── */
