@@ -130,7 +130,21 @@ export default function Snake() {
   const tx = tail.x*CELL + CELL/2;
   const ty = tail.y*CELL + CELL/2;
 
-  const bodyPath = snake.map((s,i)=>`${i===0?'M':'L'}${s.x*CELL+CELL/2} ${s.y*CELL+CELL/2}`).join(' ');
+  // Split snake into chains that don't jump across the board.
+  // A wrap-around between two adjacent segments shows as |dx|>1 or |dy|>1.
+  const chains = [];
+  {
+    let cur = [snake[0]];
+    for (let i = 1; i < snake.length; i++) {
+      if (Math.abs(snake[i-1].x - snake[i].x) > 1 || Math.abs(snake[i-1].y - snake[i].y) > 1) {
+        chains.push(cur);
+        cur = [snake[i]];
+      } else {
+        cur.push(snake[i]);
+      }
+    }
+    chains.push(cur);
+  }
 
   const eye1  = { x: hx+dx*4+dy*4,  y: hy+dy*4-dx*4 };
   const eye2  = { x: hx+dx*4-dy*4,  y: hy+dy*4+dx*4 };
@@ -194,13 +208,24 @@ export default function Snake() {
 
           {/* Snake group — apply dying animation class here */}
           <g className={dying ? "snake-dying" : ""}>
-            {snake.length > 1 && (
-              <path d={bodyPath} fill="none"
-                stroke={dying ? "url(#snakeDyingGrad)" : "url(#snakeGrad)"}
-                strokeWidth={CELL-3}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+            {chains.map((chain, ci) =>
+              chain.length > 1 ? (
+                <path key={ci}
+                  d={chain.map((s,i)=>`${i===0?'M':'L'}${s.x*CELL+CELL/2} ${s.y*CELL+CELL/2}`).join(' ')}
+                  fill="none"
+                  stroke={dying ? "url(#snakeDyingGrad)" : "url(#snakeGrad)"}
+                  strokeWidth={CELL-3}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              ) : (
+                /* single isolated segment after a wrap — draw as circle */
+                <circle key={ci}
+                  cx={chain[0].x*CELL+CELL/2} cy={chain[0].y*CELL+CELL/2}
+                  r={(CELL-3)/2}
+                  fill={dying ? "#660011" : "#006633"}
+                />
+              )
             )}
 
             {/* Tongue */}
