@@ -257,21 +257,45 @@ function ModalInner({ onClose }) {
             </span>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
+            <style>{`
+              @keyframes modal-dl-glow {
+                0%,100% { box-shadow:0 0 4px rgba(0,255,136,0.4), 0 0 12px rgba(0,255,136,0.15); border-color:rgba(0,255,136,0.35); }
+                50%      { box-shadow:0 0 10px rgba(0,255,136,0.8), 0 0 28px rgba(0,255,136,0.4); border-color:rgba(0,255,136,0.8); }
+              }
+              @keyframes modal-dl-scan {
+                0%   { left:-80%; }
+                100% { left:220%; }
+              }
+              @keyframes modal-dl-bounce {
+                0%,100% { transform:translateY(0); }
+                50%     { transform:translateY(2px); }
+              }
+              .modal-dl-btn {
+                position:relative; overflow:hidden;
+                animation:modal-dl-glow 1.6s ease-in-out infinite;
+              }
+              .modal-dl-btn::before {
+                content:'';
+                position:absolute; top:0; left:-80%; width:45%; height:100%;
+                background:linear-gradient(90deg,transparent,rgba(0,255,136,0.18),transparent);
+                animation:modal-dl-scan 2.2s ease-in-out infinite;
+                pointer-events:none;
+              }
+              .modal-dl-arrow { display:inline-block; animation:modal-dl-bounce 1.1s ease-in-out infinite; margin-right:3px; }
+            `}</style>
             <a
-              href="/resume"
+              href="/resume?print=1"
               target="_blank"
               rel="noopener noreferrer"
               style={{ textDecoration: "none" }}
-              onMouseEnter={() => setHoverDl(true)}
-              onMouseLeave={() => setHoverDl(false)}
             >
-              <button style={{
+              <button className="modal-dl-btn" style={{
                 fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: 2,
-                padding: "5px 12px", border: "1px solid var(--green-dark)",
-                background: hoverDl ? "rgba(0,255,136,0.08)" : "transparent",
-                color: "var(--green)", cursor: "pointer", transition: "all 0.2s",
+                padding: "5px 14px", border: "1px solid var(--green-dark)",
+                background: "rgba(0,255,136,0.06)",
+                color: "var(--green)", cursor: "pointer",
               }}>
-                ↓ DOWNLOAD
+                <span className="modal-dl-arrow">↓</span> DOWNLOAD
               </button>
             </a>
             <button

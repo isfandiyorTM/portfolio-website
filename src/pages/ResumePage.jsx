@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 const RESUME = {
   name:    "ISFANDIYOR MADAMINOV",
   title:   "Flutter Mobile Developer & IT Mentor",
@@ -94,6 +96,13 @@ const RESUME = {
 };
 
 export default function ResumePage() {
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("print") === "1") {
+      const t = setTimeout(() => window.print(), 900);
+      return () => clearTimeout(t);
+    }
+  }, []);
+
   return (
     <>
       <style>{`
@@ -106,6 +115,33 @@ export default function ResumePage() {
         .tag { display:inline-block; font-size:8px; letter-spacing:1px; padding:2px 7px; border:1px solid #cce8d8; color:#555; border-radius:2px; margin:2px 3px 2px 0; }
         .bullet { font-size:11px; color:#444; margin:3px 0 3px 14px; line-height:1.7; }
         .bullet::before { content:"›"; color:#00994d; margin-right:6px; }
+
+        @keyframes pdf-glow {
+          0%,100% { box-shadow:0 0 6px rgba(0,153,77,0.5), 0 0 18px rgba(0,153,77,0.25); }
+          50%      { box-shadow:0 0 14px rgba(0,153,77,0.9), 0 0 36px rgba(0,153,77,0.55); }
+        }
+        @keyframes pdf-scan {
+          0%   { left:-80%; }
+          100% { left:220%; }
+        }
+        @keyframes dl-bounce {
+          0%,100% { transform:translateY(0); }
+          50%     { transform:translateY(3px); }
+        }
+        .pdf-btn {
+          position:relative; overflow:hidden;
+          animation:pdf-glow 1.6s ease-in-out infinite;
+        }
+        .pdf-btn::before {
+          content:'';
+          position:absolute; top:0; left:-80%; width:45%; height:100%;
+          background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);
+          animation:pdf-scan 2.2s ease-in-out infinite;
+          pointer-events:none;
+        }
+        .pdf-btn:hover { background:#007a3d !important; transform:translateY(-1px); transition:transform 0.15s,background 0.15s; }
+        .dl-arrow { display:inline-block; animation:dl-bounce 1.1s ease-in-out infinite; margin-right:4px; }
+
         @media print {
           body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
           .no-print { display:none !important; }
@@ -114,19 +150,25 @@ export default function ResumePage() {
       `}</style>
 
       {/* Print button — hidden on print */}
-      <div className="no-print" style={{ position:"fixed", top:16, right:16, display:"flex", gap:8, zIndex:10 }}>
-        <button
-          onClick={() => window.print()}
-          style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:2, padding:"8px 16px", border:"1px solid #00994d", background:"#00994d", color:"#fff", cursor:"pointer" }}
-        >
-          ↓ SAVE AS PDF
-        </button>
-        <button
-          onClick={() => window.close()}
-          style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, padding:"8px 12px", border:"1px solid #ccc", background:"#fff", cursor:"pointer" }}
-        >
-          ✕
-        </button>
+      <div className="no-print" style={{ position:"fixed", top:16, right:16, display:"flex", flexDirection:"column", alignItems:"flex-end", gap:6, zIndex:10 }}>
+        <div style={{ display:"flex", gap:8 }}>
+          <button
+            className="pdf-btn"
+            onClick={() => window.print()}
+            style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:2, padding:"9px 18px", border:"1px solid #00994d", background:"#00994d", color:"#fff", cursor:"pointer" }}
+          >
+            <span className="dl-arrow">↓</span> SAVE AS PDF
+          </button>
+          <button
+            onClick={() => window.close()}
+            style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, padding:"9px 12px", border:"1px solid #ccc", background:"#fff", cursor:"pointer" }}
+          >
+            ✕
+          </button>
+        </div>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, letterSpacing:1, color:"#aaa" }}>
+          choose <span style={{color:"#00994d"}}>Save&nbsp;as&nbsp;PDF</span> in the dialog
+        </div>
       </div>
 
       <div className="page">
