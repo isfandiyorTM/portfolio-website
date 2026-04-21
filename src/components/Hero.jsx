@@ -1,7 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTypewriter } from "../hooks/useTypewriter";
 import { useLang } from "../i18n/LanguageContext";
 import ParticleCanvas from "./ParticleCanvas";
+import MatrixRain from "./MatrixRain";
+import CodeFloat from "./CodeFloat";
+
 
 function GlitchText({ text }) {
   const [glitch, setGlitch] = useState(false);
@@ -162,14 +165,30 @@ export default function Hero() {
   const { displayed, done } = useTypewriter(t.hero.title, 800);
   const scrollTo = id => document.getElementById(id)?.scrollIntoView({ behavior:"smooth" });
 
-  const sectionRef = useRef(null);
-  const textRef    = useRef(null);
-  const dvdRef     = useRef(null);
-  const pos        = useRef(null);
-  const vel        = useRef({ dx: 1.5, dy: 1.1 });
-  const rafRef     = useRef(null);
-  const paused     = useRef(false);
+  const sectionRef   = useRef(null);
+  const textRef      = useRef(null);
+  const dvdRef       = useRef(null);
+  const pos          = useRef(null);
+  const vel          = useRef({ dx: 1.5, dy: 1.1 });
+  const rafRef       = useRef(null);
+  const paused       = useRef(false);
+  const mouseMoveRaf = useRef(null);
   const [glitch, setGlitch] = useState(false);
+
+  // B2 — grid parallax on mousemove
+  const handleMouseMove = useCallback((e) => {
+    if (mouseMoveRaf.current) return;
+    mouseMoveRaf.current = requestAnimationFrame(() => {
+      mouseMoveRaf.current = null;
+      if (!sectionRef.current) return;
+      const rect = sectionRef.current.getBoundingClientRect();
+      const nx = (e.clientX - rect.left) / rect.width;
+      const ny = (e.clientY - rect.top)  / rect.height;
+      const ox = (nx - 0.5) * 28;
+      const oy = (ny - 0.5) * 28;
+      sectionRef.current.style.backgroundPosition = `${ox}px ${oy}px, ${ox}px ${oy}px`;
+    });
+  }, []);
 
   useEffect(() => {
     const step = () => {
@@ -228,11 +247,22 @@ export default function Hero() {
       ref={sectionRef}
       id="home"
       className="grid-bg"
+      onMouseMove={handleMouseMove}
       style={{ minHeight:"100vh", position:"relative", overflow:"hidden", display:"flex", alignItems:"center", padding:"100px 40px 60px", width:"100%" }}
     >
+      {/* B1 — Matrix Rain */}
+      <div style={{ position:"absolute", inset:0, zIndex:0, opacity:0.18, pointerEvents:"none", filter:"blur(1.2px)" }}>
+        <MatrixRain style={{ width:"100%", height:"100%" }} />
+      </div>
+
       {/* Particle background */}
-      <div style={{ position:"absolute", inset:0, zIndex:0, opacity:0.18, pointerEvents:"none" }}>
+      <div style={{ position:"absolute", inset:0, zIndex:2, opacity:0.18, pointerEvents:"none" }}>
         <ParticleCanvas style={{ width:"100%", height:"100%" }} />
+      </div>
+
+      {/* B4 — Floating code typewriter (right side background) */}
+      <div style={{ position:"absolute", right:"3%", top:"12%", zIndex:3, opacity:0.32, pointerEvents:"none", maxWidth:260 }}>
+        <CodeFloat />
       </div>
       {/* Text — pointer events disabled on full-width wrapper so DVD button stays clickable */}
       <div style={{ maxWidth:"1100px", margin:"0 auto", width:"100%", position:"relative", zIndex:5, pointerEvents:"none" }}>

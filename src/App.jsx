@@ -13,6 +13,7 @@ import About from "./components/About";
 import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
+import PlasmaBlobs from "./components/PlasmaBlobs";
 
 import GamesPage from "./pages/GamesPage";
 import ChontakPage from "./pages/ChontakPage";
@@ -52,6 +53,8 @@ function Portfolio({ onGamesClick }) {
   return (
     <div style={{ width: "100%", minHeight: "100vh", background: "var(--bg)", overflowX: "hidden" }}>
       <Scanline />
+      {/* B3 — Plasma blobs visible only in About/Projects/Contact, fades on Hero and Footer */}
+      <PlasmaBlobs />
       <Navbar onGamesClick={onGamesClick} />
       <Hero />
       <Divider />

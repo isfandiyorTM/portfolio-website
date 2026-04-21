@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLang } from "../i18n/LanguageContext";
 import Snake           from "../games/Snake";
 import TypeRacer       from "../games/TypeRacer";
@@ -27,10 +27,72 @@ const GAME_META = {
 
 const GAME_IDS = ["memory","snake","typeracer","quiz","whack","debug","reaction","flappy"];
 
+// C3 — Static noise canvas that fades out on load
+function NoiseIntro() {
+  const canvasRef = useRef(null);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const W = 200, H = 120;
+    canvas.width = W;
+    canvas.height = H;
+
+    let frame = 0;
+    const TOTAL = 28;
+    let raf;
+
+    const draw = () => {
+      const alpha = Math.max(0, 1 - frame / TOTAL);
+      const img = ctx.createImageData(W, H);
+      for (let i = 0; i < img.data.length; i += 4) {
+        const v = Math.floor(Math.random() * 180);
+        img.data[i]   = Math.floor(v * 0.02);
+        img.data[i+1] = Math.floor(v * 0.75);
+        img.data[i+2] = Math.floor(v * 0.3);
+        img.data[i+3] = Math.floor(alpha * 210);
+      }
+      ctx.putImageData(img, 0, 0);
+      frame++;
+      if (frame <= TOTAL + 8) {
+        raf = requestAnimationFrame(draw);
+      } else {
+        setVisible(false);
+      }
+    };
+
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  if (!visible) return null;
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "fixed", inset: 0, width: "100%", height: "100%",
+        zIndex: 999, pointerEvents: "none", imageRendering: "pixelated",
+      }}
+    />
+  );
+}
+
 export default function GamesPage({ onBack }) {
   const [active, setActive] = useState(null);
   const { t } = useLang();
   const g = t.games;
+
+  // C2 — one-shot sweep on mount
+  const [sweepDone, setSweepDone] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setSweepDone(true), 1400);
+    return () => clearTimeout(id);
+  }, []);
+
+  // C5 — particle bursts state
+  const [bursts, setBursts] = useState([]);
 
   const games = GAME_IDS.map(id => ({
     id,
@@ -38,8 +100,28 @@ export default function GamesPage({ onBack }) {
     ...GAME_META[id],
   }));
 
-  const current   = games.find(x => x.id === active);
-  const GameComp  = active ? GAME_COMPONENTS[active] : null;
+  const current  = games.find(x => x.id === active);
+  const GameComp = active ? GAME_COMPONENTS[active] : null;
+
+  // C5 — spawn burst particles, then navigate
+  const handleCardClick = (gm, e) => {
+    const cx = e.clientX;
+    const cy = e.clientY;
+    const id = Date.now();
+    const particles = Array.from({ length: 18 }, (_, i) => {
+      const angle = (i / 18) * Math.PI * 2;
+      const dist  = 55 + Math.random() * 55;
+      return {
+        pid: i,
+        tx: Math.cos(angle) * dist,
+        ty: Math.sin(angle) * dist,
+        size: 4 + Math.random() * 4,
+      };
+    });
+    setBursts(b => [...b, { id, cx, cy, color: gm.color, particles }]);
+    setTimeout(() => setBursts(b => b.filter(x => x.id !== id)), 750);
+    setActive(gm.id);
+  };
 
   return (
     <>
@@ -69,15 +151,13 @@ export default function GamesPage({ onBack }) {
           from { opacity:0; transform:translateY(24px) scale(0.96); }
           to   { opacity:1; transform:translateY(0)    scale(1); }
         }
-        .gp-card-enter {
-          animation: gp-card-in 0.4s cubic-bezier(0.22,1,0.36,1) both;
-        }
 
         /* ── Grid ── */
         .gp-grid  { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
         @media(max-width:900px){ .gp-grid{ grid-template-columns:repeat(2,1fr); } }
         @media(max-width:480px){ .gp-grid{ grid-template-columns:repeat(2,1fr); gap:10px; } }
 
+        /* ── C4 — Idle card pulse ── */
         .gp-card  {
           position:relative; overflow:hidden;
           border:1px solid var(--border); background:var(--bg-card);
@@ -92,6 +172,12 @@ export default function GamesPage({ onBack }) {
         }
         .gp-card:hover { transform:translateY(-4px); border-color:var(--accent-dim); box-shadow:0 8px 32px rgba(0,0,0,0.4); }
         .gp-card:hover::before { opacity:1; }
+        /* entrance + idle both run together; idle starts after entrance finishes */
+        .gp-card-enter {
+          animation: gp-card-in 0.4s cubic-bezier(0.22,1,0.36,1) both,
+                     gp-card-idle 3s ease-in-out 0.5s infinite;
+        }
+        .gp-card:hover.gp-card-enter { animation: none; }
         .gp-card-scan {
           position:absolute; inset:0; pointer-events:none;
           background:linear-gradient(transparent 50%, rgba(0,0,0,0.03) 50%);
@@ -131,6 +217,22 @@ export default function GamesPage({ onBack }) {
         /* ── Heading area ── */
         .gp-hero { margin-bottom:40px; }
 
+        /* ── C2 — Load sweep ── */
+        .gp-sweep {
+          position:fixed; left:0; right:0; height:3px; top:-4px; z-index:500;
+          background:linear-gradient(90deg, transparent 0%, var(--green) 40%, #00e5ff 60%, transparent 100%);
+          box-shadow: 0 0 18px 3px #00ff8866;
+          animation: gp-sweep 1.2s cubic-bezier(0.4,0,0.8,1) forwards;
+          pointer-events:none;
+        }
+
+        /* ── C1 — Floating icons ── */
+        .gp-bg-icon {
+          position:fixed; font-size:56px; pointer-events:none; z-index:0;
+          opacity:0.10; filter:grayscale(0.3);
+          animation:float 5s ease-in-out infinite;
+        }
+
         @media(max-width:600px){
           .gp-inner{ padding:12px 12px 60px; }
           .gp-grid { gap:8px; }
@@ -143,7 +245,53 @@ export default function GamesPage({ onBack }) {
         }
       `}</style>
 
+      {/* C3 — Noise intro overlay */}
+      <NoiseIntro />
+
+      {/* C2 — One-shot page load sweep */}
+      {!sweepDone && <div className="gp-sweep" />}
+
+      {/* C5 — Particle bursts (fixed so they appear over everything) */}
+      {bursts.map(burst =>
+        burst.particles.map(p => (
+          <div
+            key={`${burst.id}-${p.pid}`}
+            style={{
+              position: "fixed",
+              left: burst.cx,
+              top: burst.cy,
+              width: p.size,
+              height: p.size,
+              borderRadius: "50%",
+              background: burst.color,
+              boxShadow: `0 0 6px 2px ${burst.color}88`,
+              "--tx": `${p.tx}px`,
+              "--ty": `${p.ty}px`,
+              animation: "burst-particle 0.65s cubic-bezier(0,0.6,0.4,1) forwards",
+              pointerEvents: "none",
+              zIndex: 600,
+            }}
+          />
+        ))
+      )}
+
       <div className="gp-wrap">
+        {/* C1 — Ambient floating game icons (background, only on grid page) */}
+        {!active && GAME_IDS.map((id, i) => (
+          <div
+            key={id}
+            className="gp-bg-icon"
+            style={{
+              left:  `${(i * 13 + 5) % 90}%`,
+              top:   `${(i * 17 + 8) % 85}%`,
+              animationDuration: `${4.5 + (i % 4) * 1.2}s`,
+              animationDelay:    `${i * 0.4}s`,
+            }}
+          >
+            {GAME_META[id].icon}
+          </div>
+        ))}
+
         {/* Header */}
         <div className="gp-header">
           <div style={{ fontFamily:"var(--font-display)", fontSize:18, fontWeight:900, color:"var(--green)", letterSpacing:"4px" }}>
@@ -174,8 +322,12 @@ export default function GamesPage({ onBack }) {
                   <div
                     key={gm.id}
                     className="gp-card gp-card-enter"
-                    style={{ "--accent": gm.color, "--accent-dim": gm.color + "66", animationDelay: `${i * 60}ms` }}
-                    onClick={() => setActive(gm.id)}
+                    style={{
+                      "--accent": gm.color,
+                      "--accent-dim": gm.color + "66",
+                      animationDelay: `${i * 60}ms`,
+                    }}
+                    onClick={(e) => handleCardClick(gm, e)}
                   >
                     <div className="gp-card-scan" />
                     <span className="gp-card-tag" style={{ color: gm.color }}>{gm.tag}</span>
