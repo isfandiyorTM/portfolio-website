@@ -51,8 +51,7 @@ export default function Snake() {
     const timer = setInterval(() => {
       setSnake(prev => {
         const [dx,dy]=dirRef.current;
-        const head={x:prev[0].x+dx, y:prev[0].y+dy};
-        if(head.x<0||head.x>=COLS||head.y<0||head.y>=ROWS){ setDead(true); setRunning(false); return prev; }
+        const head={x:(prev[0].x+dx+COLS)%COLS, y:(prev[0].y+dy+ROWS)%ROWS};
         if(prev.some(s=>s.x===head.x&&s.y===head.y)){ setDead(true); setRunning(false); return prev; }
         const ate=head.x===food.x&&head.y===food.y;
         const next=ate?[head,...prev]:[head,...prev.slice(0,-1)];
