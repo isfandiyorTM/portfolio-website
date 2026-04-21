@@ -74,10 +74,10 @@ export default function Contact() {
               <p style={{ color:"var(--text-muted)", lineHeight:1.8, marginBottom:"32px" }}>{c.desc}</p>
               <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
                 <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-                  <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center" }}><GithubIcon /> GitHub</button>
+                  <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", color:"#f0f6fc", borderColor:"#f0f6fc" }}><GithubIcon /> GitHub</button>
                 </a>
                 <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-                  <button className="btn btn-primary" style={{ width:"100%", justifyContent:"center" }}><LinkedinIcon /> LinkedIn</button>
+                  <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", color:"#0077b5", borderColor:"#0077b5" }}><LinkedinIcon /> LinkedIn</button>
                 </a>
                 <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
                   <button className="btn btn-secondary" style={{ width:"100%", justifyContent:"center", gap:"8px", color:"#ff0000", borderColor:"#ff0000" }}><YoutubeIcon /> YouTube</button>
