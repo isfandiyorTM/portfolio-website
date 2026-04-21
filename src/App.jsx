@@ -21,6 +21,7 @@ import GamesPage from "./pages/GamesPage";
 import ChontakPage from "./pages/ChontakPage";
 import HojiJalyuziPage from "./pages/HojiJalyuziPage";
 import RahimovDevsPage from "./pages/RahimovDevsPage";
+import ResumePage from "./pages/ResumePage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 /* UI effects */
@@ -94,6 +95,7 @@ function AppRoutes() {
         <Route path="/chontak" element={<ChontakPage />} />
         <Route path="/hoji-jalyuzi" element={<HojiJalyuziPage />} />
         <Route path="/rahimovdevs" element={<RahimovDevsPage />} />
+        <Route path="/resume" element={<ResumePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </PageTransition>
