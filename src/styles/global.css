@@ -72,8 +72,6 @@ body {
 @keyframes plasma-drift-b { 0%,100%{transform:translate(-50%,-50%) scale(1)}   30%{transform:translate(-50%,-50%) scale(0.85)} 65%{transform:translate(-50%,-50%) scale(1.2)} }
 @keyframes plasma-drift-c { 0%,100%{transform:translate(-50%,-50%) scale(1)}   50%{transform:translate(-50%,-50%) scale(1.3)} }
 
-/* ── C2 — Games page load scanline sweep ── */
-@keyframes gp-sweep { 0%{top:-4px;opacity:1} 80%{opacity:1} 100%{top:100vh;opacity:0} }
 
 /* ── C4 — Game card idle border pulse ── */
 @keyframes gp-card-idle { 0%,100%{box-shadow:0 0 0 1px var(--border,#0d2a1a)} 50%{box-shadow:0 0 16px 2px var(--accent-dim,#00ff8866), 0 0 0 1px var(--accent,#00ff88)} }
@@ -215,7 +213,7 @@ body {
   .reveal.visible { transform: translateY(0); }
 
   /* Typeracer chars wrap nicely on small screens */
-  .tr-char { font-size: 14px !important; }
+  .tr-char { font-size: 20px !important; }
 
   /* Contact buttons full width */
   .contact-grid .btn { letter-spacing: 1px !important; }

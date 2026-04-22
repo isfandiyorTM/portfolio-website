@@ -49,6 +49,17 @@ export const PROJECTS = [
   },
 ];
 export const FILTER_TAGS_KEYS = ["all", "Flutter", "Dart", "Web"];
+export const SKILL_METERS = [
+  { label: "Teaching / Mentoring", level: 95 },
+  { label: "Flutter / Dart",       level: 90 },
+  { label: "BLoC / Riverpod",      level: 85 },
+  { label: "Git / GitHub",         level: 85 },
+  { label: "Clean Architecture",   level: 82 },
+  { label: "Firebase / REST API",  level: 78 },
+  { label: "React / Vite",         level: 72 },
+  { label: "UI Design",            level: 68 },
+];
+
 export const SOCIAL_LINKS = {
   github:    "https://github.com/isfandiyorTM",
   linkedin:  "https://www.linkedin.com/in/isfandiyor-madaminov-923a1a294/",

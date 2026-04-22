@@ -28,6 +28,55 @@ const GAME_META = {
 
 const GAME_IDS = ["memory","snake","typeracer","quiz","whack","debug","reaction","flappy"];
 
+const SCORE_MAP = [
+  { id:"snake",     icon:"🐍", key:"snakeBest",     unit:"pts",  color:"#16a34a" },
+  { id:"typeracer", icon:"⌨️",  key:"typeracerBest", unit:"wpm",  color:"#0ea5e9" },
+  { id:"memory",    icon:"🃏", key:"memoryBest",    unit:"moves",color:"#7c3aed" },
+  { id:"whack",     icon:"🐛", key:"whackBest",     unit:"pts",  color:"#ef4444" },
+  { id:"reaction",  icon:"⚡", key:"reactionBest",  unit:"ms",   color:"#f97316" },
+  { id:"flappy",    icon:"🐦", key:"flappyBest",    unit:"pts",  color:"#06b6d4" },
+];
+
+function ScoreDashboard({ onPlay }) {
+  const { t } = useLang();
+  const g = t.games;
+  const scores = SCORE_MAP.map(s => {
+    let val = null;
+    try { val = localStorage.getItem(s.key); } catch {}
+    return { ...s, val };
+  }).filter(s => s.val !== null);
+
+  if (scores.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom:32 }}>
+      <div style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--text-muted)", marginBottom:10 }}>
+        {g.scores_label}
+      </div>
+      <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+        {scores.map(s => (
+          <button
+            key={s.id}
+            onClick={() => onPlay(s.id)}
+            style={{
+              display:"flex", alignItems:"center", gap:7,
+              padding:"7px 12px", border:`1px solid ${s.color}44`,
+              background:`${s.color}0d`, cursor:"pointer",
+              transition:"all 0.2s",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = s.color; e.currentTarget.style.background = `${s.color}1a`; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = `${s.color}44`; e.currentTarget.style.background = `${s.color}0d`; }}
+          >
+            <span style={{ fontSize:16, lineHeight:1 }}>{s.icon}</span>
+            <span style={{ fontFamily:"var(--font-display)", fontSize:15, fontWeight:700, color:s.color, lineHeight:1 }}>{s.val}</span>
+            <span style={{ fontFamily:"var(--font-mono)", fontSize:8, letterSpacing:1, color:"var(--text-muted)" }}>{s.unit}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // C3 — Static noise canvas that fades out on load
 function NoiseIntro() {
   const canvasRef = useRef(null);
@@ -82,13 +131,12 @@ function NoiseIntro() {
 
 export default function GamesPage({ onBack }) {
   const [active, setActive] = useState(null);
+  const [swept,  setSwept]  = useState(false);
   const { t } = useLang();
   const g = t.games;
 
-  // C2 — one-shot sweep on mount
-  const [sweepDone, setSweepDone] = useState(false);
   useEffect(() => {
-    const id = setTimeout(() => setSweepDone(true), 1400);
+    const id = setTimeout(() => setSwept(true), 900);
     return () => clearTimeout(id);
   }, []);
 
@@ -129,20 +177,39 @@ export default function GamesPage({ onBack }) {
       <style>{`
         .gp-wrap  { width:100%; min-height:100vh; background:var(--bg); color:var(--text); position:relative; }
 
-        /* grid-bg overlay identical to hero */
-        .gp-wrap::before {
-          content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+        /* bg layer — absolute + overflow:hidden so no child can cause scroll jumps */
+        .gp-bg-layer { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+        .gp-grid-overlay {
+          position:absolute; inset:0;
           background-image:
             linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
           background-size:40px 40px;
         }
-        /* scanline sweep */
-        .gp-wrap::after {
-          content:''; position:fixed; left:0; right:0; height:2px; pointer-events:none; z-index:1;
-          background:linear-gradient(transparent, rgba(0,255,136,0.06), transparent);
+        .gp-scanline {
+          position:absolute; left:0; right:0; height:2px; pointer-events:none;
+          background:linear-gradient(transparent, rgba(0,255,136,0.08), transparent);
           animation:scanline 10s linear infinite;
         }
+
+        /* horizontal entry sweep — fixed so it never causes scroll */
+        @keyframes gp-sweep-h {
+          0%   { transform:translateX(-100%); }
+          100% { transform:translateX(200%);  }
+        }
+        .gp-sweep {
+          position:fixed; top:0; left:0; width:100%; height:3px; z-index:500;
+          background:linear-gradient(90deg,transparent 0%,var(--green) 40%,#00e5ff 60%,transparent 100%);
+          box-shadow:0 0 18px 4px rgba(0,255,136,0.5);
+          animation:gp-sweep-h 0.85s cubic-bezier(0.4,0,0.6,1) forwards;
+          pointer-events:none;
+        }
+
+        /* floating icon animations */
+        @keyframes float-h    { 0%,100%{transform:translate(0,0) rotate(-3deg)} 33%{transform:translate(22px,-14px) rotate(4deg)} 66%{transform:translate(-14px,9px) rotate(-6deg)} }
+        @keyframes float-diag { 0%,100%{transform:translate(0,0) rotate(0deg)} 50%{transform:translate(20px,-28px) rotate(12deg)} }
+        @keyframes float-slow { 0%,100%{transform:translate(0,0) scale(1) rotate(2deg)} 50%{transform:translate(-18px,16px) scale(1.1) rotate(-5deg)} }
+        @keyframes float-spin { 0%{transform:translate(0,0) rotate(0deg)} 50%{transform:translate(12px,-18px) rotate(180deg)} 100%{transform:translate(0,0) rotate(360deg)} }
 
         .gp-header{ border-bottom:1px solid var(--border); background:var(--bg-nav); backdrop-filter:blur(12px); padding:0 24px; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
         .gp-inner { max-width:1100px; margin:0 auto; padding:40px 40px 80px; position:relative; z-index:2; }
@@ -218,20 +285,11 @@ export default function GamesPage({ onBack }) {
         /* ── Heading area ── */
         .gp-hero { margin-bottom:40px; }
 
-        /* ── C2 — Load sweep ── */
-        .gp-sweep {
-          position:fixed; left:0; right:0; height:3px; top:-4px; z-index:500;
-          background:linear-gradient(90deg, transparent 0%, var(--green) 40%, #00e5ff 60%, transparent 100%);
-          box-shadow: 0 0 18px 3px #00ff8866;
-          animation: gp-sweep 1.2s cubic-bezier(0.4,0,0.8,1) forwards;
-          pointer-events:none;
-        }
 
-        /* ── C1 — Floating icons ── */
+        /* ── C1 — Floating icons (absolute so they don't escape the bg-layer) ── */
         .gp-bg-icon {
-          position:fixed; font-size:56px; pointer-events:none; z-index:0;
-          opacity:0.10; filter:grayscale(0.3);
-          animation:float 5s ease-in-out infinite;
+          position:absolute; pointer-events:none; z-index:0;
+          filter:grayscale(0.2);
         }
 
         @media(max-width:600px){
@@ -249,8 +307,9 @@ export default function GamesPage({ onBack }) {
       {/* C3 — Noise intro overlay */}
       <NoiseIntro />
 
-      {/* C2 — One-shot page load sweep */}
-      {!sweepDone && <div className="gp-sweep" />}
+      {/* Horizontal entry sweep */}
+      {!swept && <div className="gp-sweep" />}
+
 
       {/* C5 — Particle bursts (fixed so they appear over everything) */}
       {bursts.map(burst =>
@@ -278,20 +337,32 @@ export default function GamesPage({ onBack }) {
 
       <div className="gp-wrap">
         {/* C1 — Ambient floating game icons (background, only on grid page) */}
-        {!active && GAME_IDS.map((id, i) => (
-          <div
-            key={id}
-            className="gp-bg-icon"
-            style={{
-              left:  `${(i * 13 + 5) % 90}%`,
-              top:   `${(i * 17 + 8) % 85}%`,
-              animationDuration: `${4.5 + (i % 4) * 1.2}s`,
-              animationDelay:    `${i * 0.4}s`,
-            }}
-          >
-            {GAME_META[id].icon}
+        {!active && (
+          <div style={{ position:"absolute", inset:0, overflow:"hidden", pointerEvents:"none", zIndex:0 }}>
+            {[...GAME_IDS, ...GAME_IDS].map((id, i) => {
+              const ANIMS = ["float-h", "float-diag", "float-slow", "float-spin"];
+              return (
+                <div
+                  key={`bg-${id}-${i}`}
+                  className="gp-bg-icon"
+                  style={{
+                    left:     `${(i * 11 + 7) % 88}%`,
+                    top:      `${(i * 19 + 5) % 82}%`,
+                    fontSize: `${26 + (i % 5) * 10}px`,
+                    opacity:  0.1 + (i % 6) * 0.028,
+                    animationName:            ANIMS[i % 4],
+                    animationDuration:        `${6 + (i % 6) * 2}s`,
+                    animationDelay:           `${-(i * 0.8)}s`,
+                    animationTimingFunction:  "ease-in-out",
+                    animationIterationCount:  "infinite",
+                  }}
+                >
+                  {GAME_META[id].icon}
+                </div>
+              );
+            })}
           </div>
-        ))}
+        )}
 
         {/* Header */}
         <div className="gp-header">
@@ -313,9 +384,10 @@ export default function GamesPage({ onBack }) {
                 <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(26px,5vw,48px)", fontWeight:900, lineHeight:1.1, marginBottom:12, animation:"fadeUp 0.5s 0.1s ease both", opacity:0 }}>
                   {g.heading} <span style={{ color:"var(--green)" }}>{g.heading2}</span>
                 </h1>
-                <p style={{ fontFamily:"var(--font-mono)", fontSize:11, color:"var(--text-muted)", letterSpacing:2, animation:"fadeUp 0.5s 0.2s ease both", opacity:0 }}>
-                  {games.length} games — click any card to play
+                <p style={{ fontFamily:"var(--font-mono)", fontSize:11, color:"var(--text-muted)", letterSpacing:2, marginBottom:28, animation:"fadeUp 0.5s 0.2s ease both", opacity:0 }}>
+                  {games.length} {g.click_to_play}
                 </p>
+                <ScoreDashboard onPlay={(id) => setActive(id)} />
               </div>
 
               <div className="gp-grid">
@@ -362,7 +434,7 @@ export default function GamesPage({ onBack }) {
 
               <Suspense fallback={
                 <div style={{ padding:"60px", textAlign:"center", fontFamily:"var(--font-mono)", fontSize:12, letterSpacing:3, color:"var(--text-muted)" }}>
-                  LOADING...
+                  {g.loading}
                 </div>
               }>
                 <GameComp key={active} />
@@ -370,7 +442,7 @@ export default function GamesPage({ onBack }) {
 
               {/* Game switcher strip */}
               <div style={{ marginTop:40, paddingTop:24, borderTop:"1px solid var(--border)" }}>
-                <div style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--text-muted)", marginBottom:14 }}>OTHER GAMES</div>
+                <div style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--text-muted)", marginBottom:14 }}>{g.other_games}</div>
                 <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
                   {games.filter(gm => gm.id !== active).map(gm => (
                     <button

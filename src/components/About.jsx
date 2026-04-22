@@ -1,8 +1,43 @@
+import { useRef, useEffect, useState } from "react";
 import { useReveal } from "../hooks/useReveal";
 import { useCountUp } from "../hooks/useCountUp";
 import { useScrollTypewriter } from "../hooks/useScrollTypewriter";
-import { SKILLS } from "../constants/data";
+import { SKILLS, SKILL_METERS } from "../constants/data";
 import { useLang } from "../i18n/LanguageContext";
+
+function SkillMeter({ label, level, delay }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.3 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} style={{ marginBottom:10 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+        <span style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:1, color:"var(--text-muted)" }}>{label}</span>
+        <span style={{ fontFamily:"var(--font-mono)", fontSize:10, color:"var(--green)", opacity:visible?1:0, transition:`opacity 0.3s ${delay+900}ms` }}>{level}%</span>
+      </div>
+      <div style={{ height:3, background:"var(--border)", overflow:"hidden" }}>
+        <div style={{
+          height:"100%",
+          background:"linear-gradient(90deg, var(--green-dark), var(--green))",
+          boxShadow:"0 0 8px rgba(0,255,136,0.4)",
+          width: visible ? `${level}%` : "0%",
+          transition: visible ? `width 1.1s cubic-bezier(0.4,0,0.2,1) ${delay}ms` : "none",
+        }} />
+      </div>
+    </div>
+  );
+}
 
 function StatCard({ value, label, index, link }) {
   const revealRef = useReveal();
@@ -83,6 +118,16 @@ export default function About() {
         <div className="stats-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"20px" }}>
           {ab.stats.map((s,i) => <StatCard key={s.label} value={s.value} label={s.label} index={i} link={s.link} />)}
         </div>
+
+        {/* ── Skill Meters ── */}
+        <RevealBlock delay={0}>
+          <p className="section-label" style={{ marginTop:"80px", marginBottom:"28px" }}>{ab.proficiency_label}</p>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 60px" }}>
+            {SKILL_METERS.map((sk, i) => (
+              <SkillMeter key={sk.label} label={sk.label} level={sk.level} delay={i * 80} />
+            ))}
+          </div>
+        </RevealBlock>
 
         {/* ── Experience Timeline ── */}
         <RevealBlock delay={0}>

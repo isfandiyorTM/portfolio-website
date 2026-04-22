@@ -269,6 +269,14 @@ export default function Hero() {
       {/* Text — pointer events disabled on full-width wrapper so DVD button stays clickable */}
       <div style={{ maxWidth:"1100px", margin:"0 auto", width:"100%", position:"relative", zIndex:5, pointerEvents:"none" }}>
         <div ref={textRef} style={{ maxWidth:"560px", pointerEvents:"auto" }}>
+          {/* Availability badge */}
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:18, animation:"fadeUp 0.5s ease both" }}>
+            <div style={{ width:7, height:7, borderRadius:"50%", background:"#f59e0b", boxShadow:"0 0 8px #f59e0b88", animation:"pulse-glow 2s ease-in-out infinite" }} />
+            <span style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--text-muted)", textTransform:"uppercase" }}>
+              {t.hero.status}
+            </span>
+          </div>
+
           <div className="section-label" style={{ animation:"fadeUp 0.6s ease both" }}>{t.hero.greeting}</div>
           <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(36px,6vw,72px)", fontWeight:900, lineHeight:1.1, marginBottom:"16px", animation:"fadeUp 0.8s 0.2s ease both", opacity:0 }}>
             <GlitchText text="ISFANDIYOR" /><br />
@@ -296,7 +304,7 @@ export default function Hero() {
               background:"rgba(0,255,136,0.03)",
             }}>
               <div>
-                <div style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--green)", marginBottom:4 }}>// STUDENT PROJECTS</div>
+                <div style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--green)", marginBottom:4 }}>{t.hero.rahimovcard.student_label}</div>
                 <div style={{ fontFamily:"var(--font-display)", fontSize:16, fontWeight:900, color:"var(--text)" }}>
                   RAHIMOV<span style={{ color:"var(--green)" }}>DEVS</span>
                 </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import "./styles/global.css";
 
@@ -23,6 +23,21 @@ import HojiJalyuziPage from "./pages/HojiJalyuziPage";
 import RahimovDevsPage from "./pages/RahimovDevsPage";
 import ResumePage from "./pages/ResumePage";
 import NotFoundPage from "./pages/NotFoundPage";
+
+/* Cursor spotlight — direct DOM writes, zero re-renders */
+function CursorSpotlight() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const move = (e) => {
+      el.style.background = `radial-gradient(700px circle at ${e.clientX}px ${e.clientY}px, rgba(0,255,136,0.055) 0%, transparent 70%)`;
+    };
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
+  }, []);
+  return <div ref={ref} style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:1 }} />;
+}
 
 /* UI effects */
 function Scanline() {
@@ -110,6 +125,7 @@ export default function App() {
     <ThemeProvider>
       <LanguageProvider>
         <Cursor />
+        <CursorSpotlight />
         {!loaded && <LoadingScreen onDone={() => setLoaded(true)} />}
 
         <div

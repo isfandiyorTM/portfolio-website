@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 
 const RESUME = {
   name:    "ISFANDIYOR MADAMINOV",
-  title:   "Flutter Mobile Developer & IT Mentor",
+  title:   "IT Mentor & Flutter Developer",
   contact: [
     { icon: "✉", text: "isfandiyormadaminov12@gmail.com" },
     { icon: "🌐", text: "rahimovdevs.tech" },
@@ -11,7 +11,7 @@ const RESUME = {
     { icon: "⌥",  text: "github.com/isfandiyordev" },
   ],
   summary:
-    "IT educator and Flutter developer with 4+ years of experience across academies, university, and private schools. Taught 450+ students ranging from computer basics to full-stack web and mobile development. Built real-world business software and maintains a 5-star mentor rating.",
+    "IT teacher with 4+ years of experience across academies, university, and private schools — teaching everything from computer basics to full-stack web and Flutter development. Mentored 450+ students. Also builds Flutter apps: Clean Architecture, BLoC, SQLite, Firebase.",
   experience: [
     {
       role:    "IT Teacher",

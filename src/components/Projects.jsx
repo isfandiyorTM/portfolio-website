@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useReveal } from "../hooks/useReveal";
 import { useScrollTypewriter } from "../hooks/useScrollTypewriter";
@@ -6,10 +6,25 @@ import { useLang } from "../i18n/LanguageContext";
 import { PROJECTS, FILTER_TAGS_KEYS } from "../constants/data";
 
 function ProjectCard({ project, index }) {
-  const ref = useReveal();
+  const ref     = useReveal();
+  const cardRef = useRef(null);
   const navigate = useNavigate();
   const { t, lang } = useLang();
   const [hovered, setHovered] = useState(false);
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+
+  const handleMouseMove = useCallback((e) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const rx = -((e.clientY - rect.top  - rect.height / 2) / (rect.height / 2)) * 5;
+    const ry =  ((e.clientX - rect.left - rect.width  / 2) / (rect.width  / 2)) * 5;
+    setTilt({ rx, ry });
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setHovered(false);
+    setTilt({ rx: 0, ry: 0 });
+  }, []);
 
   const desc = typeof project.desc === "object"
     ? (project.desc[lang] || project.desc.en)
@@ -22,14 +37,28 @@ function ProjectCard({ project, index }) {
     else if (project.link) window.open(project.link, "_blank");
   };
 
+  const tilting = tilt.rx !== 0 || tilt.ry !== 0;
+
   return (
     <div
       ref={ref}
       className="project-card reveal"
       style={{ transitionDelay: `${index * 120}ms`, cursor: "pointer" }}
+    >
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
+      style={{
+        transform: tilting
+          ? `perspective(900px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) scale(1.01)`
+          : undefined,
+        transition: tilting ? "transform 0.08s linear" : "transform 0.5s ease",
+        transformStyle: "preserve-3d",
+        willChange: tilting ? "transform" : "auto",
+      }}
     >
       <div style={{
         display:"flex", justifyContent:"space-between",
@@ -77,6 +106,7 @@ function ProjectCard({ project, index }) {
           </span>
         ))}
       </div>
+    </div>
     </div>
   );
 }
