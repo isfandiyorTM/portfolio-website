@@ -262,7 +262,11 @@ const pickMulti = (mode, lang, lines) => {
   const bank = mode === "code" ? CODE_CONTENT : (CONTENT[lang]?.[mode] ?? CONTENT.en[mode]);
   const shuffled = [...bank].sort(() => Math.random() - 0.5);
   const count = mode === "quotes" ? 1 : Math.min(lines, shuffled.length);
-  return shuffled.slice(0, count).join(" ");
+  return shuffled.slice(0, count).map((s, i, arr) => {
+    const trimmed = s.trim();
+    if (i < arr.length - 1 && !/[.!?]$/.test(trimmed)) return trimmed + ".";
+    return trimmed;
+  }).join(" ");
 };
 
 const calcWpm = (correctChars, startMs) => {
@@ -388,15 +392,17 @@ export default function TypeRacer() {
   const [pressedKey,     setPressedKey]     = useState(null);
   const [pressedCorrect, setPressedCorrect] = useState(true);
 
-  const inputRef    = useRef(null);
-  const startRef    = useRef(null);
-  const intervalRef = useRef(null);
-  const errorsRef   = useRef(new Set());
-  const keyRef      = useRef({ total: 0, correct: 0 });
-  const typedRef    = useRef("");
-  const textRef     = useRef(text);
-  const phaseRef    = useRef("idle");
-  const pressTimer  = useRef(null);
+  const inputRef        = useRef(null);
+  const startRef        = useRef(null);
+  const intervalRef     = useRef(null);
+  const errorsRef       = useRef(new Set());
+  const keyRef          = useRef({ total: 0, correct: 0 });
+  const typedRef        = useRef("");
+  const textRef         = useRef(text);
+  const phaseRef        = useRef("idle");
+  const pressTimer      = useRef(null);
+  const textContainerRef = useRef(null);
+  const cursorRef       = useRef(null);
 
   textRef.current  = text;
   phaseRef.current = phase;
@@ -437,6 +443,17 @@ export default function TypeRacer() {
     window.addEventListener("keydown", onKeyDown, { passive: true });
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  useEffect(() => {
+    if (!textContainerRef.current || !cursorRef.current) return;
+    const container = textContainerRef.current;
+    const cursor = cursorRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const cursorRect = cursor.getBoundingClientRect();
+    const relativeTop = cursorRect.top - containerRect.top + container.scrollTop;
+    const targetScrollTop = relativeTop - container.clientHeight / 3;
+    container.scrollTo({ top: Math.max(0, targetScrollTop), behavior: "smooth" });
+  }, [typed]);
 
   const getLinesForKey = (key) => LEN_META.find(l => l.key === key)?.lines ?? 1;
 
@@ -591,6 +608,7 @@ export default function TypeRacer() {
         <>
           {/* Text display */}
           <div
+            ref={textContainerRef}
             onClick={() => inputRef.current?.focus()}
             style={{
               background: "var(--bg)",
@@ -603,7 +621,7 @@ export default function TypeRacer() {
               lineHeight: mode === "quotes" ? 2.2 : 1.95,
               wordBreak: "break-word",
               maxHeight: "420px",
-              overflowY: "auto",
+              overflowY: "hidden",
               textAlign: mode === "quotes" ? "center" : "left",
               transition: "border-color 0.3s",
             }}
@@ -611,12 +629,14 @@ export default function TypeRacer() {
             {[...text].map((ch, i) => {
               const authorStart = mode === "quotes" ? text.lastIndexOf(" - ") : -1;
               const inAuthor    = authorStart !== -1 && i >= authorStart;
+              const isCursor    = i === typed.length;
               let cls = "tr-char pending";
-              if (i < typed.length)       cls = typed[i] === ch ? "tr-char correct" : "tr-char wrong";
-              else if (i === typed.length) cls = "tr-char pending cursor";
+              if (i < typed.length) cls = typed[i] === ch ? "tr-char correct" : "tr-char wrong";
+              else if (isCursor)    cls = "tr-char pending cursor";
               return (
                 <span
                   key={i}
+                  ref={isCursor ? cursorRef : null}
                   className={cls}
                   style={inAuthor && i >= typed.length ? { opacity: 0.5, fontStyle: "italic" } : undefined}
                 >
