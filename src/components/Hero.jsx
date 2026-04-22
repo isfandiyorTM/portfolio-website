@@ -253,17 +253,17 @@ export default function Hero() {
       style={{ minHeight:"100vh", position:"relative", overflow:"hidden", display:"flex", alignItems:"center", padding:"100px 40px 60px", width:"100%" }}
     >
       {/* B1 — Matrix Rain */}
-      <div style={{ position:"absolute", inset:0, zIndex:0, opacity:0.07, pointerEvents:"none", filter:"blur(0.8px)" }}>
+      <div className="hero-bg-only-desktop" style={{ position:"absolute", inset:0, zIndex:0, opacity:0.07, pointerEvents:"none", filter:"blur(0.8px)" }}>
         <MatrixRain style={{ width:"100%", height:"100%" }} />
       </div>
 
       {/* Particle background */}
-      <div style={{ position:"absolute", inset:0, zIndex:2, opacity:0.18, pointerEvents:"none" }}>
+      <div className="hero-bg-only-desktop" style={{ position:"absolute", inset:0, zIndex:2, opacity:0.18, pointerEvents:"none" }}>
         <ParticleCanvas style={{ width:"100%", height:"100%" }} />
       </div>
 
       {/* B4 — Floating code typewriter (right side background) */}
-      <div style={{ position:"absolute", right:"3%", top:"12%", zIndex:3, opacity:0.32, pointerEvents:"none", maxWidth:260 }}>
+      <div className="hero-bg-only-desktop" style={{ position:"absolute", right:"3%", top:"12%", zIndex:3, opacity:0.32, pointerEvents:"none", maxWidth:260 }}>
         <CodeFloat />
       </div>
       {/* Text — pointer events disabled on full-width wrapper so DVD button stays clickable */}

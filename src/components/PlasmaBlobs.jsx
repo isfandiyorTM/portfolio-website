@@ -1,6 +1,12 @@
 import { memo, useEffect, useRef } from "react";
 
+const isLowEndDevice =
+  typeof window !== "undefined" &&
+  (window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+   window.matchMedia("(pointer: coarse)").matches);
+
 const PlasmaBlobs = memo(function PlasmaBlobs() {
+  if (isLowEndDevice) return null;
   const wrapRef = useRef(null);
   const b1Ref   = useRef(null);
   const b2Ref   = useRef(null);

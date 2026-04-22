@@ -9,8 +9,8 @@ import { useTheme } from "../context/ThemeContext";
    - Mouse movement tilts the camera (smooth lerp)
    ───────────────────────────────────────────────────────────────────── */
 
-const NUM_PARTICLES = 120;
-const CONNECTION_DIST = 160;   // max 3D distance to draw a line
+const NUM_PARTICLES = 60;
+const CONNECTION_DIST = 100;   // max 3D distance to draw a line
 const FOV = 420;               // perspective field of view
 const SPHERE_R = 280;          // bounding sphere radius
 const AUTO_ROTATE_SPEED = 0.0004;
@@ -28,7 +28,13 @@ function randomSphere(r) {
   };
 }
 
+const isLowEndDevice =
+  typeof window !== "undefined" &&
+  (window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+   window.matchMedia("(pointer: coarse)").matches);
+
 const ParticleCanvas = memo(function ParticleCanvas({ style }) {
+  if (isLowEndDevice) return null;
   const canvasRef = useRef(null);
   const mouse     = useRef({ x: 0, y: 0 });
   const camera    = useRef({ rotX: 0, rotY: 0 });

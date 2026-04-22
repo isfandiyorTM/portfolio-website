@@ -86,6 +86,10 @@ body {
 @media(max-width:768px){ .hero-card-float { display:none; } }
 @media(max-width:768px){ .hero-mobile-cta { display:block !important; } }
 
+/* Heavy background layers hidden on touch/mobile — no GPU bandwidth for canvas */
+.hero-bg-only-desktop { display:block; }
+@media(pointer: coarse),(max-width:768px){ .hero-bg-only-desktop { display:none !important; } }
+
 .reveal { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease,transform 0.7s ease; }
 .reveal.visible { opacity:1; transform:translateY(0); }
 
@@ -227,4 +231,35 @@ body {
   .students-grid {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* ── Reduced motion: respect OS accessibility setting ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* Kill all CSS keyframe animations except essential ones */
+  .divider-dot,
+  .hero-bg-only-desktop,
+  .tw-cursor,
+  [style*="animation: scanline"],
+  [style*="animation:scanline"] { animation: none !important; }
+
+  /* Stop plasma, float, glitch, pulse, flicker, ripple globally */
+  @keyframes plasma-drift-a { 0%,100%{ transform: translate(-50%,-50%) } }
+  @keyframes plasma-drift-b { 0%,100%{ transform: translate(-50%,-50%) } }
+  @keyframes plasma-drift-c { 0%,100%{ transform: translate(-50%,-50%) } }
+  @keyframes glitch          { 0%,100%{ clip-path:none; transform:none; color:inherit } }
+  @keyframes pulse-glow      { 0%,100%{ box-shadow: 0 0 8px #00ff8855 } }
+  @keyframes flicker         { 0%,100%{ opacity:1 } }
+  @keyframes float           { 0%,100%{ transform:translateY(0) } }
+  @keyframes float-h         { 0%,100%{ transform:translateX(0) } }
+  @keyframes float-diag      { 0%,100%{ transform:translate(0,0) } }
+  @keyframes float-slow      { 0%,100%{ transform:translateY(0) } }
+  @keyframes float-spin      { 0%,100%{ transform:rotate(0deg) } }
+  @keyframes scanline        { 0%,100%{ top:50% } }
+  @keyframes gp-sweep-h      { 0%,100%{ transform:translateX(-100%) } }
+
+  /* Instant transitions so nothing moves */
+  * { transition-duration: 0.01ms !important; }
+
+  /* Reveal elements appear immediately without sliding in */
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
 }

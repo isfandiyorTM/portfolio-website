@@ -24,16 +24,25 @@ import RahimovDevsPage from "./pages/RahimovDevsPage";
 import ResumePage from "./pages/ResumePage";
 import NotFoundPage from "./pages/NotFoundPage";
 
-/* Cursor spotlight — direct DOM writes, zero re-renders */
+/* Cursor spotlight — direct DOM writes, rAF-throttled, skipped on touch */
 function CursorSpotlight() {
   const ref = useRef(null);
   useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
     const el = ref.current;
     if (!el) return;
+    let pending = false;
+    let cx = 0, cy = 0;
     const move = (e) => {
-      el.style.background = `radial-gradient(700px circle at ${e.clientX}px ${e.clientY}px, rgba(0,255,136,0.055) 0%, transparent 70%)`;
+      cx = e.clientX; cy = e.clientY;
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(() => {
+        el.style.background = `radial-gradient(700px circle at ${cx}px ${cy}px, rgba(0,255,136,0.055) 0%, transparent 70%)`;
+        pending = false;
+      });
     };
-    window.addEventListener("mousemove", move);
+    window.addEventListener("mousemove", move, { passive: true });
     return () => window.removeEventListener("mousemove", move);
   }, []);
   return <div ref={ref} style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:1 }} />;
