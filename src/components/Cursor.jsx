@@ -8,14 +8,16 @@ export default function Cursor() {
   const mouse   = useRef({ x: -100, y: -100 });
   const ring    = useRef({ x: -100, y: -100 });
   const rafId   = useRef(null);
-  const [state, setState] = useState("default"); // "default" | "hover" | "click"
+  const [state,   setState]   = useState("default"); // "default" | "hover" | "click"
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    /* Hide on touch devices */
+    /* Hide on touch / stylus devices — no mouse present */
     if (window.matchMedia("(pointer: coarse)").matches) return;
 
     const onMove = (e) => {
       mouse.current = { x: e.clientX, y: e.clientY };
+      setVisible(true);
     };
 
     const onDown = () => setState("click");
@@ -70,6 +72,8 @@ export default function Cursor() {
 
   const isHover = state === "hover";
   const isClick = state === "click";
+
+  if (!visible) return null;
 
   return (
     <>
