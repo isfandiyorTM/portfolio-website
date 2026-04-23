@@ -469,6 +469,7 @@ export default function TypeRacer() {
     setElapsed(0);
     setNewBest(false);
     setPressedKey(null);
+    if (textContainerRef.current) textContainerRef.current.scrollTop = 0;
     const m  = newMode   ?? mode;
     const lk = newLenKey ?? lenKey;
     const tx = newText   ?? pickMulti(m, lang, getLinesForKey(lk));
@@ -620,7 +621,7 @@ export default function TypeRacer() {
               cursor: "text",
               lineHeight: mode === "quotes" ? 2.2 : 1.95,
               wordBreak: "break-word",
-              maxHeight: "420px",
+              height: "180px",
               overflowY: "hidden",
               textAlign: mode === "quotes" ? "center" : "left",
               transition: "border-color 0.3s",

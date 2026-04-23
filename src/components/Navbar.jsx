@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useLang  } from "../i18n/LanguageContext";
 
@@ -34,7 +34,7 @@ function AnimatedGamesBtn({ onClick }) {
         background:"rgba(0,255,136,0.08)", color:"var(--green)",
         cursor:"pointer", transition:"background 0.3s, box-shadow 0.3s",
         marginLeft:"8px", textTransform:"uppercase",
-        minWidth:120, overflow:"hidden",
+        width:150, overflow:"hidden",
       }}
       onMouseEnter={e => { e.currentTarget.style.background="rgba(0,255,136,0.16)"; e.currentTarget.style.boxShadow="0 0 12px rgba(0,255,136,0.2)"; }}
       onMouseLeave={e => { e.currentTarget.style.background="rgba(0,255,136,0.08)"; e.currentTarget.style.boxShadow="none"; }}
@@ -47,10 +47,51 @@ function AnimatedGamesBtn({ onClick }) {
 }
 
 const LANGS = [
-  { code:"en", flag:"🇺🇸" },
-  { code:"ru", flag:"🇷🇺" },
-  { code:"uz", flag:"🇺🇿" },
+  { code:"en", flag:"🇺🇸", label:"EN" },
+  { code:"ru", flag:"🇷🇺", label:"RU" },
+  { code:"uz", flag:"🇺🇿", label:"UZ" },
 ];
+
+function LangDropdown({ lang, switchLang }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const current = LANGS.find(l => l.code === lang) || LANGS[0];
+
+  const close = useCallback((e) => {
+    if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (open) document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open, close]);
+
+  return (
+    <div ref={ref} style={{ position:"relative" }}>
+      <button
+        className="lang-btn active"
+        onClick={() => setOpen(o => !o)}
+        style={{ display:"flex", alignItems:"center", gap:"4px", fontSize:"16px", opacity:1, padding:"4px 8px", border:"1px solid var(--border)" }}
+      >
+        {current.flag} <span style={{ fontSize:"10px", opacity:0.6 }}>{open ? "▲" : "▼"}</span>
+      </button>
+      {open && (
+        <div style={{ position:"absolute", top:"calc(100% + 6px)", right:0, background:"var(--bg-nav)", border:"1px solid var(--border)", backdropFilter:"blur(12px)", zIndex:200, minWidth:"90px" }}>
+          {LANGS.map(l => (
+            <button
+              key={l.code}
+              className="lang-btn"
+              onClick={() => { switchLang(l.code); setOpen(false); }}
+              style={{ display:"flex", alignItems:"center", gap:"8px", width:"100%", padding:"8px 12px", fontSize:"16px", opacity: lang === l.code ? 1 : 0.5, borderBottom:"1px solid var(--border)" }}
+            >
+              {l.flag} <span style={{ fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"1px" }}>{l.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Navbar({ onGamesClick }) {
   const [active, setActive]     = useState("home");
@@ -92,7 +133,6 @@ export default function Navbar({ onGamesClick }) {
         }
         .lang-btn:hover { opacity: 1; transform: scale(1.15); }
         .lang-btn.active { opacity: 1; filter: drop-shadow(0 0 6px rgba(0,255,136,0.6)); transform: scale(1.1); }
-        .lang-group { display: flex; align-items: center; gap: 2px; border: 1px solid var(--border); padding: 4px 6px; }
       `}</style>
 
       <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:100, borderBottom:"1px solid var(--border)", background:"var(--bg-nav)", backdropFilter:"blur(12px)", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 24px", height:"64px", width:"100%" }}>
@@ -111,13 +151,9 @@ export default function Navbar({ onGamesClick }) {
           ))}
           <AnimatedGamesBtn onClick={onGamesClick} />
 
-          {/* Language flags */}
-          <div className="lang-group" style={{ marginLeft:"8px" }}>
-            {LANGS.map(l => (
-              <button key={l.code} className={`lang-btn ${lang===l.code?"active":""}`} onClick={() => switchLang(l.code)} title={l.code.toUpperCase()}>
-                {l.flag}
-              </button>
-            ))}
+          {/* Language dropdown */}
+          <div style={{ marginLeft:"8px" }}>
+            <LangDropdown lang={lang} switchLang={switchLang} />
           </div>
 
           {/* Theme toggle */}
@@ -128,13 +164,9 @@ export default function Navbar({ onGamesClick }) {
 
         {/* Mobile right side */}
         <div style={{ display:"flex", gap:"6px", alignItems:"center" }}>
-          {/* Flags on mobile too */}
-          <div className="mobile-menu-btn lang-group" style={{ display:"flex" }}>
-            {LANGS.map(l => (
-              <button key={l.code} className={`lang-btn ${lang===l.code?"active":""}`} onClick={() => switchLang(l.code)} style={{ fontSize:"16px" }}>
-                {l.flag}
-              </button>
-            ))}
+          {/* Language dropdown on mobile */}
+          <div className="mobile-menu-btn">
+            <LangDropdown lang={lang} switchLang={switchLang} />
           </div>
           <button onClick={toggle} className="theme-toggle mobile-menu-btn" style={{ display:"flex" }}>
             {dark ? "☀️" : "🌙"}

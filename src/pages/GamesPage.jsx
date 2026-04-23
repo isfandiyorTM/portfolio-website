@@ -140,6 +140,11 @@ export default function GamesPage({ onBack }) {
     return () => clearTimeout(id);
   }, []);
 
+  /* Scroll to top whenever the active game changes (open or close) */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [active]);
+
   // C5 — particle bursts state
   const [bursts, setBursts] = useState([]);
 
