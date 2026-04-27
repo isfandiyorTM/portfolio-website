@@ -18,6 +18,7 @@ import Footer from "./components/Footer";
 import PlasmaBlobs from "./components/PlasmaBlobs";
 
 import GamesPage from "./pages/GamesPage";
+import ScoresPage from "./pages/ScoresPage";
 import ChontakPage from "./pages/ChontakPage";
 import HojiJalyuziPage from "./pages/HojiJalyuziPage";
 import RahimovDevsPage from "./pages/RahimovDevsPage";
@@ -116,6 +117,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<Portfolio onGamesClick={() => navigate("/games")} />} />
         <Route path="/games" element={<GamesPage onBack={() => navigate("/")} />} />
+        <Route path="/scores" element={<ScoresPage />} />
         <Route path="/chontak" element={<ChontakPage />} />
         <Route path="/hoji-jalyuzi" element={<HojiJalyuziPage />} />
         <Route path="/rahimovdevs" element={<RahimovDevsPage />} />

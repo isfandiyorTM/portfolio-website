@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLang } from "../i18n/LanguageContext";
+import { saveScore } from "../lib/scores";
 
 const COLS = 18, ROWS = 18, CELL = 20;
 const DIRS = { ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0] };
@@ -104,7 +105,7 @@ export default function Snake() {
         if (ate) {
           setScore(s => {
             const ns = s + 10;
-            setBest(b => { const nb=Math.max(b,ns); try{localStorage.setItem("snakeBest",nb)}catch{}; return nb; });
+            setBest(b => { const nb=Math.max(b,ns); saveScore("snake",nb); return nb; });
             return ns;
           });
           setFood(spawnFood(next));

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLang } from "../i18n/LanguageContext";
+import { saveScore } from "../lib/scores";
 
 const CONTENT = {
   en: {
@@ -924,7 +925,7 @@ export default function TypeRacer() {
       if (finalWpm > best) {
         setBest(finalWpm);
         setNewBest(true);
-        try { localStorage.setItem("typeracerBest", finalWpm); } catch {}
+        saveScore("typeracer", finalWpm);
       }
     }
   };

@@ -4,7 +4,13 @@ import { useTheme } from "../context/ThemeContext";
 const CHARS = "01><[]{}#$%∑∆∏∫アイウエオカキクケコ?!";
 const FS = 9;
 
+const isLowEnd =
+  typeof window !== "undefined" &&
+  (window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+   window.matchMedia("(pointer: coarse)").matches);
+
 export default function MatrixRain({ style }) {
+  if (isLowEnd) return <div style={{ width:"100%", height:"100%", ...style }} />;
   const ref = useRef(null);
   const { dark } = useTheme();
   const darkRef = useRef(dark);

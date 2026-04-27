@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLang } from "../i18n/LanguageContext";
+import { saveScore } from "../lib/scores";
 
 const ROUNDS = 5;
 const MIN_WAIT = 1500;
@@ -60,7 +61,7 @@ export default function ReactionTest() {
       const newBest = best === null || ms < best ? ms : best;
       if (newBest !== best) {
         setBest(newBest);
-        try { localStorage.setItem("reactionBest", newBest); } catch {}
+        saveScore("reaction", newBest);
       }
 
       if (next.length >= ROUNDS) { setPhase("done"); }

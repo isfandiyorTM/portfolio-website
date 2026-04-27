@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLang } from "../i18n/LanguageContext";
+import { saveScore } from "../lib/scores";
 
 const BUGS = ["🐛","🐞","🦗","🦟","🐜"];
 
@@ -40,7 +41,7 @@ export default function WhackABug() {
       setTimeLeft(prev=>{
         if(prev<=1){
           setRunning(false); setDone(true); clearAll();
-          setScore(sc=>{ setBest(b=>{ const nb=Math.max(b,sc); try{localStorage.setItem("whackBest",nb)}catch{}; return nb; }); return sc; });
+          setScore(sc=>{ setBest(b=>{ const nb=Math.max(b,sc); saveScore("whack",nb); return nb; }); return sc; });
           return 0;
         }
         return prev-1;

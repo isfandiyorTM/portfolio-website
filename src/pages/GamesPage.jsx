@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLang } from "../i18n/LanguageContext";
 
 const Snake          = lazy(() => import("../games/Snake"));
@@ -9,24 +10,27 @@ const MemoryCard     = lazy(() => import("../games/MemoryCard"));
 const DebugChallenge = lazy(() => import("../games/DebugChallenge"));
 const ReactionTest   = lazy(() => import("../games/ReactionTest"));
 const FlappyWidget   = lazy(() => import("../games/FlappyWidget"));
+const CodeOrder      = lazy(() => import("../games/CodeOrder"));
 
 const GAME_COMPONENTS = {
   memory: MemoryCard, snake: Snake, typeracer: TypeRacer, quiz: Quiz,
   whack: WhackABug, debug: DebugChallenge, reaction: ReactionTest, flappy: FlappyWidget,
+  codeorder: CodeOrder,
 };
 
 const GAME_META = {
-  memory:   { icon: "🃏", color: "#7c3aed", tag: "MEMORY" },
-  snake:    { icon: "🐍", color: "#16a34a", tag: "ARCADE" },
-  typeracer:{ icon: "⌨️", color: "#0ea5e9", tag: "TYPING" },
-  quiz:     { icon: "🧠", color: "#f59e0b", tag: "TRIVIA" },
-  whack:    { icon: "🐛", color: "#ef4444", tag: "REFLEX" },
-  debug:    { icon: "🔍", color: "#00ff88", tag: "LOGIC" },
-  reaction: { icon: "⚡", color: "#f97316", tag: "REFLEX" },
-  flappy:   { icon: "🐦", color: "#06b6d4", tag: "ARCADE" },
+  memory:    { icon: "🃏", color: "#7c3aed", tag: "MEMORY" },
+  snake:     { icon: "🐍", color: "#16a34a", tag: "ARCADE" },
+  typeracer: { icon: "⌨️", color: "#0ea5e9", tag: "TYPING" },
+  quiz:      { icon: "🧠", color: "#f59e0b", tag: "TRIVIA" },
+  whack:     { icon: "🐛", color: "#ef4444", tag: "REFLEX" },
+  debug:     { icon: "🔍", color: "#00ff88", tag: "LOGIC" },
+  reaction:  { icon: "⚡", color: "#f97316", tag: "REFLEX" },
+  flappy:    { icon: "🐦", color: "#06b6d4", tag: "ARCADE" },
+  codeorder: { icon: "📋", color: "#00ff88", tag: "LOGIC" },
 };
 
-const GAME_IDS = ["memory","snake","typeracer","quiz","whack","debug","reaction","flappy"];
+const GAME_IDS = ["memory","snake","typeracer","quiz","whack","debug","reaction","flappy","codeorder"];
 
 const SCORE_MAP = [
   { id:"snake",     icon:"🐍", key:"snakeBest",     unit:"pts",  color:"#16a34a" },
@@ -35,6 +39,7 @@ const SCORE_MAP = [
   { id:"whack",     icon:"🐛", key:"whackBest",     unit:"pts",  color:"#ef4444" },
   { id:"reaction",  icon:"⚡", key:"reactionBest",  unit:"ms",   color:"#f97316" },
   { id:"flappy",    icon:"🐦", key:"flappyBest",    unit:"pts",  color:"#06b6d4" },
+  { id:"codeorder", icon:"📋", key:"codeorderBest", unit:"pts",  color:"#00ff88" },
 ];
 
 function ScoreDashboard({ onPlay }) {
@@ -134,6 +139,7 @@ export default function GamesPage({ onBack }) {
   const [swept,  setSwept]  = useState(false);
   const { t } = useLang();
   const g = t.games;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const id = setTimeout(() => setSwept(true), 900);
@@ -374,9 +380,14 @@ export default function GamesPage({ onBack }) {
           <div style={{ fontFamily:"var(--font-display)", fontSize:18, fontWeight:900, color:"var(--green)", letterSpacing:"4px" }}>
             IM<span style={{ color:"var(--text)", fontWeight:400 }}>_GAMES</span>
           </div>
-          <button onClick={onBack} className="btn btn-secondary" style={{ padding:"8px 20px", fontSize:"11px", letterSpacing:"3px" }}>
-            {g.back}
-          </button>
+          <div style={{ display:"flex", gap:8 }}>
+            <button onClick={() => navigate("/scores")} className="btn btn-secondary" style={{ padding:"8px 16px", fontSize:"11px", letterSpacing:"2px" }}>
+              🏆 SCORES
+            </button>
+            <button onClick={onBack} className="btn btn-secondary" style={{ padding:"8px 20px", fontSize:"11px", letterSpacing:"3px" }}>
+              {g.back}
+            </button>
+          </div>
         </div>
 
         <div className="gp-inner">

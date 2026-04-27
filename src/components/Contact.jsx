@@ -1,10 +1,15 @@
 import { useState, useRef, useEffect } from "react";
+import emailjs from "@emailjs/browser";
 import { useReveal } from "../hooks/useReveal";
 import { useScrollTypewriter } from "../hooks/useScrollTypewriter";
 import { SOCIAL_LINKS } from "../constants/data";
 import { useLang } from "../i18n/LanguageContext";
 import { useTheme } from "../context/ThemeContext";
 
+const EJS_SERVICE  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EJS_TEMPLATE = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EJS_KEY      = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+const USE_EMAILJS  = !!(EJS_SERVICE && EJS_TEMPLATE && EJS_KEY);
 const CONTACT_EMAIL = "isfandiyormadaminov12@gmail.com";
 
 const GithubIcon = () => (
@@ -45,9 +50,10 @@ export default function Contact() {
   const { ref: h1Ref,   displayed: h1Txt,   done: h1Done }    = useScrollTypewriter(c.heading,   28);
   const { ref: h2Ref,   displayed: h2Txt,   done: h2Done }    = useScrollTypewriter(h1Done ? c.heading2 : "", 28);
 
-  const [form, setForm]     = useState({ name:"", email:"", message:"" });
-  const [toast, setToast]   = useState(null); // { msg, type: "success"|"error" }
-  const toastTimer          = useRef(null);
+  const [form, setForm]       = useState({ name:"", email:"", message:"" });
+  const [sending, setSending] = useState(false);
+  const [toast, setToast]     = useState(null);
+  const toastTimer             = useRef(null);
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
@@ -59,14 +65,32 @@ export default function Contact() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.message) return;
-    const subject = encodeURIComponent(`Portfolio Contact: ${form.name}`);
-    const body    = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`);
-    window.open(`mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`);
-    showToast(c.success, "success");
-    setForm({ name:"", email:"", message:"" });
+    if (!form.name || !form.email || !form.message || sending) return;
+
+    if (USE_EMAILJS) {
+      setSending(true);
+      try {
+        await emailjs.send(
+          EJS_SERVICE, EJS_TEMPLATE,
+          { from_name: form.name, from_email: form.email, message: form.message, to_email: CONTACT_EMAIL },
+          EJS_KEY
+        );
+        showToast(c.success, "success");
+        setForm({ name:"", email:"", message:"" });
+      } catch {
+        showToast(c.error ?? "Failed to send. Try again.", "error");
+      } finally {
+        setSending(false);
+      }
+    } else {
+      const subject = encodeURIComponent(`Portfolio Contact: ${form.name}`);
+      const body    = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`);
+      window.open(`mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`);
+      showToast(c.success, "success");
+      setForm({ name:"", email:"", message:"" });
+    }
   };
 
   return (
@@ -160,8 +184,8 @@ export default function Contact() {
                   <label className="form-label">{c.message}</label>
                   <textarea className="form-input" name="message" placeholder={c.placeholder_message} rows={5} value={form.message} onChange={handleChange} required />
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ justifyContent:"center" }}>
-                  {c.send}
+                <button type="submit" className="btn btn-primary" style={{ justifyContent:"center", opacity: sending ? 0.6 : 1 }} disabled={sending}>
+                  {sending ? "⟳ Sending…" : c.send}
                 </button>
               </form>
             </div>

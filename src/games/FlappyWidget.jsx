@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLang } from "../i18n/LanguageContext";
+import { saveScore } from "../lib/scores";
 
 const W = 380, H = 420;
 const BIRD_X = 70, BIRD_W = 28, BIRD_H = 22;
@@ -216,7 +217,7 @@ export default function FlappyWidget() {
       const newBest = Math.max(best, finalScore);
       if (newBest > best) {
         setBest(newBest);
-        try { localStorage.setItem("flappyBest", newBest); } catch {}
+        saveScore("flappy", newBest);
       }
       stateRef.current = null;
       setPhase("dead");
@@ -234,11 +235,16 @@ export default function FlappyWidget() {
         width={W}
         height={H}
         onClick={flap}
-        style={{ display:"block", cursor:"pointer", border:"1px solid var(--green-dark)", maxWidth:"100%", height:"auto" }}
+        onTouchStart={e => { e.preventDefault(); flap(); }}
+        style={{ display:"block", cursor:"pointer", border:"1px solid var(--green-dark)", maxWidth:"100%", height:"auto", touchAction:"none" }}
       />
-      <div style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--text-muted)" }}>
-        {g.fly_hint}
-      </div>
+      <button
+        onTouchStart={e => { e.preventDefault(); flap(); }}
+        onClick={flap}
+        style={{ fontFamily:"var(--font-mono)", fontSize:13, letterSpacing:2, color:"var(--green)", background:"rgba(0,255,136,0.08)", border:"1px solid var(--green)", padding:"10px 32px", cursor:"pointer", display:"block" }}
+      >
+        ▲ {g.fly_tap ?? "TAP / SPACE"}
+      </button>
     </div>
   );
 }

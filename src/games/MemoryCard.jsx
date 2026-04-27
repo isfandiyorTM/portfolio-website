@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLang } from "../i18n/LanguageContext";
+import { saveScore } from "../lib/scores";
 
 const TECH_CARDS = [
   { id:"flutter",  label:"Flutter",  emoji:"🐦" },
@@ -34,7 +35,7 @@ export default function MemoryCard() {
   useEffect(()=>{
     if(matched.length===TECH_CARDS.length*2&&matched.length>0){
       setWon(true); setRunning(false);
-      if(!best||moves<best){ setBest(moves); try{localStorage.setItem("memoryBest",moves)}catch{} }
+      if(!best||moves<best){ setBest(moves); saveScore("memory",moves); }
     }
   },[matched]);
 
