@@ -1,6 +1,28 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, lazy, Suspense, Component } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLang } from "../i18n/LanguageContext";
+
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { crashed: false }; }
+  static getDerivedStateFromError() { return { crashed: true }; }
+  render() {
+    if (this.state.crashed) {
+      return (
+        <div style={{ padding:"40px", textAlign:"center", fontFamily:"var(--font-mono)", fontSize:12, color:"#ff4466", border:"1px solid #ff4466", letterSpacing:2 }}>
+          ⚠ LOAD_ERROR — refresh to retry
+          <br />
+          <button
+            onClick={() => this.setState({ crashed: false })}
+            style={{ marginTop:16, padding:"8px 20px", fontFamily:"var(--font-mono)", fontSize:11, background:"transparent", border:"1px solid #ff4466", color:"#ff4466", cursor:"pointer", letterSpacing:2 }}
+          >
+            RETRY
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const Snake          = lazy(() => import("../games/Snake"));
 const TypeRacer      = lazy(() => import("../games/TypeRacer"));
@@ -98,28 +120,32 @@ function NoiseIntro() {
     let frame = 0;
     const TOTAL = 28;
     let raf;
+    let alive = true;
+
+    // Reuse a single ImageData buffer — avoid allocating 200×120×4 bytes every frame
+    const img = ctx.createImageData(W, H);
 
     const draw = () => {
       const alpha = Math.max(0, 1 - frame / TOTAL);
-      const img = ctx.createImageData(W, H);
+      const a8 = Math.floor(alpha * 210);
       for (let i = 0; i < img.data.length; i += 4) {
         const v = Math.floor(Math.random() * 180);
         img.data[i]   = Math.floor(v * 0.02);
         img.data[i+1] = Math.floor(v * 0.75);
         img.data[i+2] = Math.floor(v * 0.3);
-        img.data[i+3] = Math.floor(alpha * 210);
+        img.data[i+3] = a8;
       }
       ctx.putImageData(img, 0, 0);
       frame++;
       if (frame <= TOTAL + 8) {
         raf = requestAnimationFrame(draw);
       } else {
-        setVisible(false);
+        if (alive) setVisible(false);
       }
     };
 
     raf = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(raf);
+    return () => { alive = false; cancelAnimationFrame(raf); };
   }, []);
 
   if (!visible) return null;
@@ -448,13 +474,15 @@ export default function GamesPage({ onBack }) {
                 <div style={{ marginLeft:"auto", fontSize:32 }}>{current.icon}</div>
               </div>
 
-              <Suspense fallback={
-                <div style={{ padding:"60px", textAlign:"center", fontFamily:"var(--font-mono)", fontSize:12, letterSpacing:3, color:"var(--text-muted)" }}>
-                  {g.loading}
-                </div>
-              }>
-                <GameComp key={active} />
-              </Suspense>
+              <ErrorBoundary key={active}>
+                <Suspense fallback={
+                  <div style={{ padding:"60px", textAlign:"center", fontFamily:"var(--font-mono)", fontSize:12, letterSpacing:3, color:"var(--text-muted)" }}>
+                    {g.loading}
+                  </div>
+                }>
+                  <GameComp key={active} />
+                </Suspense>
+              </ErrorBoundary>
 
               {/* Game switcher strip */}
               <div style={{ marginTop:40, paddingTop:24, borderTop:"1px solid var(--border)" }}>

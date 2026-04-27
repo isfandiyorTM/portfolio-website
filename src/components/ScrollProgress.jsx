@@ -6,10 +6,16 @@ export default function ScrollProgress() {
   useEffect(() => {
     const bar = barRef.current;
     if (!bar) return;
+    let pending = false;
     const onScroll = () => {
-      const el = document.documentElement;
-      const pct = Math.min((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100, 100);
-      bar.style.width = pct + "%";
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(() => {
+        pending = false;
+        const el = document.documentElement;
+        const pct = Math.min((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100, 100);
+        bar.style.width = pct + "%";
+      });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);

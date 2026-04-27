@@ -7,18 +7,24 @@ const GAME_NAMES = ["GAMES","MEMORY","SNAKE","TYPERАCER","QUIZ","WHACK-BUG","DE
 function AnimatedGamesBtn({ onClick }) {
   const [idx,   setIdx]   = useState(0);
   const [phase, setPhase] = useState("show"); // "show" | "out" | "in"
-  const timerRef = useRef(null);
+  const timerRef  = useRef(null);
+  const t1Ref     = useRef(null);
+  const t2Ref     = useRef(null);
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setPhase("out");
-      setTimeout(() => {
+      t1Ref.current = setTimeout(() => {
         setIdx(i => (i + 1) % GAME_NAMES.length);
         setPhase("in");
-        setTimeout(() => setPhase("show"), 280);
+        t2Ref.current = setTimeout(() => setPhase("show"), 280);
       }, 260);
     }, 2000);
-    return () => clearInterval(timerRef.current);
+    return () => {
+      clearInterval(timerRef.current);
+      clearTimeout(t1Ref.current);
+      clearTimeout(t2Ref.current);
+    };
   }, []);
 
   const anim = phase === "out" ? "navSlideOut 0.26s ease forwards"

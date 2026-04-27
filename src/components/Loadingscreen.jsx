@@ -46,8 +46,6 @@ export default function LoadingScreen({ onDone }) {
       padding: "20px",
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
-
         @keyframes slowPulse {
           0%, 100% { opacity: 1; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
           50%       { opacity: 0.3; text-shadow: none; }

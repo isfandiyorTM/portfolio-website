@@ -29,20 +29,26 @@ function PressButton({ glitch }) {
   const [pressed, setPressed] = useState(false);
   const [ripples, setRipples] = useState([]);
   const [blink, setBlink]     = useState(true);
-  const btnRef = useRef(null);
+  const btnRef      = useRef(null);
+  const rippleTimer = useRef(null);
+  const pressTimer  = useRef(null);
 
   useEffect(() => {
     const iv = setInterval(() => setBlink(b => !b), 700);
-    return () => clearInterval(iv);
+    return () => {
+      clearInterval(iv);
+      clearTimeout(rippleTimer.current);
+      clearTimeout(pressTimer.current);
+    };
   }, []);
 
   const handleClick = (e) => {
     const rect = btnRef.current.getBoundingClientRect();
     const id = Date.now();
     setRipples(r => [...r, { x: e.clientX - rect.left, y: e.clientY - rect.top, id }]);
-    setTimeout(() => setRipples(r => r.filter(rp => rp.id !== id)), 900);
+    rippleTimer.current = setTimeout(() => setRipples(r => r.filter(rp => rp.id !== id)), 900);
     setPressed(true);
-    setTimeout(() => { window.open("https://rahimovdevs.tech", "_blank"); setPressed(false); }, 180);
+    pressTimer.current = setTimeout(() => { window.open("https://rahimovdevs.tech", "_blank"); setPressed(false); }, 180);
   };
 
   return (
@@ -173,6 +179,7 @@ export default function Hero() {
   const pos          = useRef(null);
   const vel          = useRef({ dx: 1.5, dy: 1.1 });
   const rafRef       = useRef(null);
+  const glitchTimer  = useRef(null);
   const paused       = useRef(false);
   const mouseMoveRaf = useRef(null);
   const [glitch, setGlitch] = useState(false);
@@ -233,7 +240,8 @@ export default function Hero() {
 
         if (bounced) {
           setGlitch(true);
-          setTimeout(() => setGlitch(false), 160);
+          clearTimeout(glitchTimer.current);
+          glitchTimer.current = setTimeout(() => setGlitch(false), 160);
         }
       }
 
@@ -241,7 +249,10 @@ export default function Hero() {
     };
 
     rafRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      clearTimeout(glitchTimer.current);
+    };
   }, []);
 
   return (<>

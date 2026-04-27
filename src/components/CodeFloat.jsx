@@ -29,8 +29,10 @@ export default function CodeFloat({ style }) {
     let currentDiv = null;
     const lines = [];
     let timer;
+    let cancelled = false;
 
     const tick = () => {
+      if (cancelled) return;
       const snippet = SNIPPETS[lineIdx % SNIPPETS.length];
 
       if (charIdx === 0) {
@@ -39,14 +41,13 @@ export default function CodeFloat({ style }) {
           "white-space:pre;opacity:0.9;transition:opacity 0.4s;";
         el.appendChild(currentDiv);
         lines.push(currentDiv);
-        // Fade older lines
         lines.forEach((d, i) => {
           d.style.opacity = String(Math.max(0.15, 0.9 - (lines.length - 1 - i) * 0.12));
         });
         if (lines.length > 11) {
           const removed = lines.shift();
           removed.style.opacity = "0";
-          setTimeout(() => removed.remove(), 400);
+          setTimeout(() => { if (!cancelled) removed.remove(); }, 400);
         }
       }
 
@@ -63,7 +64,7 @@ export default function CodeFloat({ style }) {
     };
 
     tick();
-    return () => clearTimeout(timer);
+    return () => { cancelled = true; clearTimeout(timer); };
   }, []);
 
   return (
