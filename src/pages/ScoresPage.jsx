@@ -26,11 +26,11 @@ function LocalBoard() {
   return (
     <div style={{ marginBottom:40 }}>
       <div style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--text-muted)", marginBottom:14 }}>
-        // YOUR_LOCAL_BEST_SCORES
+        {t.games.scores_local_label}
       </div>
       {!hasAny ? (
         <div style={{ fontFamily:"var(--font-mono)", fontSize:11, color:"var(--text-muted)", padding:"24px 0", textAlign:"center", border:"1px solid var(--border)" }}>
-          No scores yet — play some games first!
+          {t.games.scores_empty}
         </div>
       ) : (
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))", gap:10 }}>
@@ -65,6 +65,8 @@ function LocalBoard() {
 }
 
 function GlobalBoard({ gameId }) {
+  const { t } = useLang();
+  const g = t.games;
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const meta = LOCAL_SCORES.find(s => s.id === gameId);
@@ -88,7 +90,7 @@ function GlobalBoard({ gameId }) {
   if (loading) {
     return (
       <div style={{ fontFamily:"var(--font-mono)", fontSize:10, color:"var(--text-muted)", padding:"20px", textAlign:"center", letterSpacing:3 }}>
-        LOADING...
+        {g.loading}
       </div>
     );
   }
@@ -96,7 +98,7 @@ function GlobalBoard({ gameId }) {
   if (rows.length === 0) {
     return (
       <div style={{ fontFamily:"var(--font-mono)", fontSize:10, color:"var(--text-muted)", padding:"20px", textAlign:"center", border:"1px solid var(--border)" }}>
-        No global scores yet for {meta?.label}.
+        {g.scores_no_global}
       </div>
     );
   }
@@ -132,6 +134,7 @@ function GlobalBoard({ gameId }) {
 
 export default function ScoresPage() {
   const navigate = useNavigate();
+  const { t } = useLang();
   const [activeGame, setActiveGame] = useState("snake");
 
   return (
@@ -153,7 +156,7 @@ export default function ScoresPage() {
             IM<span style={{ color:"var(--text)", fontWeight:400 }}>_SCORES</span>
           </div>
           <button className="btn btn-secondary" onClick={() => navigate("/games")} style={{ padding:"8px 20px", fontSize:"11px", letterSpacing:"3px" }}>
-            ← GAMES
+            {t.games.game_back}
           </button>
         </div>
 
@@ -163,7 +166,7 @@ export default function ScoresPage() {
           {/* Global leaderboard */}
           <div>
             <div style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--text-muted)", marginBottom:14 }}>
-              // GLOBAL_LEADERBOARD
+              {t.games.scores_global_label}
             </div>
 
             {/* Game tabs */}

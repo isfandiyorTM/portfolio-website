@@ -159,7 +159,7 @@ export default function Projects() {
             ))
           ) : (
             <p style={{ color:"var(--text-muted)", fontFamily:"var(--font-mono)" }}>
-              // NO PROJECTS FOUND
+              {t.projects.no_results}
             </p>
           )}
         </div>

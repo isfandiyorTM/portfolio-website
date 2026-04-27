@@ -199,15 +199,15 @@ export default function CodeOrder() {
     return (
       <div style={{ textAlign:"center", padding:"40px 20px", display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
         <div style={{ fontFamily:"var(--font-display)", fontSize:32, color:"var(--green)" }}>🏆</div>
-        <div style={{ fontFamily:"var(--font-display)", fontSize:22, color:"var(--green)", letterSpacing:3 }}>COMPLETE!</div>
+        <div style={{ fontFamily:"var(--font-display)", fontSize:22, color:"var(--green)", letterSpacing:3 }}>{g.codeorder_complete}</div>
         <div style={{ fontFamily:"var(--font-mono)", fontSize:13, color:"var(--text-muted)" }}>
-          Score: <span style={{ color:"var(--green)", fontWeight:700 }}>{score}</span> / {CHALLENGES.length}
-          {score === best && score > 0 && <span style={{ color:"var(--green)", marginLeft:10 }}>NEW BEST!</span>}
+          {g.score}: <span style={{ color:"var(--green)", fontWeight:700 }}>{score}</span> / {CHALLENGES.length}
+          {score === best && score > 0 && <span style={{ color:"var(--green)", marginLeft:10 }}>{g.new_best}</span>}
         </div>
         <div style={{ fontFamily:"var(--font-mono)", fontSize:11, color:"var(--text-muted)", letterSpacing:2 }}>
-          Best: {best} / {CHALLENGES.length}
+          {g.best}: {best} / {CHALLENGES.length}
         </div>
-        <button className="btn btn-primary" onClick={restart} style={{ padding:"12px 32px" }}>PLAY AGAIN</button>
+        <button className="btn btn-primary" onClick={restart} style={{ padding:"12px 32px" }}>{g.play_again}</button>
       </div>
     );
   }
@@ -217,10 +217,10 @@ export default function CodeOrder() {
       {/* Header */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
         <div style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--text-muted)" }}>
-          CHALLENGE {qIdx + 1} / {CHALLENGES.length}
+          {g.codeorder_challenge} {qIdx + 1} / {CHALLENGES.length}
         </div>
         <div style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--green)" }}>
-          SCORE: {score}  BEST: {best}
+          {g.score}: {score}  {g.best}: {best}
         </div>
       </div>
 
@@ -234,7 +234,7 @@ export default function CodeOrder() {
         {challenge.title}
       </div>
       <div style={{ fontFamily:"var(--font-mono)", fontSize:10, color:"var(--text-muted)", letterSpacing:1 }}>
-        Drag lines into the correct order ↕ (use arrows on mobile)
+        {g.codeorder_hint}
       </div>
 
       {/* Lines */}
@@ -290,7 +290,7 @@ export default function CodeOrder() {
           color: correct ? "var(--green)" : "#ff4466",
           letterSpacing: 2,
         }}>
-          {correct ? "✓ CORRECT!" : "✗ NOT QUITE — try reordering"}
+          {correct ? g.codeorder_correct : g.codeorder_wrong}
         </div>
       )}
 
@@ -298,17 +298,17 @@ export default function CodeOrder() {
       <div style={{ display:"flex", gap:10, justifyContent:"center", flexWrap:"wrap" }}>
         {!checked && (
           <button className="btn btn-primary" onClick={check} style={{ padding:"10px 28px", fontSize:12 }}>
-            CHECK ORDER
+            {g.codeorder_check}
           </button>
         )}
         {checked && !correct && (
           <button className="btn btn-secondary" onClick={retry} style={{ padding:"10px 28px", fontSize:12 }}>
-            TRY AGAIN
+            {g.rxt_try_again}
           </button>
         )}
         {checked && correct && (
           <button className="btn btn-primary" onClick={next} style={{ padding:"10px 28px", fontSize:12 }}>
-            {qIdx + 1 < CHALLENGES.length ? "NEXT →" : "FINISH"}
+            {qIdx + 1 < CHALLENGES.length ? g.next : g.codeorder_finish}
           </button>
         )}
       </div>

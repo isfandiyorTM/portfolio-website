@@ -185,7 +185,7 @@ export default function Contact() {
                   <textarea className="form-input" name="message" placeholder={c.placeholder_message} rows={5} value={form.message} onChange={handleChange} required />
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ justifyContent:"center", opacity: sending ? 0.6 : 1 }} disabled={sending}>
-                  {sending ? "⟳ Sending…" : c.send}
+                  {sending ? `⟳ ${c.sending}` : c.send}
                 </button>
               </form>
             </div>

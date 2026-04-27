@@ -124,7 +124,7 @@ export default function ReactionTest() {
 
       {phase === "idle" && (
         <>
-          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"var(--green)" }}>// REACTION_TEST</div>
+          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"var(--green)" }}>{g.rxt_label}</div>
           <div style={{ fontFamily:"var(--font-display)", fontSize:28, fontWeight:900, color:"var(--text)" }}>{g.rxt_title}</div>
           <div style={{ fontFamily:"var(--font-mono)", fontSize:12, color:"var(--text-muted)", lineHeight:1.7, maxWidth:280 }}>
             {g.rxt_hint} {ROUNDS} {g.rxt_rounds}.
@@ -140,7 +140,7 @@ export default function ReactionTest() {
 
       {phase === "waiting" && (
         <>
-          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"var(--text-muted)" }}>// WAITING...</div>
+          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"var(--text-muted)" }}>{g.rxt_waiting_label}</div>
           <div style={{ fontFamily:"var(--font-display)", fontSize:36, fontWeight:900, color:"var(--text-muted)", animation:"flicker 1.5s infinite" }}>
             . . .
           </div>
@@ -150,7 +150,7 @@ export default function ReactionTest() {
 
       {phase === "go" && (
         <>
-          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"var(--green)" }}>// NOW!</div>
+          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"var(--green)" }}>{g.rxt_go_label}</div>
           <div style={{ fontFamily:"var(--font-display)", fontSize:52, fontWeight:900, color:"var(--green)", animation:"pulse-glow 0.5s ease-in-out infinite", lineHeight:1 }}>
             {g.rxt_now}
           </div>
@@ -159,7 +159,7 @@ export default function ReactionTest() {
 
       {phase === "early" && (
         <>
-          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"#ff6060" }}>// TOO EARLY</div>
+          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"#ff6060" }}>{g.rxt_early_label}</div>
           <div style={{ fontFamily:"var(--font-display)", fontSize:32, fontWeight:900, color:"#ff6060" }}>{g.rxt_early}</div>
           <div style={{ fontFamily:"var(--font-mono)", fontSize:12, color:"var(--text-muted)" }}>{g.rxt_early_hint}</div>
           <button className="btn btn-secondary" onClick={e => { e.stopPropagation(); tryAgain(); }} style={{ marginTop:8 }}>{g.rxt_try_again}</button>
@@ -168,7 +168,7 @@ export default function ReactionTest() {
 
       {phase === "result" && (
         <>
-          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"var(--green)" }}>// ROUND {times.length}</div>
+          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"var(--green)" }}>{g.rxt_round_label} {times.length}</div>
           <div style={{ fontFamily:"var(--font-display)", fontSize:52, fontWeight:900, color:"var(--green)", lineHeight:1 }}>{last}<span style={{ fontSize:18, color:"var(--text-muted)" }}>ms</span></div>
           <div style={{ fontFamily:"var(--font-mono)", fontSize:11, color:"var(--text-muted)" }}>{getRating(last)}</div>
           <button className="btn btn-primary" onClick={e => { e.stopPropagation(); startRound(); }} style={{ marginTop:8 }}>{g.rxt_next}</button>
@@ -177,7 +177,7 @@ export default function ReactionTest() {
 
       {phase === "done" && (
         <>
-          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"var(--green)" }}>// {g.results?.toUpperCase()}</div>
+          <div style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:4, color:"var(--green)" }}>{g.tr_results_label}</div>
           <div style={{ fontFamily:"var(--font-display)", fontSize:52, fontWeight:900, color:"var(--green)", lineHeight:1 }}>{avg}<span style={{ fontSize:18, color:"var(--text-muted)" }}>ms</span></div>
           <div style={{ fontFamily:"var(--font-mono)", fontSize:11, color:"var(--text-muted)", marginBottom:4 }}>{g.rxt_avg} — {getRating(avg)}</div>
           <div style={{ display:"flex", gap:12, flexWrap:"wrap", justifyContent:"center", marginBottom:12 }}>

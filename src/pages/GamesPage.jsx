@@ -7,15 +7,16 @@ class ErrorBoundary extends Component {
   static getDerivedStateFromError() { return { crashed: true }; }
   render() {
     if (this.state.crashed) {
+      const { errorMsg = "⚠ LOAD_ERROR — refresh to retry", retryLabel = "RETRY" } = this.props;
       return (
         <div style={{ padding:"40px", textAlign:"center", fontFamily:"var(--font-mono)", fontSize:12, color:"#ff4466", border:"1px solid #ff4466", letterSpacing:2 }}>
-          ⚠ LOAD_ERROR — refresh to retry
+          {errorMsg}
           <br />
           <button
             onClick={() => this.setState({ crashed: false })}
             style={{ marginTop:16, padding:"8px 20px", fontFamily:"var(--font-mono)", fontSize:11, background:"transparent", border:"1px solid #ff4466", color:"#ff4466", cursor:"pointer", letterSpacing:2 }}
           >
-            RETRY
+            {retryLabel}
           </button>
         </div>
       );
@@ -408,7 +409,7 @@ export default function GamesPage({ onBack }) {
           </div>
           <div style={{ display:"flex", gap:8 }}>
             <button onClick={() => navigate("/scores")} className="btn btn-secondary" style={{ padding:"8px 16px", fontSize:"11px", letterSpacing:"2px" }}>
-              🏆 SCORES
+              {g.scores_btn}
             </button>
             <button onClick={onBack} className="btn btn-secondary" style={{ padding:"8px 20px", fontSize:"11px", letterSpacing:"3px" }}>
               {g.back}
@@ -449,7 +450,7 @@ export default function GamesPage({ onBack }) {
                     <div className="gp-card-icon">{gm.icon}</div>
                     <div className="gp-card-name">{gm.label}</div>
                     <div className="gp-card-desc">{gm.desc}</div>
-                    <div className="gp-card-play" style={{ "--accent": gm.color }}>PLAY →</div>
+                    <div className="gp-card-play" style={{ "--accent": gm.color }}>{g.play_card}</div>
                   </div>
                 ))}
               </div>
@@ -461,7 +462,7 @@ export default function GamesPage({ onBack }) {
             <>
               <div className="gp-game-header">
                 <button className="gp-back" onClick={() => setActive(null)}>
-                  ← BACK
+                  {g.game_back}
                 </button>
                 <div>
                   <div className="gp-breadcrumb">
@@ -474,7 +475,7 @@ export default function GamesPage({ onBack }) {
                 <div style={{ marginLeft:"auto", fontSize:32 }}>{current.icon}</div>
               </div>
 
-              <ErrorBoundary key={active}>
+              <ErrorBoundary key={active} errorMsg={g.game_error} retryLabel={g.game_retry}>
                 <Suspense fallback={
                   <div style={{ padding:"60px", textAlign:"center", fontFamily:"var(--font-mono)", fontSize:12, letterSpacing:3, color:"var(--text-muted)" }}>
                     {g.loading}

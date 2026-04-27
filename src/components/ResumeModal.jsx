@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useLang } from "../i18n/LanguageContext";
 
 const RESUME = {
   name:    "ISFANDIYOR MADAMINOV",
@@ -93,6 +94,8 @@ const RESUME = {
 };
 
 function ResumeContent() {
+  const { t } = useLang();
+  const rv = t.resume;
   return (
     <div style={{
       fontFamily: "var(--font-mono)",
@@ -139,13 +142,13 @@ function ResumeContent() {
 
       {/* Summary */}
       <div className="rv-section">
-        <div className="rv-h2">// SUMMARY</div>
+        <div className="rv-h2">{rv.summary}</div>
         <p style={{ fontSize: 11, lineHeight: 1.8, color: "var(--text-muted)", margin: 0 }}>{RESUME.summary}</p>
       </div>
 
       {/* Experience */}
       <div className="rv-section">
-        <div className="rv-h2">// EXPERIENCE</div>
+        <div className="rv-h2">{rv.experience}</div>
         {RESUME.experience.map(ex => (
           <div key={ex.role} style={{ marginBottom: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 4 }}>
@@ -160,7 +163,7 @@ function ResumeContent() {
 
       {/* Projects */}
       <div className="rv-section">
-        <div className="rv-h2">// PROJECTS</div>
+        <div className="rv-h2">{rv.projects}</div>
         {RESUME.projects.map(pr => (
           <div key={pr.name} style={{ marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
@@ -174,7 +177,7 @@ function ResumeContent() {
 
       {/* Skills */}
       <div className="rv-section">
-        <div className="rv-h2">// TECH STACK</div>
+        <div className="rv-h2">{rv.tech}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {RESUME.skills.map(sk => (
             <div key={sk.label} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -188,7 +191,7 @@ function ResumeContent() {
 
       {/* Education */}
       <div className="rv-section">
-        <div className="rv-h2">// EDUCATION</div>
+        <div className="rv-h2">{rv.education}</div>
         {RESUME.education.map(e => (
           <div key={e.degree} style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 4 }}>
             <div>
@@ -295,7 +298,7 @@ function ModalInner({ onClose }) {
                 background: "rgba(0,255,136,0.06)",
                 color: "var(--green)", cursor: "pointer",
               }}>
-                <span className="modal-dl-arrow">↓</span> DOWNLOAD
+                <span className="modal-dl-arrow">↓</span> {t.resume.download}
               </button>
             </a>
             <button

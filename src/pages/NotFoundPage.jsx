@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLang } from "../i18n/LanguageContext";
 
 const LINES = [
   "$ cd /page-not-found",
@@ -22,6 +23,8 @@ function TerminalCursor() {
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
+  const { t } = useLang();
+  const nf = t.not_found;
   const [visibleLines, setVisibleLines] = useState([]);
   const [glitch, setGlitch] = useState(false);
 
@@ -67,7 +70,7 @@ export default function NotFoundPage() {
         letterSpacing: 4, color: "var(--text-muted)", marginBottom: 40,
         position: "relative", zIndex: 1,
       }}>
-        // PAGE_NOT_FOUND
+        {nf.label}
       </div>
 
       {/* Terminal window */}
@@ -86,7 +89,7 @@ export default function NotFoundPage() {
             <div key={c} style={{ width:10, height:10, borderRadius:"50%", background:c, opacity:0.7 }} />
           ))}
           <span style={{ fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:2, color:"var(--text-muted)", marginLeft:8 }}>
-            bash — 404
+            {nf.terminal}
           </span>
         </div>
 
@@ -114,7 +117,7 @@ export default function NotFoundPage() {
         onClick={() => navigate("/")}
         style={{ position: "relative", zIndex: 1, letterSpacing: 3 }}
       >
-        ← RETURN HOME
+        {nf.back}
       </button>
     </div>
   );
