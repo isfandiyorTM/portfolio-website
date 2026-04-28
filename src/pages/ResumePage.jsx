@@ -1,99 +1,10 @@
-const RESUME = {
-  name:    "ISFANDIYOR MADAMINOV",
-  title:   "IT Mentor & Flutter Developer",
-  contact: [
-    { icon: "✉", text: "isfandiyormadaminov12@gmail.com" },
-    { icon: "🌐", text: "rahimovdevs.tech" },
-    { icon: "📍", text: "Tashkent, Uzbekistan" },
-    { icon: "⌥",  text: "github.com/isfandiyordev" },
-  ],
-  summary:
-    "IT teacher with 4+ years of experience across academies, university, and private schools — teaching everything from computer basics to full-stack web and Flutter development. Mentored 450+ students. Also builds Flutter apps: Clean Architecture, BLoC, SQLite, Firebase.",
-  experience: [
-    {
-      role:    "IT Teacher",
-      company: "Rahimov School",
-      period:  "2025 — Present",
-      points: [
-        "Teaching Word, Excel, PowerPoint, Canva, and computer basics to beginners.",
-        "Running Python, HTML/CSS/JS, and FrontEnd courses for intermediate students.",
-        "Introducing students to AI tools and vibe coding workflows.",
-      ],
-    },
-    {
-      role:    "Co-developer & Network Manager",
-      company: "Biznex POS System",
-      period:  "2024 — 2025",
-      points: [
-        "Built a full POS business management system together with my university teacher.",
-        "Installed and configured POS systems on-site at restaurants across the city.",
-        "Communicated directly with real clients — gathered requirements and resolved issues.",
-        "Diagnosed and fixed technical errors in the field as they arose.",
-      ],
-    },
-    {
-      role:    "Teaching Assistant",
-      company: "University",
-      period:  "2023 — 2024",
-      points: [
-        "Assisted classmates and junior students with FrontEnd development (HTML, CSS, JS, React).",
-        "Provided guidance on Python programming, PostgreSQL, and MySQL database design.",
-        "Mentored students learning Dart and Flutter for mobile development.",
-      ],
-    },
-    {
-      role:    "IT Instructor",
-      company: "ICode · Codial · Integer",
-      period:  "2021 — 2023",
-      points: [
-        "Taught Computer Literacy (Komputer Savodxonligi) to students of all ages across three academies.",
-        "Delivered FrontEnd courses covering HTML, CSS, and JavaScript fundamentals.",
-        "Prepared students for practical computer usage and entry-level web development.",
-      ],
-    },
-  ],
-  projects: [
-    {
-      name:  "Cho'ntak",
-      tech:  "Flutter · BLoC · SQLite · Clean Architecture",
-      desc:  "Personal finance tracker for Uzbekistan — so'm currency, Uzbek/Russian/English, 100% offline with PIN & biometric lock. 42+ Dart files, 5 screens, SQLite with v1→v4 migrations.",
-    },
-    {
-      name:  "Hoji Jalyuzi",
-      tech:  "Flutter · Firebase",
-      desc:  "Business management app for a blinds company. Order tracking, inventory management, and customer records.",
-    },
-    {
-      name:  "Rahimov Devs Platform",
-      tech:  "React · Vite · Custom i18n",
-      desc:  "Student showcase platform where 450+ mentored students publish their live portfolios. 3 languages, custom translation system.",
-    },
-  ],
-  skills: [
-    { label: "Mobile",    items: ["Flutter", "Dart", "iOS", "Android"] },
-    { label: "State Mgmt", items: ["BLoC", "Provider", "Riverpod"] },
-    { label: "Backend",   items: ["Firebase", "REST API", "SQLite", "Dio"] },
-    { label: "Architecture", items: ["Clean Architecture", "SOLID", "MVC"] },
-    { label: "Tools",     items: ["Git", "GitHub", "VS Code", "Figma"] },
-    { label: "Web",       items: ["React", "Vite", "HTML", "CSS", "JavaScript"] },
-    { label: "Languages", items: ["Uzbek (native)", "Russian (fluent)", "English (professional)"] },
-  ],
-  education: [
-    {
-      degree: "Computer Science — Self-directed",
-      school: "Flutter Docs · Dart Docs · Open Source Community",
-      year:   "2021 — Present",
-    },
-  ],
-  stats: [
-    { v: "4+",   l: "Years Experience" },
-    { v: "450+", l: "Students Mentored" },
-    { v: "2+",   l: "Apps Shipped" },
-    { v: "5★",   l: "Mentor Rating" },
-  ],
-};
+import { useLang } from "../i18n/LanguageContext";
+import { RESUME } from "../constants/data";
 
 export default function ResumePage() {
+  const { t } = useLang();
+  const rv = t.resume;
+
   return (
     <>
       <style>{`
@@ -148,7 +59,7 @@ export default function ResumePage() {
             onClick={() => window.print()}
             style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:2, padding:"9px 18px", border:"1px solid #00994d", background:"#00994d", color:"#fff", cursor:"pointer" }}
           >
-            <span className="dl-arrow">↓</span> SAVE AS PDF
+            <span className="dl-arrow">↓</span> {rv.download} PDF
           </button>
           <button
             onClick={() => window.close()}
@@ -169,7 +80,7 @@ export default function ResumePage() {
             {RESUME.name}
           </div>
           <div style={{ fontSize:12, letterSpacing:2, color:"#555", marginBottom:14 }}>
-            {RESUME.title}
+            {rv.job_title}
           </div>
           <div style={{ display:"flex", flexWrap:"wrap", gap:"6px 24px" }}>
             {RESUME.contact.map(c => (
@@ -182,56 +93,59 @@ export default function ResumePage() {
 
         {/* Stats */}
         <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:26 }}>
-          {RESUME.stats.map(s => (
-            <div key={s.l} style={{ border:"1px solid #d0f0e0", padding:"10px 8px", textAlign:"center" }}>
+          {RESUME.stats.map((s, i) => (
+            <div key={i} style={{ border:"1px solid #d0f0e0", padding:"10px 8px", textAlign:"center" }}>
               <div style={{ fontSize:20, fontWeight:900, color:"#00994d", lineHeight:1 }}>{s.v}</div>
-              <div style={{ fontSize:8, letterSpacing:2, color:"#777", marginTop:3 }}>{s.l}</div>
+              <div style={{ fontSize:8, letterSpacing:2, color:"#777", marginTop:3 }}>{rv.stat_labels[i]}</div>
             </div>
           ))}
         </div>
 
         {/* Summary */}
         <div className="section">
-          <h2>// Summary</h2>
-          <p style={{ fontSize:11, lineHeight:1.8, color:"#444" }}>{RESUME.summary}</p>
+          <h2>{rv.summary}</h2>
+          <p style={{ fontSize:11, lineHeight:1.8, color:"#444" }}>{rv.summary_text}</p>
         </div>
 
         {/* Experience */}
         <div className="section">
-          <h2>// Experience</h2>
-          {RESUME.experience.map(ex => (
-            <div key={ex.role} style={{ marginBottom:16 }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", flexWrap:"wrap", gap:4 }}>
-                <span style={{ fontSize:13, fontWeight:700, color:"#111" }}>{ex.role}</span>
-                <span style={{ fontSize:9, letterSpacing:2, color:"#00994d" }}>{ex.period}</span>
+          <h2>{rv.experience}</h2>
+          {RESUME.experience.map((ex, i) => {
+            const tr = rv.exp[i];
+            return (
+              <div key={ex.company} style={{ marginBottom:16 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", flexWrap:"wrap", gap:4 }}>
+                  <span style={{ fontSize:13, fontWeight:700, color:"#111" }}>{tr.role}</span>
+                  <span style={{ fontSize:9, letterSpacing:2, color:"#00994d" }}>{tr.period}</span>
+                </div>
+                <div style={{ fontSize:10, color:"#00994d", marginBottom:6, opacity:0.8 }}>{ex.company}</div>
+                {tr.points.map(p => <div key={p} className="bullet">{p}</div>)}
               </div>
-              <div style={{ fontSize:10, color:"#00994d", marginBottom:6, opacity:0.8 }}>{ex.company}</div>
-              {ex.points.map(p => <div key={p} className="bullet">{p}</div>)}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Projects */}
         <div className="section">
-          <h2>// Projects</h2>
-          {RESUME.projects.map(pr => (
+          <h2>{rv.projects}</h2>
+          {RESUME.projects.map((pr, i) => (
             <div key={pr.name} style={{ marginBottom:12 }}>
               <div style={{ display:"flex", alignItems:"baseline", gap:10, flexWrap:"wrap" }}>
                 <span style={{ fontSize:12, fontWeight:700, color:"#111" }}>{pr.name}</span>
                 <span style={{ fontSize:9, color:"#00994d", opacity:0.7 }}>{pr.tech}</span>
               </div>
-              <div style={{ fontSize:11, color:"#444", marginTop:3, lineHeight:1.7 }}>{pr.desc}</div>
+              <div style={{ fontSize:11, color:"#444", marginTop:3, lineHeight:1.7 }}>{rv.proj[i].desc}</div>
             </div>
           ))}
         </div>
 
         {/* Skills */}
         <div className="section">
-          <h2>// Tech Stack</h2>
+          <h2>{rv.tech}</h2>
           <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-            {RESUME.skills.map(sk => (
-              <div key={sk.label} style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
-                <span style={{ fontSize:9, letterSpacing:1, color:"#00994d", width:80, flexShrink:0 }}>{sk.label}</span>
+            {RESUME.skills.map((sk, i) => (
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                <span style={{ fontSize:9, letterSpacing:1, color:"#00994d", width:80, flexShrink:0 }}>{rv.skill_labels[i]}</span>
                 <span style={{ color:"#aaa" }}>→</span>
                 {sk.items.map(it => <span key={it} className="tag">{it}</span>)}
               </div>
@@ -241,8 +155,8 @@ export default function ResumePage() {
 
         {/* Education */}
         <div className="section">
-          <h2>// Education</h2>
-          {RESUME.education.map(e => (
+          <h2>{rv.education}</h2>
+          {rv.edu.map(e => (
             <div key={e.degree} style={{ display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:4 }}>
               <div>
                 <div style={{ fontSize:11, color:"#111" }}>{e.degree}</div>

@@ -1,97 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLang } from "../i18n/LanguageContext";
-
-const RESUME = {
-  name:    "ISFANDIYOR MADAMINOV",
-  title:   "IT Mentor & Flutter Developer",
-  contact: [
-    { icon: "✉", text: "isfandiyormadaminov12@gmail.com" },
-    { icon: "🌐", text: "rahimovdevs.tech" },
-    { icon: "📍", text: "Tashkent, Uzbekistan" },
-    { icon: "⌥",  text: "github.com/isfandiyordev" },
-  ],
-  summary:
-    "IT teacher with 4+ years of experience across academies, university, and private schools — teaching everything from computer basics to full-stack web and Flutter development. Mentored 450+ students. Also builds Flutter apps: Clean Architecture, BLoC, SQLite, Firebase.",
-  experience: [
-    {
-      role:    "IT Teacher",
-      company: "Rahimov School",
-      period:  "2025 — Present",
-      points: [
-        "Teaching Word, Excel, PowerPoint, Canva, and computer basics to beginners.",
-        "Running Python, HTML/CSS/JS, and FrontEnd courses for intermediate students.",
-        "Introducing students to AI tools and vibe coding workflows.",
-      ],
-    },
-    {
-      role:    "Co-developer & Network Manager",
-      company: "Biznex POS System",
-      period:  "2024 — 2025",
-      points: [
-        "Built a full POS business management system together with my university teacher.",
-        "Installed and configured POS systems on-site at restaurants across the city.",
-        "Communicated directly with real clients — gathered requirements and resolved issues.",
-        "Diagnosed and fixed technical errors in the field as they arose.",
-      ],
-    },
-    {
-      role:    "Teaching Assistant",
-      company: "University",
-      period:  "2023 — 2024",
-      points: [
-        "Assisted classmates and junior students with FrontEnd development (HTML, CSS, JS, React).",
-        "Provided guidance on Python programming, PostgreSQL, and MySQL database design.",
-        "Mentored students learning Dart and Flutter for mobile development.",
-      ],
-    },
-    {
-      role:    "IT Instructor",
-      company: "ICode · Codial · Integer",
-      period:  "2021 — 2023",
-      points: [
-        "Taught Computer Literacy (Komputer Savodxonligi) to students of all ages across three academies.",
-        "Delivered FrontEnd courses covering HTML, CSS, and JavaScript fundamentals.",
-        "Prepared students for practical computer usage and entry-level web development.",
-      ],
-    },
-  ],
-  projects: [
-    {
-      name:  "Cho'ntak",
-      tech:  "Flutter · BLoC · SQLite · Clean Architecture",
-      desc:  "Personal finance tracker for Uzbekistan — so'm currency, 3 languages, 100% offline, PIN & biometric lock.",
-    },
-    {
-      name:  "Hoji Jalyuzi",
-      tech:  "Flutter · Firebase",
-      desc:  "Business management app — order tracking, inventory, customer records for a blinds company.",
-    },
-    {
-      name:  "Rahimov Devs Platform",
-      tech:  "React · Vite",
-      desc:  "Live student showcase platform — 450+ mentored, 3+ live student portfolios published.",
-    },
-  ],
-  skills: [
-    { label: "Mobile",    items: ["Flutter", "Dart", "iOS", "Android"] },
-    { label: "State",     items: ["BLoC", "Provider", "Riverpod"] },
-    { label: "Backend",   items: ["Firebase", "REST API", "SQLite"] },
-    { label: "Arch",      items: ["Clean Architecture", "SOLID", "MVC"] },
-    { label: "Tools",     items: ["Git", "GitHub", "VS Code", "Figma"] },
-    { label: "Web",       items: ["React", "Vite", "HTML", "CSS", "JS"] },
-    { label: "Teaching",  items: ["Python", "FrontEnd", "MS Office", "Canva", "AI Tools"] },
-  ],
-  education: [
-    { degree: "Self-directed / Continuous Learning", school: "Flutter Docs · Dart Docs · Community", year: "2021 — Present" },
-  ],
-  stats: [
-    { v: "4+",   l: "Years" },
-    { v: "450+", l: "Students" },
-    { v: "2+",   l: "Apps Shipped" },
-    { v: "5★",   l: "Mentor Rating" },
-  ],
-};
+import { RESUME } from "../constants/data";
 
 function ResumeContent() {
   const { t } = useLang();
@@ -119,7 +29,7 @@ function ResumeContent() {
           {RESUME.name}
         </div>
         <div style={{ fontSize: 11, letterSpacing: 2, color: "var(--text-muted)", marginBottom: 14 }}>
-          {RESUME.title}
+          {rv.job_title}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 20px" }}>
           {RESUME.contact.map(c => (
@@ -132,10 +42,10 @@ function ResumeContent() {
 
       {/* Stats bar */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginBottom: 28 }}>
-        {RESUME.stats.map(s => (
-          <div key={s.l} style={{ border: "1px solid var(--green-dark)", padding: "10px 8px", textAlign: "center", background: "rgba(0,255,136,0.03)" }}>
+        {RESUME.stats.map((s, i) => (
+          <div key={i} style={{ border: "1px solid var(--green-dark)", padding: "10px 8px", textAlign: "center", background: "rgba(0,255,136,0.03)" }}>
             <div style={{ fontSize: 20, fontWeight: 900, color: "var(--green)", lineHeight: 1 }}>{s.v}</div>
-            <div style={{ fontSize: 8, letterSpacing: 2, color: "var(--text-muted)", marginTop: 3 }}>{s.l}</div>
+            <div style={{ fontSize: 8, letterSpacing: 2, color: "var(--text-muted)", marginTop: 3 }}>{rv.stat_labels[i]}</div>
           </div>
         ))}
       </div>
@@ -143,34 +53,37 @@ function ResumeContent() {
       {/* Summary */}
       <div className="rv-section">
         <div className="rv-h2">{rv.summary}</div>
-        <p style={{ fontSize: 11, lineHeight: 1.8, color: "var(--text-muted)", margin: 0 }}>{RESUME.summary}</p>
+        <p style={{ fontSize: 11, lineHeight: 1.8, color: "var(--text-muted)", margin: 0 }}>{rv.summary_text}</p>
       </div>
 
       {/* Experience */}
       <div className="rv-section">
         <div className="rv-h2">{rv.experience}</div>
-        {RESUME.experience.map(ex => (
-          <div key={ex.role} style={{ marginBottom: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 4 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>{ex.role}</span>
-              <span style={{ fontSize: 9, letterSpacing: 2, color: "var(--green)", opacity: 0.7 }}>{ex.period}</span>
+        {RESUME.experience.map((ex, i) => {
+          const tr = rv.exp[i];
+          return (
+            <div key={ex.company} style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 4 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>{tr.role}</span>
+                <span style={{ fontSize: 9, letterSpacing: 2, color: "var(--green)", opacity: 0.7 }}>{tr.period}</span>
+              </div>
+              <div style={{ fontSize: 10, color: "var(--green)", marginBottom: 6, opacity: 0.8 }}>{ex.company}</div>
+              {tr.points.map(p => <div key={p} className="rv-bullet">{p}</div>)}
             </div>
-            <div style={{ fontSize: 10, color: "var(--green)", marginBottom: 6, opacity: 0.8 }}>{ex.company}</div>
-            {ex.points.map(p => <div key={p} className="rv-bullet">{p}</div>)}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Projects */}
       <div className="rv-section">
         <div className="rv-h2">{rv.projects}</div>
-        {RESUME.projects.map(pr => (
+        {RESUME.projects.map((pr, i) => (
           <div key={pr.name} style={{ marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>{pr.name}</span>
               <span style={{ fontSize: 9, color: "var(--green)", opacity: 0.6 }}>{pr.tech}</span>
             </div>
-            <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 3, lineHeight: 1.6 }}>{pr.desc}</div>
+            <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 3, lineHeight: 1.6 }}>{rv.proj[i].desc}</div>
           </div>
         ))}
       </div>
@@ -179,9 +92,9 @@ function ResumeContent() {
       <div className="rv-section">
         <div className="rv-h2">{rv.tech}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {RESUME.skills.map(sk => (
-            <div key={sk.label} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 9, letterSpacing: 2, color: "var(--green)", width: 54, flexShrink: 0 }}>{sk.label}</span>
+          {RESUME.skills.map((sk, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 9, letterSpacing: 2, color: "var(--green)", width: 54, flexShrink: 0 }}>{rv.skill_labels[i]}</span>
               <span style={{ color: "var(--green-dark)" }}>→</span>
               {sk.items.map(it => <span key={it} className="rv-tag">{it}</span>)}
             </div>
@@ -192,7 +105,7 @@ function ResumeContent() {
       {/* Education */}
       <div className="rv-section">
         <div className="rv-h2">{rv.education}</div>
-        {RESUME.education.map(e => (
+        {rv.edu.map(e => (
           <div key={e.degree} style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 4 }}>
             <div>
               <div style={{ fontSize: 11, color: "var(--text)" }}>{e.degree}</div>
@@ -211,6 +124,7 @@ function ResumeContent() {
 }
 
 function ModalInner({ onClose }) {
+  const { t } = useLang();
   const [hoverClose, setHoverClose] = useState(false);
   const [hoverDl,    setHoverDl]    = useState(false);
 

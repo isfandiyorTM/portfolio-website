@@ -60,6 +60,42 @@ export const SKILL_METERS = [
   { label: "UI Design",            level: 68 },
 ];
 
+export const RESUME = {
+  name:    "ISFANDIYOR MADAMINOV",
+  contact: [
+    { icon: "✉", text: "isfandiyormadaminov12@gmail.com" },
+    { icon: "🌐", text: "rahimovdevs.tech" },
+    { icon: "📍", text: "Tashkent, Uzbekistan" },
+    { icon: "⌥",  text: "github.com/isfandiyordev" },
+  ],
+  experience: [
+    { company: "Rahimov School" },
+    { company: "Biznex POS System" },
+    { company: "University" },
+    { company: "ICode · Codial · Integer" },
+  ],
+  projects: [
+    { name: "Cho'ntak",              tech: "Flutter · BLoC · SQLite · Clean Architecture" },
+    { name: "Hoji Jalyuzi",          tech: "Flutter · Firebase" },
+    { name: "Rahimov Devs Platform", tech: "React · Vite · Custom i18n" },
+  ],
+  skills: [
+    { items: ["Flutter", "Dart", "iOS", "Android"] },
+    { items: ["BLoC", "Provider", "Riverpod"] },
+    { items: ["Firebase", "REST API", "SQLite", "Dio"] },
+    { items: ["Clean Architecture", "SOLID", "MVC"] },
+    { items: ["Git", "GitHub", "VS Code", "Figma"] },
+    { items: ["React", "Vite", "HTML", "CSS", "JavaScript"] },
+    { items: ["Uzbek (native)", "Russian (fluent)", "English (professional)"] },
+  ],
+  stats: [
+    { v: "4+"   },
+    { v: "450+" },
+    { v: "2+"   },
+    { v: "5★"   },
+  ],
+};
+
 export const SOCIAL_LINKS = {
   github:    "https://github.com/isfandiyorTM",
   linkedin:  "https://www.linkedin.com/in/isfandiyor-madaminov-923a1a294/",
