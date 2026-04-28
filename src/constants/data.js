@@ -75,9 +75,9 @@ export const RESUME = {
     { company: "ICode · Codial · Integer" },
   ],
   projects: [
+    { name: "Rahimov Devs Platform", tech: "React · Vite · Custom i18n" },
     { name: "Cho'ntak",              tech: "Flutter · BLoC · SQLite · Clean Architecture" },
     { name: "Hoji Jalyuzi",          tech: "Flutter · Firebase" },
-    { name: "Rahimov Devs Platform", tech: "React · Vite · Custom i18n" },
   ],
   skills: [
     { items: ["Flutter", "Dart", "iOS", "Android"] },
@@ -86,7 +86,7 @@ export const RESUME = {
     { items: ["Clean Architecture", "SOLID", "MVC"] },
     { items: ["Git", "GitHub", "VS Code", "Figma"] },
     { items: ["React", "Vite", "HTML", "CSS", "JavaScript"] },
-    { items: ["Uzbek (native)", "Russian (fluent)", "English (professional)"] },
+    { items: ["Uzbek (native)", "Russian (A2)", "English (professional)"] },
   ],
   stats: [
     { v: "4+"   },
