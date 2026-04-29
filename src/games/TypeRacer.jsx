@@ -963,7 +963,7 @@ export default function TypeRacer() {
       `}</style>
 
       {/* Mode selector */}
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+      <div style={{ display: phase === "typing" ? "none" : "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
         {Object.entries(MODE_META).map(([m, meta]) => (
           <button key={m} className={`tr-mode ${mode === m ? "active" : ""}`} onClick={() => handleModeChange(m)}>
             {meta.icon} {meta.label}
@@ -972,7 +972,7 @@ export default function TypeRacer() {
       </div>
 
       {/* Length selector */}
-      {mode !== "quotes" && (
+      {phase !== "typing" && mode !== "quotes" && (
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14, alignItems: "center" }}>
           <span style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:2, color:"var(--text-muted)", marginRight:4 }}>
             {g.tr_len_label ?? "LENGTH"}:
@@ -984,10 +984,10 @@ export default function TypeRacer() {
           ))}
         </div>
       )}
-      {mode === "quotes" && <div style={{ marginBottom: 14 }} />}
+      {mode === "quotes" && phase !== "typing" && <div style={{ marginBottom: 14 }} />}
 
       {/* Stats bar */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6, marginBottom: 12 }}>
+      <div style={{ display: phase === "typing" ? "none" : "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6, marginBottom: 12 }}>
         {[
           { label: g.wpm,    value: phase === "idle" ? "—" : wpm,                    color: phase === "typing" ? "var(--green)" : "var(--text)" },
           { label: g.acc,    value: phase === "idle" ? "—" : acc + "%",              color: acc >= 95 ? "var(--green)" : acc >= 80 ? "#ffcc44" : "#ff3c3c" },
@@ -1002,7 +1002,7 @@ export default function TypeRacer() {
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: 2, background: "var(--border)", marginBottom: 12, position: "relative" }}>
+      <div style={{ height: 2, background: "var(--border)", marginBottom: 12, position: "relative", display: phase === "typing" ? "none" : "block" }}>
         <div style={{
           height: "100%",
           width: progress + "%",
@@ -1069,12 +1069,12 @@ export default function TypeRacer() {
           />
 
           {/* Keyboard — clicking anywhere on it re-focuses the hidden input */}
-          <div onClick={() => inputRef.current?.focus()}>
+          <div style={{ display: phase === "typing" ? "none" : "block" }} onClick={() => inputRef.current?.focus()}>
             <KeyboardViz nextKey={nextKey} pressedKey={pressedKey} pressedCorrect={pressedCorrect} />
           </div>
 
           {/* Bottom bar */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+          <div style={{ display: phase === "typing" ? "none" : "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-muted)", letterSpacing: 2 }}>
               {phase === "idle"
                 ? g.tr_start_hint
