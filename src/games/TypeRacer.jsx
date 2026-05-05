@@ -435,6 +435,93 @@ function KeyboardViz({ nextKey, pressedKey, pressedCorrect }) {
   );
 }
 
+/* ── Sound wave visualizer ────────────────────────────────────────────── */
+const BAR_COUNT = 38;
+
+function SoundWave({ typed, pressedCorrect, phase }) {
+  const containerRef = useRef(null);
+  const stateRef = useRef({
+    bars:     Array(BAR_COUNT).fill(3),
+    targets:  Array(BAR_COUNT).fill(3),
+    idle:     0,
+    typedLen: 0,
+    color:    "var(--green)",
+  });
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    const s = stateRef.current;
+    const tick = () => {
+      s.idle += 0.038;
+      for (let i = 0; i < BAR_COUNT; i++) {
+        const idleH = 2 + Math.abs(Math.sin(s.idle + i * 0.28)) * 2.5;
+        s.targets[i] = s.targets[i] * 0.9 + idleH * 0.1;
+        s.bars[i]   += (s.targets[i] - s.bars[i]) * 0.28;
+      }
+      const els = containerRef.current?.children;
+      if (els) {
+        for (let i = 0; i < BAR_COUNT; i++) {
+          els[i].style.height = Math.max(2, s.bars[i]).toFixed(1) + "px";
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  useEffect(() => {
+    const s = stateRef.current;
+    if (typed.length === s.typedLen) return;
+    s.typedLen = typed.length;
+    s.color = pressedCorrect ? "var(--green)" : "#ff4466";
+
+    const peak   = pressedCorrect ? 58 : 42;
+    const center = (Math.random() * 0.6 + 0.2) * BAR_COUNT;
+    for (let i = 0; i < BAR_COUNT; i++) {
+      const d = (i - center) / (BAR_COUNT * 0.22);
+      s.targets[i] = 4 + peak * Math.exp(-d * d) + Math.random() * 18;
+    }
+
+    const els = containerRef.current?.children;
+    if (els) {
+      const col = s.color;
+      for (const el of els) {
+        el.style.background  = col;
+        el.style.boxShadow   = `0 0 8px ${col}99`;
+      }
+      setTimeout(() => {
+        if (!containerRef.current) return;
+        for (const el of containerRef.current.children) {
+          el.style.background = s.color;
+          el.style.boxShadow  = "";
+        }
+      }, 260);
+    }
+  }, [typed, pressedCorrect]);
+
+  if (phase === "done") return null;
+
+  return (
+    <div
+      ref={containerRef}
+      style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 64, marginTop: 10, marginBottom: 6 }}
+    >
+      {Array.from({ length: BAR_COUNT }, (_, i) => (
+        <div
+          key={i}
+          style={{
+            flex: 1,
+            height: 3,
+            background: "var(--green)",
+            borderRadius: "2px 2px 0 0",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 /* ── Fade wrapper ─────────────────────────────────────────────────────── */
 function FadePanel({ visible, children, style }) {
   return (
