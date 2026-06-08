@@ -1,0 +1,319 @@
+import { useState, useRef, useEffect } from "react";
+
+const PROMPT = "ISF@PORTFOLIO ~ $";
+
+const ALL_CMDS = ["about","clear","contact","help","ls","projects","resume","secret","skills","whoami"];
+
+function process(cmd) {
+  switch (cmd.trim().toLowerCase()) {
+    case "help": case "?":
+      return {
+        lines: [
+          "  about      who I am",
+          "  skills     tech stack",
+          "  projects   my work",
+          "  contact    get in touch",
+          "  resume     view my CV",
+          "  whoami     identity check",
+          "  ls         list directory",
+          "  secret     ???",
+          "  clear      clear screen",
+        ],
+      };
+
+    case "whoami": case "me":
+      return {
+        lines: [
+          "Isfandiyor Madaminov",
+          "IT Teacher & Flutter Developer",
+          "Location: Tashkent, Uzbekistan",
+        ],
+      };
+
+    case "about":
+      return {
+        lines: [
+          "Teaching 450+ students at Rahimov School.",
+          "Flutter apps with Clean Architecture & BLoC.",
+          "From computer basics to full-stack — I cover it.",
+          "Available for freelance and full-time roles.",
+        ],
+      };
+
+    case "skills":
+      return {
+        lines: [
+          "LANGUAGES   Dart · JavaScript · Python",
+          "FRAMEWORKS  Flutter · React",
+          "BACKEND     Firebase · REST · Node.js",
+          "TOOLS       Git · Figma · VS Code",
+          "TEACHING    450+ students · 4+ years",
+        ],
+      };
+
+    case "projects":
+      setTimeout(() => {
+        document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+      }, 400);
+      return {
+        lines: [
+          "→ Chontak       social platform (Flutter)",
+          "→ HojiJalyuzi   business management (Flutter)",
+          "→ RahimovDevs   dev agency website (React)",
+          "",
+          "Navigating to #projects...",
+        ],
+      };
+
+    case "contact":
+      setTimeout(() => {
+        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+      }, 400);
+      return {
+        lines: [
+          "Email    isfandiyormadaminov12@gmail.com",
+          "",
+          "Navigating to #contact...",
+        ],
+      };
+
+    case "resume": case "cv":
+      setTimeout(() => window.open("/resume", "_blank"), 300);
+      return { lines: ["Opening resume in a new tab..."] };
+
+    case "ls": case "dir":
+      return {
+        lines: [
+          "drwxr-xr-x  projects/",
+          "drwxr-xr-x  skills/",
+          "-rw-r--r--  resume.pdf",
+          "-rw-r--r--  contact.txt",
+          "-rw-r--r--  about.md",
+          "-r--------  secret.txt     [ACCESS DENIED]",
+        ],
+      };
+
+    case "secret": case "hint":
+      return {
+        lines: [
+          "[ CLASSIFIED ]",
+          "Try typing your surname on the keyboard...",
+        ],
+      };
+
+    case "clear": case "cls":
+      return "CLEAR";
+
+    case "":
+      return null;
+
+    default:
+      return {
+        lines: [
+          `bash: ${cmd}: command not found`,
+          "type 'help' for available commands.",
+        ],
+        error: true,
+      };
+  }
+}
+
+const WELCOME = [
+  "ISFANDIYOR MADAMINOV — portfolio terminal",
+  "──────────────────────────────────────────",
+  "Type 'help' for available commands.",
+  "",
+];
+
+const CSS = `
+@keyframes kb-terminal-open {
+  from { opacity:0; transform:translate(-50%,-50%) scale(0.96) translateY(-8px); }
+  to   { opacity:1; transform:translate(-50%,-50%) scale(1)    translateY(0px); }
+}
+`;
+
+export default function Terminal() {
+  const [open, setOpen]       = useState(false);
+  const [history, setHistory] = useState(WELCOME.map(t => ({ kind: "out", text: t })));
+  const [input, setInput]     = useState("");
+  const [cmdHist, setCmdHist] = useState([]);
+  const [histIdx, setHistIdx] = useState(-1);
+
+  const inputRef  = useRef(null);
+  const bottomRef = useRef(null);
+  const openRef   = useRef(false);
+  openRef.current = open;
+
+  useEffect(() => {
+    const h = (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      if (e.key === "/" && !openRef.current) {
+        e.preventDefault();
+        setOpen(true);
+      }
+      if (e.key === "Escape" && openRef.current) {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, []);
+
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 60);
+  }, [open]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [history]);
+
+  const submit = (e) => {
+    e.preventDefault();
+    const cmd = input.trim();
+    if (cmd) setCmdHist(h => [cmd, ...h].slice(0, 50));
+    setHistIdx(-1);
+    setInput("");
+    setHistory(h => [...h, { kind: "in", text: cmd }]);
+    const res = process(cmd);
+    if (res === "CLEAR") { setHistory([]); return; }
+    if (res) {
+      setHistory(h => [
+        ...h,
+        ...res.lines.map(t => ({ kind: res.error ? "err" : "out", text: t })),
+        { kind: "out", text: "" },
+      ]);
+    }
+  };
+
+  const onKeyDown = (e) => {
+    if (e.key === "Escape") { setOpen(false); return; }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const idx = Math.min(histIdx + 1, cmdHist.length - 1);
+      setHistIdx(idx);
+      setInput(cmdHist[idx] ?? "");
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const idx = Math.max(histIdx - 1, -1);
+      setHistIdx(idx);
+      setInput(idx === -1 ? "" : cmdHist[idx]);
+    }
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const lower = input.toLowerCase();
+      const matches = ALL_CMDS.filter(c => c.startsWith(lower) && c !== lower);
+      if (matches.length > 0) setInput(matches[0]);
+    }
+  };
+
+  return (
+    <>
+      <style>{CSS}</style>
+
+      {open && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => setOpen(false)}
+            style={{
+              position: "fixed", inset: 0, zIndex: 9998,
+              background: "rgba(0,0,0,0.55)",
+              backdropFilter: "blur(3px)",
+            }}
+          />
+
+          {/* Terminal window */}
+          <div style={{
+            position: "fixed", top: "50%", left: "50%",
+            zIndex: 9999,
+            width: "min(640px, 92vw)",
+            height: "min(420px, 72vh)",
+            display: "flex", flexDirection: "column",
+            background: "rgba(4,12,7,0.98)",
+            border: "1px solid rgba(0,255,136,0.28)",
+            borderRadius: 10,
+            boxShadow: "0 0 60px rgba(0,255,136,0.14), 0 40px 80px rgba(0,0,0,0.85)",
+            animation: "kb-terminal-open 0.2s ease both",
+            overflow: "hidden",
+            fontFamily: "var(--font-mono)",
+          }}>
+
+            {/* Title bar */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "10px 16px",
+              background: "rgba(0,255,136,0.04)",
+              borderBottom: "1px solid rgba(0,255,136,0.1)",
+              flexShrink: 0,
+            }}>
+              {["#ff5f57","#febc2e","#28c840"].map(c => (
+                <div
+                  key={c}
+                  onClick={c === "#ff5f57" ? () => setOpen(false) : undefined}
+                  style={{
+                    width: 12, height: 12, borderRadius: "50%", background: c,
+                    cursor: c === "#ff5f57" ? "pointer" : "default",
+                  }}
+                />
+              ))}
+              <span style={{
+                marginLeft: 8, fontSize: 11,
+                color: "rgba(0,255,136,0.45)", letterSpacing: "2px",
+              }}>
+                TERMINAL  ·  ESC to close  ·  TAB to autocomplete
+              </span>
+            </div>
+
+            {/* History */}
+            <div style={{
+              flex: 1, overflowY: "auto", padding: "14px 20px 8px",
+              scrollbarWidth: "thin",
+              scrollbarColor: "rgba(0,255,136,0.15) transparent",
+            }}>
+              {history.map((item, i) => (
+                <div key={i} style={{
+                  fontSize: 13, lineHeight: 1.75,
+                  color: item.kind === "err"
+                    ? "rgba(255,90,90,0.9)"
+                    : item.kind === "in"
+                      ? "rgba(0,255,136,1)"
+                      : "rgba(0,255,136,0.6)",
+                  whiteSpace: "pre",
+                }}>
+                  {item.kind === "in" ? `${PROMPT} ${item.text}` : `  ${item.text}`}
+                </div>
+              ))}
+              <div ref={bottomRef} />
+            </div>
+
+            {/* Input */}
+            <form onSubmit={submit} style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "10px 20px",
+              borderTop: "1px solid rgba(0,255,136,0.08)",
+              flexShrink: 0,
+            }}>
+              <span style={{ color: "rgba(0,255,136,0.7)", fontSize: 13, whiteSpace: "nowrap" }}>
+                {PROMPT}
+              </span>
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={onKeyDown}
+                spellCheck={false}
+                autoComplete="off"
+                style={{
+                  flex: 1, background: "transparent", border: "none", outline: "none",
+                  color: "#00ff88", fontSize: 13, fontFamily: "inherit",
+                  caretColor: "#00ff88",
+                }}
+              />
+            </form>
+          </div>
+        </>
+      )}
+    </>
+  );
+}

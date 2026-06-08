@@ -344,7 +344,6 @@ const pickMulti = (mode, lang, lines) => {
   }).join(" ");
 };
 
-// ── Updated calcWpm: accounts for total paused time ─────────────────────
 const calcWpm = (correctChars, startMs, totalPausedMs = 0) => {
   const effectiveMs = Date.now() - startMs - totalPausedMs;
   const mins = effectiveMs / 60000;
@@ -390,41 +389,25 @@ function KeyboardViz({ nextKey, pressedKey, pressedCorrect }) {
             const isPressed = pressedKey === key;
             const correct   = isPressed && pressedCorrect;
             const wrong     = isPressed && !pressedCorrect;
-
             return (
-              <div
-                key={key}
-                style={{
-                  width:    isSpace ? "min(280px, 62vw)" : "clamp(28px, 5vw, 36px)",
-                  height:   "clamp(32px, 4.5vw, 40px)",
-                  display:  "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: isSpace ? 10 : "clamp(10px, 2vw, 13px)",
-                  letterSpacing: isSpace ? 3 : 0,
-                  border: "1px solid",
-                  borderColor: correct ? "var(--green)"
-                              : wrong  ? "#ff3c3c"
-                              : isNext ? "rgba(0,255,136,0.55)"
-                              : "var(--border)",
-                  background: correct ? "rgba(0,255,136,0.18)"
-                             : wrong  ? "rgba(255,60,60,0.18)"
-                             : isNext ? "rgba(0,255,136,0.06)"
-                             : "var(--bg)",
-                  color: correct ? "var(--green)"
-                       : wrong   ? "#ff3c3c"
-                       : isNext  ? "var(--green)"
-                       : "var(--text-muted)",
-                  boxShadow: correct ? "0 0 10px rgba(0,255,136,0.35)"
-                           : wrong   ? "0 0 10px rgba(255,60,60,0.35)"
-                           : isNext  ? "0 0 6px rgba(0,255,136,0.18)"
-                           : "none",
-                  transition: "background 0.1s, border-color 0.1s, box-shadow 0.1s, color 0.1s",
-                  borderRadius: 2,
-                  flexShrink: 0,
-                }}
-              >
+              <div key={key} style={{
+                width:    isSpace ? "min(280px, 62vw)" : "clamp(28px, 5vw, 36px)",
+                height:   "clamp(32px, 4.5vw, 40px)",
+                display:  "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: "var(--font-mono)",
+                fontSize: isSpace ? 10 : "clamp(10px, 2vw, 13px)",
+                letterSpacing: isSpace ? 3 : 0,
+                border: "1px solid",
+                borderColor: correct ? "var(--green)" : wrong ? "#ff3c3c" : isNext ? "rgba(0,255,136,0.55)" : "var(--border)",
+                background: correct ? "rgba(0,255,136,0.18)" : wrong ? "rgba(255,60,60,0.18)" : isNext ? "rgba(0,255,136,0.06)" : "var(--bg)",
+                color: correct ? "var(--green)" : wrong ? "#ff3c3c" : isNext ? "var(--green)" : "var(--text-muted)",
+                boxShadow: correct ? "0 0 10px rgba(0,255,136,0.35)" : wrong ? "0 0 10px rgba(255,60,60,0.35)" : isNext ? "0 0 6px rgba(0,255,136,0.18)" : "none",
+                transition: "background 0.1s, border-color 0.1s, box-shadow 0.1s, color 0.1s",
+                borderRadius: 2,
+                flexShrink: 0,
+              }}>
                 {isSpace ? "SPACE" : key.toUpperCase()}
               </div>
             );
@@ -435,165 +418,54 @@ function KeyboardViz({ nextKey, pressedKey, pressedCorrect }) {
   );
 }
 
-/* ── Sound wave visualizer ────────────────────────────────────────────── */
-const BAR_COUNT = 38;
-
-function SoundWave({ typed, pressedCorrect, phase }) {
-  const containerRef = useRef(null);
-  const stateRef = useRef({
-    bars:     Array(BAR_COUNT).fill(3),
-    targets:  Array(BAR_COUNT).fill(3),
-    idle:     0,
-    typedLen: 0,
-    color:    "var(--green)",
-  });
-  const rafRef = useRef(null);
-
-  useEffect(() => {
-    const s = stateRef.current;
-    const tick = () => {
-      s.idle += 0.038;
-      for (let i = 0; i < BAR_COUNT; i++) {
-        const idleH = 2 + Math.abs(Math.sin(s.idle + i * 0.28)) * 2.5;
-        s.targets[i] = s.targets[i] * 0.9 + idleH * 0.1;
-        s.bars[i]   += (s.targets[i] - s.bars[i]) * 0.28;
-      }
-      const els = containerRef.current?.children;
-      if (els) {
-        for (let i = 0; i < BAR_COUNT; i++) {
-          els[i].style.height = Math.max(2, s.bars[i]).toFixed(1) + "px";
-        }
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
-
-  useEffect(() => {
-    const s = stateRef.current;
-    if (typed.length === s.typedLen) return;
-    s.typedLen = typed.length;
-    s.color = pressedCorrect ? "var(--green)" : "#ff4466";
-
-    const peak   = pressedCorrect ? 58 : 42;
-    const center = (Math.random() * 0.6 + 0.2) * BAR_COUNT;
-    for (let i = 0; i < BAR_COUNT; i++) {
-      const d = (i - center) / (BAR_COUNT * 0.22);
-      s.targets[i] = 4 + peak * Math.exp(-d * d) + Math.random() * 18;
-    }
-
-    const els = containerRef.current?.children;
-    if (els) {
-      const col = s.color;
-      for (const el of els) {
-        el.style.background  = col;
-        el.style.boxShadow   = `0 0 8px ${col}99`;
-      }
-      setTimeout(() => {
-        if (!containerRef.current) return;
-        for (const el of containerRef.current.children) {
-          el.style.background = s.color;
-          el.style.boxShadow  = "";
-        }
-      }, 260);
-    }
-  }, [typed, pressedCorrect]);
-
-  if (phase === "done") return null;
-
-  return (
-    <div
-      ref={containerRef}
-      style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 64, marginTop: 10, marginBottom: 6 }}
-    >
-      {Array.from({ length: BAR_COUNT }, (_, i) => (
-        <div
-          key={i}
-          style={{
-            flex: 1,
-            height: 3,
-            background: "var(--green)",
-            borderRadius: "2px 2px 0 0",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 /* ── Fade wrapper ─────────────────────────────────────────────────────── */
 function FadePanel({ visible, children, style }) {
   return (
-    <div
-      style={{
-        opacity: visible ? 1 : 0,
-        pointerEvents: visible ? "auto" : "none",
-        transition: "opacity 0.25s ease",
-        ...style,
-      }}
-    >
+    <div style={{
+      opacity: visible ? 1 : 0,
+      pointerEvents: visible ? "auto" : "none",
+      transition: "opacity 0.25s ease",
+      ...style,
+    }}>
       {children}
     </div>
   );
 }
 
-/* ── Pause overlay shown inside text box ─────────────────────────────── */
+/* ── Pause overlay ────────────────────────────────────────────────────── */
 function PauseOverlay({ visible }) {
   return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-        background: "rgba(0,0,0,0.55)",
-        backdropFilter: "blur(3px)",
-        opacity: visible ? 1 : 0,
-        pointerEvents: "none",
-        transition: "opacity 0.3s ease",
-        borderRadius: 2,
-        zIndex: 10,
-      }}
-    >
-      {/* Animated pause icon */}
+    <div style={{
+      position: "absolute",
+      inset: 0,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      background: "rgba(0,0,0,0.55)",
+      backdropFilter: "blur(3px)",
+      opacity: visible ? 1 : 0,
+      pointerEvents: "none",
+      transition: "opacity 0.3s ease",
+      borderRadius: 2,
+      zIndex: 10,
+    }}>
       <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
         {[0, 1].map(i => (
-          <div
-            key={i}
-            style={{
-              width: 6,
-              height: 28,
-              background: "var(--green)",
-              borderRadius: 3,
-              boxShadow: "0 0 10px rgba(0,255,136,0.6)",
-              animation: visible ? `tr-pause-pulse 1.2s ${i * 0.2}s ease-in-out infinite` : "none",
-            }}
-          />
+          <div key={i} style={{
+            width: 6, height: 28,
+            background: "var(--green)",
+            borderRadius: 3,
+            boxShadow: "0 0 10px rgba(0,255,136,0.6)",
+            animation: visible ? `tr-pause-pulse 1.2s ${i * 0.2}s ease-in-out infinite` : "none",
+          }} />
         ))}
       </div>
-      <div
-        style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: 11,
-          letterSpacing: 4,
-          color: "var(--green)",
-          marginTop: 4,
-        }}
-      >
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: 4, color: "var(--green)", marginTop: 4 }}>
         PAUSED
       </div>
-      <div
-        style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: 9,
-          letterSpacing: 2,
-          color: "var(--text-muted)",
-        }}
-      >
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: 2, color: "var(--text-muted)" }}>
         start typing to resume
       </div>
     </div>
@@ -606,18 +478,18 @@ export default function TypeRacer() {
   const g = t.games;
 
   const MODE_META = {
-    easy:   { label: g.tr_mode_easy,   icon: "🌱", hint: g.tr_hint_easy },
-    medium: { label: g.tr_mode_medium, icon: "⚡", hint: g.tr_hint_medium },
-    hard:   { label: g.tr_mode_hard,   icon: "🔥", hint: g.tr_hint_hard },
-    code:   { label: g.tr_mode_code,   icon: "💻", hint: g.tr_hint_code },
-    quotes: { label: g.tr_mode_quotes, icon: "💬", hint: g.tr_hint_quotes },
+    easy:   { label: g.tr_mode_easy,   icon: "🌱" },
+    medium: { label: g.tr_mode_medium, icon: "⚡" },
+    hard:   { label: g.tr_mode_hard,   icon: "🔥" },
+    code:   { label: g.tr_mode_code,   icon: "💻" },
+    quotes: { label: g.tr_mode_quotes, icon: "💬" },
   };
 
   const LEN_META = [
-    { key: "short",    lines: 1, label: g.tr_len_short    ?? "Short",    hint: "~1 line"  },
-    { key: "medium",   lines: 3, label: g.tr_len_medium   ?? "Medium",   hint: "~3 lines" },
-    { key: "long",     lines: 5, label: g.tr_len_long     ?? "Long",     hint: "~5 lines" },
-    { key: "marathon", lines: 9, label: g.tr_len_marathon ?? "Marathon", hint: "~9 lines" },
+    { key: "short",    lines: 1, label: g.tr_len_short    ?? "Short"    },
+    { key: "medium",   lines: 3, label: g.tr_len_medium   ?? "Medium"   },
+    { key: "long",     lines: 5, label: g.tr_len_long     ?? "Long"     },
+    { key: "marathon", lines: 9, label: g.tr_len_marathon ?? "Marathon" },
   ];
 
   const [mode,    setMode]    = useState("easy");
@@ -625,7 +497,7 @@ export default function TypeRacer() {
   const [text,    setText]    = useState(() => pickMulti("easy", "en", 1));
   const [typed,   setTyped]   = useState("");
   const [phase,   setPhase]   = useState("idle");
-  const [paused,  setPaused]  = useState(false);   // ← NEW: pause state
+  const [paused,  setPaused]  = useState(false);
   const [wpm,     setWpm]     = useState(0);
   const [acc,     setAcc]     = useState(100);
   const [elapsed, setElapsed] = useState(0);
@@ -643,30 +515,32 @@ export default function TypeRacer() {
   const typedRef         = useRef("");
   const textRef          = useRef(text);
   const phaseRef         = useRef("idle");
-  const pausedRef        = useRef(false);          // ← NEW: ref mirror for paused
+  const pausedRef        = useRef(false);
   const pressTimer       = useRef(null);
   const textContainerRef = useRef(null);
   const cursorRef        = useRef(null);
+  const inactivityRef    = useRef(null);
+  const pauseStartRef    = useRef(null);
+  const totalPausedRef   = useRef(0);
 
-  // ── NEW: pause tracking refs ─────────────────────────────────────────
-  const inactivityRef    = useRef(null);   // setTimeout id for auto-pause
-  const pauseStartRef    = useRef(null);   // timestamp when pause began
-  const totalPausedRef   = useRef(0);      // cumulative paused ms
+  // Refs so Enter handler always sees latest mode/lenKey
+  const modeRef   = useRef(mode);
+  const lenKeyRef = useRef(lenKey);
+  modeRef.current   = mode;
+  lenKeyRef.current = lenKey;
 
-  textRef.current  = text;
-  phaseRef.current = phase;
+  textRef.current   = text;
+  phaseRef.current  = phase;
   pausedRef.current = paused;
 
-  // ── activeTyping = in the "typing" phase AND not paused ──────────────
   const isTyping = phase === "typing" && !paused;
 
   const clearTimer = () => { if (intervalRef.current) clearInterval(intervalRef.current); };
 
-  // ── Updated startTimer uses totalPausedRef for accurate WPM ──────────
   const startTimer = (startText) => {
     clearTimer();
     intervalRef.current = setInterval(() => {
-      if (pausedRef.current) return;  // don't update while paused
+      if (pausedRef.current) return;
       const cur = typedRef.current;
       const effectiveMs = Date.now() - startRef.current - totalPausedRef.current;
       setElapsed(Math.floor(effectiveMs / 1000));
@@ -677,12 +551,10 @@ export default function TypeRacer() {
     }, 200);
   };
 
-  // ── NEW: schedule auto-pause after 2 s of inactivity ─────────────────
   const scheduleAutoPause = useCallback(() => {
     clearTimeout(inactivityRef.current);
     inactivityRef.current = setTimeout(() => {
       if (phaseRef.current !== "typing") return;
-      // Pause
       setPaused(true);
       pausedRef.current = true;
       pauseStartRef.current = Date.now();
@@ -690,44 +562,58 @@ export default function TypeRacer() {
     }, 2000);
   }, []);
 
-  // ── NEW: resume from pause ────────────────────────────────────────────
   const resumeFromPause = useCallback((currentText) => {
     if (!pausedRef.current) return;
-    // Accumulate the time we were paused
     if (pauseStartRef.current) {
       totalPausedRef.current += Date.now() - pauseStartRef.current;
       pauseStartRef.current = null;
     }
     setPaused(false);
     pausedRef.current = false;
-    // Restart the live-stats interval
     startTimer(currentText);
   }, []);
 
   useEffect(() => () => {
     clearTimer();
     clearTimeout(pressTimer.current);
-    clearTimeout(inactivityRef.current);   // ← NEW
+    clearTimeout(inactivityRef.current);
   }, []);
 
+  // ── Key listener: keyboard viz + Enter-to-new-text ───────────────────
   useEffect(() => {
     const onKeyDown = (e) => {
+      // Enter after finishing → start new text
+      if (phaseRef.current === "done" && e.key === "Enter") {
+        e.preventDefault();
+        // resetRef trick: call via a custom event so we don't capture stale closures
+        window.dispatchEvent(new CustomEvent("tr:newText"));
+        return;
+      }
+
       if (phaseRef.current !== "done") inputRef.current?.focus();
-      if (phaseRef.current === "done") return;
       const raw = e.key;
       const key = raw === " " ? " " : raw.length === 1 ? raw.toLowerCase() : null;
       if (!key) return;
 
       const nextChar = textRef.current[typedRef.current.length];
       const isCorrect = nextChar !== undefined && (key === nextChar || key === nextChar.toLowerCase());
-
       setPressedKey(key);
       setPressedCorrect(isCorrect);
       clearTimeout(pressTimer.current);
       pressTimer.current = setTimeout(() => setPressedKey(null), 240);
     };
-    window.addEventListener("keydown", onKeyDown, { passive: true });
+    window.addEventListener("keydown", onKeyDown, { passive: false });
     return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  // Listen for the new-text custom event (avoids stale closure on reset)
+  const resetRef = useRef(null);
+  useEffect(() => {
+    const handler = () => {
+      resetRef.current?.(modeRef.current, lenKeyRef.current, null);
+    };
+    window.addEventListener("tr:newText", handler);
+    return () => window.removeEventListener("tr:newText", handler);
   }, []);
 
   useEffect(() => {
@@ -745,16 +631,14 @@ export default function TypeRacer() {
 
   const reset = useCallback((newMode, newLenKey, newText) => {
     clearTimer();
-    clearTimeout(inactivityRef.current);       // ← NEW
+    clearTimeout(inactivityRef.current);
     errorsRef.current = new Set();
     keyRef.current = { total: 0, correct: 0 };
     typedRef.current = "";
-    // ── NEW: reset pause tracking ────────────────────────────────────
     totalPausedRef.current = 0;
     pauseStartRef.current  = null;
     pausedRef.current      = false;
     setPaused(false);
-    // ─────────────────────────────────────────────────────────────────
     setTyped("");
     setPhase("idle");
     setWpm(0);
@@ -774,14 +658,14 @@ export default function TypeRacer() {
     setTimeout(() => inputRef.current?.focus(), 50);
   }, [mode, lenKey, lang]);
 
+  // Keep resetRef current
+  resetRef.current = reset;
+
   const handleInput = (e) => {
     const val = e.target.value;
     if (val.length > text.length) return;
 
-    // ── NEW: resume if paused ─────────────────────────────────────────
-    if (pausedRef.current && val.length > 0) {
-      resumeFromPause(text);
-    }
+    if (pausedRef.current && val.length > 0) resumeFromPause(text);
 
     if (phase === "idle" && val.length > 0) {
       startRef.current = Date.now();
@@ -801,14 +685,11 @@ export default function TypeRacer() {
     typedRef.current = val;
     setTyped(val);
 
-    // ── NEW: reschedule inactivity pause on every keystroke ───────────
-    if (phaseRef.current === "typing") {
-      scheduleAutoPause();
-    }
+    if (phaseRef.current === "typing") scheduleAutoPause();
 
     if (val.length === text.length) {
       clearTimer();
-      clearTimeout(inactivityRef.current);   // ← NEW
+      clearTimeout(inactivityRef.current);
       const finalSecs = Math.floor((Date.now() - startRef.current - totalPausedRef.current) / 1000);
       const correctChars = [...val].filter((c, i) => c === text[i]).length;
       const finalWpm = calcWpm(correctChars, startRef.current, totalPausedRef.current);
@@ -840,10 +721,10 @@ export default function TypeRacer() {
   return (
     <div style={{ userSelect: "none" }}>
       <style>{`
-        .tr-mode { font-family:var(--font-mono); font-size:10px; letter-spacing:2px; padding:7px 12px; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; transition:all 0.2s; text-transform:uppercase; white-space:nowrap; }
+        .tr-mode { font-family:var(--font-mono); font-size:10px; letter-spacing:2px; padding:6px 11px; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; transition:all 0.2s; text-transform:uppercase; white-space:nowrap; }
         .tr-mode.active { border-color:var(--green); background:rgba(0,255,136,0.08); color:var(--green); box-shadow:0 0 12px rgba(0,255,136,0.12); }
         .tr-mode:hover:not(.active) { border-color:var(--green-dim); color:var(--text); }
-        .tr-len { font-family:var(--font-mono); font-size:9px; letter-spacing:2px; padding:5px 10px; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; transition:all 0.2s; text-transform:uppercase; }
+        .tr-len { font-family:var(--font-mono); font-size:9px; letter-spacing:2px; padding:5px 9px; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; transition:all 0.2s; text-transform:uppercase; }
         .tr-len.active { border-color:#7c3aed; background:rgba(124,58,237,0.1); color:#a78bfa; box-shadow:0 0 8px rgba(124,58,237,0.15); }
         .tr-len:hover:not(.active) { border-color:var(--green-dim); color:var(--text); }
         .tr-char { font-family:var(--font-mono); font-size:30px; line-height:1.95; }
@@ -862,24 +743,27 @@ export default function TypeRacer() {
         @keyframes tr-pause-pulse { 0%,100%{transform:scaleY(1);opacity:0.7} 50%{transform:scaleY(1.4);opacity:1} }
       `}</style>
 
-      {/* ── Mode selector — hidden while actively typing, shown when paused ── */}
-      <FadePanel visible={!isTyping}>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+      {/* ══════════════════════════════════════════════════════════════
+          ROW 1: Mode + Length selectors — always on the same line,
+          fades away while actively typing (not paused)
+      ══════════════════════════════════════════════════════════════ */}
+      <FadePanel visible={!isTyping} style={{ marginBottom: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+
+          {/* Mode buttons */}
           {Object.entries(MODE_META).map(([m, meta]) => (
             <button key={m} className={`tr-mode ${mode === m ? "active" : ""}`} onClick={() => handleModeChange(m)}>
               {meta.icon} {meta.label}
             </button>
           ))}
-        </div>
-      </FadePanel>
 
-      {/* ── Length selector ── */}
-      <FadePanel visible={!isTyping && mode !== "quotes"}>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14, alignItems: "center" }}>
-          <span style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:2, color:"var(--text-muted)", marginRight:4 }}>
-            {g.tr_len_label ?? "LENGTH"}:
-          </span>
-          {LEN_META.map(l => (
+          {/* Thin divider */}
+          {mode !== "quotes" && (
+            <div style={{ width: 1, height: 26, background: "var(--border)", flexShrink: 0, margin: "0 2px" }} />
+          )}
+
+          {/* Length buttons — inline, hidden for quotes */}
+          {mode !== "quotes" && LEN_META.map(l => (
             <button key={l.key} className={`tr-len ${lenKey === l.key ? "active" : ""}`} onClick={() => handleLenChange(l.key)}>
               {l.label}
             </button>
@@ -887,41 +771,11 @@ export default function TypeRacer() {
         </div>
       </FadePanel>
 
-      {(mode === "quotes" || isTyping) && phase !== "typing" && <div style={{ marginBottom: 14 }} />}
-
-      {/* ── Stats bar ── */}
-      <FadePanel visible={!isTyping}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6, marginBottom: 12 }}>
-          {[
-            { label: g.wpm,    value: phase === "idle" ? "—" : wpm,                    color: phase === "typing" ? "var(--green)" : "var(--text)" },
-            { label: g.acc,    value: phase === "idle" ? "—" : acc + "%",              color: acc >= 95 ? "var(--green)" : acc >= 80 ? "#ffcc44" : "#ff3c3c" },
-            { label: g.errors, value: phase === "idle" ? "—" : errorsRef.current.size, color: errorsRef.current.size === 0 ? "var(--green)" : "#ff6060" },
-            { label: g.time,   value: phase === "idle" ? "—" : elapsed + "s",          color: "var(--text-muted)" },
-          ].map(s => (
-            <div key={s.label} className="tr-stat-card">
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: 2, color: "var(--text-muted)", marginTop: 5 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </FadePanel>
-
-      {/* ── Progress bar ── */}
-      <FadePanel visible={!isTyping}>
-        <div style={{ height: 2, background: "var(--border)", marginBottom: 12, position: "relative" }}>
-          <div style={{
-            height: "100%",
-            width: progress + "%",
-            background: "var(--green)",
-            transition: "width 0.1s linear",
-            boxShadow: "0 0 6px var(--green)",
-          }} />
-        </div>
-      </FadePanel>
-
+      {/* ══════════════════════════════════════════════════════════════
+          ROW 2: Text display — always visible, right below the controls
+      ══════════════════════════════════════════════════════════════ */}
       {phase !== "done" ? (
         <>
-          {/* ── Text display with pause overlay ── */}
           <div style={{ position: "relative" }}>
             <div
               ref={textContainerRef}
@@ -929,16 +783,9 @@ export default function TypeRacer() {
               style={{
                 background: "var(--bg)",
                 border: "1px solid",
-                borderColor: isTyping
-                  ? "rgba(0,255,136,0.3)"
-                  : paused
-                  ? "rgba(0,255,136,0.15)"   // dimmed border when paused
-                  : "var(--green-dark)",
-                borderLeft: `3px solid ${
-                  isTyping ? "var(--green)" : paused ? "rgba(0,255,136,0.3)" : "var(--green-dark)"
-                }`,
+                borderColor: isTyping ? "rgba(0,255,136,0.3)" : paused ? "rgba(0,255,136,0.15)" : "var(--green-dark)",
+                borderLeft: `3px solid ${isTyping ? "var(--green)" : paused ? "rgba(0,255,136,0.3)" : "var(--green-dark)"}`,
                 padding: mode === "quotes" ? "40px 36px" : "30px 36px",
-                marginBottom: 0,
                 cursor: "text",
                 lineHeight: mode === "quotes" ? 2.2 : 1.95,
                 wordBreak: "break-word",
@@ -946,7 +793,6 @@ export default function TypeRacer() {
                 overflowY: "hidden",
                 textAlign: mode === "quotes" ? "center" : "left",
                 transition: "border-color 0.3s",
-                // Blur text slightly while paused to complement the overlay
                 filter: paused ? "blur(2px)" : "none",
               }}
             >
@@ -969,8 +815,6 @@ export default function TypeRacer() {
                 );
               })}
             </div>
-
-            {/* ── NEW: Pause overlay ── */}
             <PauseOverlay visible={paused} />
           </div>
 
@@ -980,27 +824,48 @@ export default function TypeRacer() {
             value={typed}
             onChange={handleInput}
             onPaste={e => e.preventDefault()}
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
+            autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false}
             style={{ position: "absolute", opacity: 0, pointerEvents: "none", width: 1, height: 1 }}
             autoFocus
           />
 
-          {/* ── Keyboard — always visible ── */}
+          {/* ── Keyboard ── */}
           <div onClick={() => inputRef.current?.focus()}>
             <KeyboardViz nextKey={nextKey} pressedKey={pressedKey} pressedCorrect={pressedCorrect} />
           </div>
 
-          {/* ── Bottom bar ── */}
-          <FadePanel visible={!isTyping}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+          {/* ══════════════════════════════════════════════════════════
+              ROW 3: Stats + progress — below keyboard, fades with typing
+          ══════════════════════════════════════════════════════════ */}
+          <FadePanel visible={!isTyping} style={{ marginTop: 12 }}>
+
+            {/* Stats cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6, marginBottom: 10 }}>
+              {[
+                { label: g.wpm,    value: phase === "idle" ? "—" : wpm,                    color: "var(--green)" },
+                { label: g.acc,    value: phase === "idle" ? "—" : acc + "%",              color: acc >= 95 ? "var(--green)" : acc >= 80 ? "#ffcc44" : "#ff3c3c" },
+                { label: g.errors, value: phase === "idle" ? "—" : errorsRef.current.size, color: errorsRef.current.size === 0 ? "var(--green)" : "#ff6060" },
+                { label: g.time,   value: phase === "idle" ? "—" : elapsed + "s",          color: "var(--text-muted)" },
+              ].map(s => (
+                <div key={s.label} className="tr-stat-card">
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: 2, color: "var(--text-muted)", marginTop: 5 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Progress bar */}
+            <div style={{ height: 2, background: "var(--border)", marginBottom: 10 }}>
+              <div style={{ height: "100%", width: progress + "%", background: "var(--green)", transition: "width 0.1s linear", boxShadow: "0 0 6px var(--green)" }} />
+            </div>
+
+            {/* Bottom bar */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-muted)", letterSpacing: 2 }}>
                 {phase === "idle"
                   ? g.tr_start_hint
                   : paused
-                  ? "⏸ paused — type to resume"                     // ← NEW hint when paused
+                  ? "⏸ paused — type to resume"
                   : `${text.length - typed.length} ${g.tr_remaining}`}
               </div>
               <div style={{ display: "flex", gap: 6 }}>
@@ -1029,26 +894,14 @@ export default function TypeRacer() {
                 <span style={{ fontFamily: "var(--font-display)", fontSize: 64, fontWeight: 900, color: "var(--green)", lineHeight: 1 }}>{wpm}</span>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--text-muted)" }}>WPM</span>
               </div>
-              {newBest && (
-                <div className="tr-nb" style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: 3, marginTop: 4 }}>{g.tr_new_best}</div>
-              )}
+              {newBest && <div className="tr-nb" style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: 3, marginTop: 4 }}>{g.tr_new_best}</div>}
             </div>
-            <div
-              className="tr-rating-badge"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: 40,
-                fontWeight: 900,
-                color: rating.color,
-                border: `2px solid ${rating.color}`,
-                width: 64,
-                height: 64,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: `0 0 20px ${rating.color}44`,
-              }}
-            >
+            <div className="tr-rating-badge" style={{
+              fontFamily: "var(--font-display)", fontSize: 40, fontWeight: 900,
+              color: rating.color, border: `2px solid ${rating.color}`,
+              width: 64, height: 64, display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: `0 0 20px ${rating.color}44`,
+            }}>
               {rating.label}
             </div>
           </div>
@@ -1062,14 +915,18 @@ export default function TypeRacer() {
             ].map((s, i) => (
               <div key={s.label} style={{
                 fontFamily: "var(--font-mono)", textAlign: "center",
-                flex: "1 1 80px",
-                padding: "14px 8px",
+                flex: "1 1 80px", padding: "14px 8px",
                 borderRight: i < 3 ? "1px solid var(--border)" : "none",
               }}>
                 <div style={{ fontSize: 22, fontWeight: 700, color: s.color }}>{s.value}</div>
                 <div style={{ fontSize: 8, letterSpacing: 2, color: "var(--text-muted)", marginTop: 4 }}>{s.label}</div>
               </div>
             ))}
+          </div>
+
+          {/* Enter hint */}
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: 3, color: "var(--text-muted)", marginBottom: 16 }}>
+            press <span style={{ color: "var(--green)", border: "1px solid var(--green)", padding: "1px 6px", borderRadius: 2 }}>ENTER</span> for new text
           </div>
 
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>

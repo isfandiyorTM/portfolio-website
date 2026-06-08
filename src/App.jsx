@@ -17,6 +17,7 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import PlasmaBlobs from "./components/PlasmaBlobs";
 
+import Terminal from "./components/Terminal";
 import GamesPage from "./pages/GamesPage";
 import ScoresPage from "./pages/ScoresPage";
 import ChontakPage from "./pages/ChontakPage";
@@ -137,6 +138,7 @@ export default function App() {
       <LanguageProvider>
         <Cursor />
         <CursorSpotlight />
+        <Terminal />
         {!loaded && <LoadingScreen onDone={() => setLoaded(true)} />}
 
         <div
