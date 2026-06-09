@@ -46,22 +46,19 @@ function ProjectCard({ project, index }) {
 
   return (
     <div
-      ref={ref}
+      ref={(el) => { ref.current = el; cardRef.current = el; }}
       className="project-card reveal"
-      style={{ transitionDelay: `${index * 120}ms`, cursor: "pointer" }}
-    >
-    <div
-      ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
       style={{
+        transitionDelay: `${index * 120}ms`, cursor: "pointer",
         position: "relative", overflow: "hidden",
         transform: tilting
           ? `perspective(900px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) scale(1.02)`
           : undefined,
-        transition: tilting ? "transform 0.08s linear" : "transform 0.5s ease",
+        transition: tilting ? "transform 0.08s linear, opacity 0.6s ease" : "transform 0.5s ease, opacity 0.6s ease",
         transformStyle: "preserve-3d",
         willChange: tilting ? "transform" : "auto",
       }}
@@ -129,7 +126,6 @@ function ProjectCard({ project, index }) {
           </span>
         ))}
       </div>
-    </div>
     </div>
   );
 }
