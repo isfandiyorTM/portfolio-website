@@ -18,6 +18,7 @@ import Footer from "./components/Footer";
 import PlasmaBlobs from "./components/PlasmaBlobs";
 
 import Terminal from "./components/Terminal";
+import VisitorScan from "./components/VisitorScan";
 import GamesPage from "./pages/GamesPage";
 import ScoresPage from "./pages/ScoresPage";
 import ChontakPage from "./pages/ChontakPage";
@@ -139,6 +140,7 @@ export default function App() {
         <Cursor />
         <CursorSpotlight />
         <Terminal />
+        <VisitorScan />
         {!loaded && <LoadingScreen onDone={() => setLoaded(true)} />}
 
         <div
