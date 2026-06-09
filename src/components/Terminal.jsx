@@ -63,6 +63,7 @@ function process(cmd) {
           "",
           "Navigating to #projects...",
         ],
+        close: true,
       };
 
     case "contact":
@@ -75,6 +76,7 @@ function process(cmd) {
           "",
           "Navigating to #contact...",
         ],
+        close: true,
       };
 
     case "resume": case "cv":
@@ -182,6 +184,7 @@ export default function Terminal() {
         ...res.lines.map(t => ({ kind: res.error ? "err" : "out", text: t })),
         { kind: "out", text: "" },
       ]);
+      if (res.close) setTimeout(() => setOpen(false), 700);
     }
   };
 

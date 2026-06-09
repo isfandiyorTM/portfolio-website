@@ -66,6 +66,7 @@ body {
 .tw-cursor { display:inline-block; color:var(--green); animation:blink 0.7s step-end infinite; margin-left:1px; }
 @keyframes pageFade  { from{opacity:0;transform:translateY(10px);filter:blur(6px)} to{opacity:1;transform:translateY(0);filter:blur(0px)} }
 @keyframes border-pulse { 0%,100%{box-shadow:0 0 0 1px var(--green-dark),0 0 20px #00ff8800} 50%{box-shadow:0 0 0 1px var(--green),0 0 40px #00ff8844} }
+@keyframes ticker-scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
 /* ── B3 — Plasma blob drifts ── */
 @keyframes plasma-drift-a { 0%,100%{transform:translate(-50%,-50%) scale(1)}   40%{transform:translate(-50%,-50%) scale(1.15)} 70%{transform:translate(-50%,-50%) scale(0.9)} }

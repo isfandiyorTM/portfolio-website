@@ -39,6 +39,11 @@ function ProjectCard({ project, index }) {
 
   const tilting = tilt.rx !== 0 || tilt.ry !== 0;
 
+  // Derive shimmer position (0–100%) from tilt angles
+  const shimX     = ((tilt.ry / 5) + 1) * 50;
+  const shimY     = ((-tilt.rx / 5) + 1) * 50;
+  const shimAngle = Math.atan2(shimY - 50, shimX - 50) * (180 / Math.PI);
+
   return (
     <div
       ref={ref}
@@ -52,14 +57,32 @@ function ProjectCard({ project, index }) {
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
       style={{
+        position: "relative", overflow: "hidden",
         transform: tilting
-          ? `perspective(900px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) scale(1.01)`
+          ? `perspective(900px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) scale(1.02)`
           : undefined,
         transition: tilting ? "transform 0.08s linear" : "transform 0.5s ease",
         transformStyle: "preserve-3d",
         willChange: tilting ? "transform" : "auto",
       }}
     >
+      {/* Holographic shimmer overlay */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none", borderRadius: "inherit",
+        opacity: hovered ? 1 : 0,
+        transition: "opacity 0.4s ease",
+        background: hovered ? `
+          radial-gradient(circle at ${shimX}% ${shimY}%, rgba(0,255,136,0.13) 0%, transparent 55%),
+          linear-gradient(${shimAngle + 90}deg,
+            transparent 20%,
+            rgba(0,255,180,0.06) 35%,
+            rgba(80,200,255,0.09) 48%,
+            rgba(180,80,255,0.06) 62%,
+            transparent 78%
+          )
+        ` : "none",
+        mixBlendMode: "screen",
+      }} />
       <div style={{
         display:"flex", justifyContent:"space-between",
         alignItems:"flex-start", marginBottom:16, flexWrap:"wrap", gap:12,

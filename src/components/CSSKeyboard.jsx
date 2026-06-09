@@ -1,6 +1,25 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
 // ACCESS GRANTED flash CSS keyframe (added alongside the keyboard CSS)
+const IDLE_CSS = `
+@keyframes kb-idle-pulse {
+  0%,100% {
+    background: rgba(12,22,15,0.9); border-color: rgba(0,255,136,0.07);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.025);
+    color: rgba(0,255,136,0.16);
+  }
+  50% {
+    background: rgba(0,255,136,0.09); border-color: rgba(0,255,136,0.38);
+    box-shadow: 0 0 14px rgba(0,255,136,0.28), 0 2px 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(0,255,136,0.18);
+    color: rgba(0,255,136,0.7);
+  }
+}
+.kb-key.kb-idle { animation: kb-idle-pulse var(--idle-dur) ease-in-out infinite; }
+@keyframes kb-standby-fade {
+  0%,100% { opacity: 0.5; } 50% { opacity: 1; }
+}
+`;
+
 const ACCESS_CSS = `
 @keyframes kb-access-anim {
   0%   { opacity:0; transform:translate(-50%,-50%) scale(0.85); }
@@ -35,6 +54,36 @@ function findPositions(label) {
 const G = 3;
 const W = 37;
 const H = 34;
+
+// ── Typing test ────────────────────────────────────────────────────────────
+const TEST_POOL = [
+  "flutter","dart","build","ship","code","async","state","widget","mobile",
+  "react","debug","push","loop","learn","keys","fast","run","fix","dev",
+  "clean","git","test","app","web","sdk","type","void","true","class","data",
+];
+const TEST_LEN = 15;
+
+function newTest() {
+  const shuffled = [...TEST_POOL].sort(() => Math.random() - 0.5);
+  return {
+    words: shuffled.slice(0, TEST_LEN),
+    wIdx: 0, typed: "",
+    startTime: null, errors: 0, wpm: 0, done: false,
+  };
+}
+
+const TEST_CSS = `
+@keyframes kb-key-error {
+  0%,100% {
+    background: rgba(12,22,15,0.9); border-color: rgba(0,255,136,0.07);
+    color: rgba(0,255,136,0.16); transform: translateY(0);
+  }
+  25%   { background: rgba(255,50,50,0.15); border-color: rgba(255,80,80,0.55); color: rgba(255,100,100,0.85); transform: translateY(2px); }
+  62.5% { background: rgba(255,50,50,0.20); border-color: rgba(255,80,80,0.75); color: rgba(255,120,120,1);    transform: translateY(2px); }
+  87.5% { background: rgba(255,50,50,0.08); border-color: rgba(255,80,80,0.30); color: rgba(255,100,100,0.45); transform: translateY(0); }
+}
+.kb-key.kb-error { animation: kb-key-error 0.7s ease-in-out 1 forwards; }
+`;
 
 const ROWS = [
   [["`",1],["1",1],["2",1],["3",1],["4",1],["5",1],["6",1],["7",1],["8",1],["9",1],["0",1],["-",1],["=",1],["⌫",2]],
@@ -121,6 +170,27 @@ const CSS = `
 /* Glow class: single play, holds dark at the end */
 .kb-key.kb-glow { animation: kb-key-glow 2.24s ease-in-out 1 forwards; }
 
+.kb-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border-radius: 20px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px;
+  color: rgba(0,255,136,0.65); text-decoration: none; white-space: nowrap;
+  background: rgba(4,12,7,0.92);
+  border: 1px solid rgba(0,255,136,0.22);
+  box-shadow: 0 0 16px rgba(0,255,136,0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+.kb-badge:hover {
+  border-color: rgba(0,255,136,0.55);
+  box-shadow: 0 0 24px rgba(0,255,136,0.18);
+  color: rgba(0,255,136,1);
+}
+.kb-badge .kb-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 6px var(--green);
+  animation: pulse-glow 2s ease-in-out infinite; flex-shrink: 0;
+}
+
 .kb-led {
   position: absolute; top:3px; right:3px;
   width:3px; height:3px; border-radius:50%;
@@ -129,7 +199,7 @@ const CSS = `
 .kb-led.kb-glow { animation: kb-led-glow 2.24s ease-in-out 1 forwards; }
 `;
 
-export default function CSSKeyboard() {
+export default function CSSKeyboard({ idle = false }) {
   // step: index into SEQUENCE (-1 = sequence not started yet)
   const [step,       setStep]       = useState(-1);
   // active: click mode — sequential display paused, clicked key glows
@@ -143,9 +213,19 @@ export default function CSSKeyboard() {
   const [physKeys,   setPhysKeys]   = useState({});
 
   const seqRef       = useRef(null); // setInterval handle
-  const clickTimer   = useRef(null); // 5 s resume timer
+  const clickTimer   = useRef(null); // 5 s click-mode resume timer
+  const physTimer    = useRef(null); // 3 s physical-key clear timer
   const flashTimer   = useRef(null); // 3 s flash duration
   const startedRef   = useRef(false);
+
+  // Typing test
+  const [test,     setTest]     = useState(null);   // null = inactive
+  const [testKey,  setTestKey]  = useState(null);   // { ri, ki, n, correct }
+  const testRef    = useRef(null);
+  const testKeyRef = useRef(null);
+  const testKeyTimer = useRef(null);
+  testRef.current    = test;
+  testKeyRef.current = testKey;
 
   const startSequence = useCallback(() => {
     if (startedRef.current) return;
@@ -162,7 +242,7 @@ export default function CSSKeyboard() {
     // Start after loading screen finishes: window.load + 1800 ms covers the
     // LoadingScreen's min-1400ms + 800ms fade-out + App's 500ms opacity transition.
     let delayTimer;
-    const onLoad = () => { delayTimer = setTimeout(startSequence, 1800); };
+    const onLoad = () => { delayTimer = setTimeout(startSequence, 4800); };
 
     if (document.readyState === "complete") {
       onLoad();
@@ -179,37 +259,35 @@ export default function CSSKeyboard() {
       window.removeEventListener("load", onLoad);
       clearTimeout(delayTimer);
       clearTimeout(clickTimer.current);
+      clearTimeout(physTimer.current);
       clearTimeout(flashTimer.current);
       if (seqRef.current) clearInterval(seqRef.current);
       mq.removeEventListener("change", onMq);
     };
   }, [startSequence]);
 
-  // Physical keyboard → visual key glow
+  // Physical keyboard → visual key glow (never pauses the sequential animation)
   useEffect(() => {
     const onKey = (e) => {
       if (e.repeat) return;
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      if (testRef.current) return; // test mode handles its own key highlights
       const label = labelFromEvent(e);
       if (label === undefined) return;
       const positions = findPositions(label);
       if (positions.length === 0) return;
 
-      setActive(true);
       setPhysKeys(prev => {
         const next = { ...prev };
         positions.forEach(k => { next[k] = (next[k] ?? 0) + 1; });
         return next;
       });
-      clearTimeout(clickTimer.current);
-      clickTimer.current = setTimeout(() => {
-        setActive(false);
-        setClickedKey(null);
-        setPhysKeys({});
-      }, 5000);
+      // Clear physKeys 3 s after the last keypress (glow animation is 2.24 s)
+      clearTimeout(physTimer.current);
+      physTimer.current = setTimeout(() => setPhysKeys({}), 3000);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => { window.removeEventListener("keydown", onKey); clearTimeout(physTimer.current); };
   }, []);
 
   // MADAMINOV easter egg — tracks last 9 typed chars, ignores input fields
@@ -232,6 +310,71 @@ export default function CSSKeyboard() {
     return () => { window.removeEventListener("keydown", onKey); clearTimeout(resetTimer); };
   }, []);
 
+  // TAB → toggle typing test
+  useEffect(() => {
+    const onTab = (e) => {
+      if (e.key !== "Tab") return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      e.preventDefault();
+      setTest(prev => {
+        if (prev && prev.done) return newTest(); // restart when done
+        return prev ? null : newTest();          // toggle when active/inactive
+      });
+      setTestKey(null);
+    };
+    window.addEventListener("keydown", onTab);
+    return () => window.removeEventListener("keydown", onTab);
+  }, []);
+
+  // Test mode key processing (mounted once; reads testRef for latest state)
+  useEffect(() => {
+    const onKey = (e) => {
+      const t = testRef.current;
+      if (!t || t.done) return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+      const ch = e.key;
+      if (ch === "Tab")    return; // handled by TAB effect
+      if (ch === "Escape") { setTest(null); return; }
+
+      if (ch === "Backspace") {
+        setTest(prev => prev ? { ...prev, typed: prev.typed.slice(0, -1) } : prev);
+        return;
+      }
+      if (ch.length !== 1) return;
+
+      const startTime = t.startTime ?? Date.now();
+      const word      = t.words[t.wIdx];
+
+      if (ch === " ") {
+        // Count uncompleted chars as errors
+        const wordErrors = word.length - [...t.typed].filter((c, i) => c === word[i]).length;
+        const newErrors  = t.errors + wordErrors;
+        const nextWIdx   = t.wIdx + 1;
+        const elapsed    = (Date.now() - startTime) / 60000;
+        const wpm        = Math.round(nextWIdx / Math.max(elapsed, 0.001));
+
+        if (nextWIdx >= TEST_LEN) {
+          setTest(prev => ({ ...prev, wIdx: nextWIdx, typed: "", done: true, wpm, errors: newErrors, startTime }));
+        } else {
+          setTest(prev => ({ ...prev, wIdx: nextWIdx, typed: "", errors: newErrors, startTime }));
+        }
+        setTestKey(prev => ({ label: "", correct: true, n: (prev?.n ?? 0) + 1 }));
+        clearTimeout(testKeyTimer.current);
+        testKeyTimer.current = setTimeout(() => setTestKey(null), 450);
+        return;
+      }
+
+      const correct = t.typed.length < word.length && ch === word[t.typed.length];
+      setTestKey(prev => ({ label: ch.toUpperCase(), correct, n: (prev?.n ?? 0) + 1 }));
+      clearTimeout(testKeyTimer.current);
+      testKeyTimer.current = setTimeout(() => setTestKey(null), correct ? 550 : 650);
+      setTest(prev => ({ ...prev, typed: prev.typed + ch, startTime }));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("keydown", onKey); clearTimeout(testKeyTimer.current); };
+  }, []);
+
   const onKeyClick = (ri, ki, label) => {
     if (!label) return; // skip space bar
     setActive(true);
@@ -239,12 +382,11 @@ export default function CSSKeyboard() {
       const same = prev && prev.ri === ri && prev.ki === ki;
       return { ri, ki, n: same ? prev.n + 1 : 0 };
     });
-    // Resume the default sequence 5 s after the last interaction
+    // Resume the default sequence 5 s after the last click
     clearTimeout(clickTimer.current);
     clickTimer.current = setTimeout(() => {
       setActive(false);
       setClickedKey(null);
-      setPhysKeys({});
     }, 5000);
   };
 
@@ -252,7 +394,7 @@ export default function CSSKeyboard() {
 
   return (
     <>
-      <style>{CSS}{ACCESS_CSS}</style>
+      <style>{CSS}{IDLE_CSS}{ACCESS_CSS}{TEST_CSS}</style>
 
       {/* ACCESS GRANTED overlay — fixed center, plays for 3 s */}
       {flash.on && (
@@ -288,7 +430,96 @@ export default function CSSKeyboard() {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <div style={{ animation: "kb-float-y 4s ease-in-out infinite" }}>
+        <div style={{ position: "relative" }}>
+
+        {/* Typing test panel */}
+        {test && (
+          <div style={{
+            position: "absolute", bottom: "calc(100% + 14px)", left: "50%",
+            transform: "translateX(-50%)",
+            width: 370, minHeight: 80,
+            background: "rgba(4,12,7,0.97)",
+            border: "1px solid rgba(0,255,136,0.22)",
+            borderRadius: 8, padding: "12px 16px",
+            fontFamily: "var(--font-mono)", zIndex: 20,
+            boxShadow: "0 0 30px rgba(0,255,136,0.08)",
+            pointerEvents: "none",
+          }}>
+            {test.done ? (
+              <div style={{ textAlign: "center", padding: "4px 0" }}>
+                <div style={{ fontSize: 38, fontWeight: 700, color: "#00ff88", lineHeight: 1 }}>{test.wpm}</div>
+                <div style={{ fontSize: 9, letterSpacing: 3, color: "rgba(0,255,136,0.4)", marginBottom: 8, textTransform: "uppercase" }}>words per minute</div>
+                <div style={{ fontSize: 11, color: "rgba(0,255,136,0.55)" }}>
+                  {test.errors} error{test.errors !== 1 ? "s" : ""}
+                  <span style={{ opacity: 0.4, margin: "0 8px" }}>·</span>
+                  {TEST_LEN} words
+                </div>
+                <div style={{ fontSize: 9, color: "rgba(0,255,136,0.25)", marginTop: 10, letterSpacing: 2 }}>TAB to restart</div>
+              </div>
+            ) : (
+              <>
+                {/* Words display */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 8px", marginBottom: 10, lineHeight: 1.6 }}>
+                  {test.words.map((word, wi) => {
+                    if (wi < test.wIdx - 1) return null;
+                    const isCurrent = wi === test.wIdx;
+                    const isDone    = wi < test.wIdx;
+                    return (
+                      <span key={`${wi}-${word}`} style={{
+                        fontSize: 13,
+                        opacity: isDone ? 0.28 : isCurrent ? 1 : 0.45,
+                        whiteSpace: "nowrap",
+                      }}>
+                        {isCurrent
+                          ? word.split("").map((ch, ci) => {
+                              let color;
+                              if (ci < test.typed.length)      color = test.typed[ci] === ch ? "#00ff88" : "#ff5555";
+                              else if (ci === test.typed.length) color = "rgba(0,255,136,0.9)";
+                              else                               color = "rgba(0,255,136,0.3)";
+                              return (
+                                <span key={ci} style={{
+                                  color,
+                                  borderBottom: ci === test.typed.length ? "1px solid rgba(0,255,136,0.7)" : "none",
+                                }}>{ch}</span>
+                              );
+                            })
+                          : <span style={{ color: isDone ? "rgba(0,255,136,0.4)" : "rgba(0,255,136,0.45)" }}>{word}</span>
+                        }
+                      </span>
+                    );
+                  })}
+                </div>
+                {/* Footer */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 11, color: "rgba(0,255,136,0.5)" }}>
+                    {test.startTime
+                      ? `${Math.round(test.wIdx / Math.max((Date.now() - test.startTime) / 60000, 0.001))} wpm`
+                      : "start typing"}
+                  </span>
+                  <span style={{ fontSize: 10, color: "rgba(0,255,136,0.3)", letterSpacing: 1 }}>
+                    {test.wIdx}/{TEST_LEN}
+                  </span>
+                  <span style={{ fontSize: 9, color: "rgba(0,255,136,0.22)", letterSpacing: 2 }}>TAB/ESC to exit</span>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* TAB hint shown when keyboard is hovered and no test active */}
+        {!test && hovered && (
+          <div style={{
+            position: "absolute", bottom: "calc(100% + 10px)", left: "50%",
+            transform: "translateX(-50%)",
+            fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: 2,
+            color: "rgba(0,255,136,0.35)", whiteSpace: "nowrap",
+            pointerEvents: "none", zIndex: 20,
+          }}>
+            TAB → typing test
+          </div>
+        )}
+
+<div style={{ animation: "kb-float-y 4s ease-in-out infinite" }}>
           <div style={{
             transform: hovered
               ? "perspective(900px) rotateX(5deg) rotateY(-2deg) scale(1.08)"
@@ -297,17 +528,38 @@ export default function CSSKeyboard() {
           }}>
             <div style={{
               background:   "rgba(7,16,10,0.92)",
-              border:       `1px solid rgba(0,255,136,${flash.on ? 0.7 : active ? 0.45 : 0.16})`,
+              border:       `1px solid rgba(0,255,136,${flash.on ? 0.7 : idle ? 0.3 : active ? 0.45 : 0.16})`,
               borderRadius: 10,
               padding:      "12px 12px 14px",
+              position:     "relative",
               boxShadow:    flash.on
                 ? "0 0 80px rgba(0,255,136,0.7), 0 0 160px rgba(0,255,136,0.35), 0 28px 80px rgba(0,0,0,0.75), inset 0 1px 0 rgba(0,255,136,0.5)"
-                : active
-                  ? "0 0 22px rgba(0,255,136,0.28), 0 0 50px rgba(0,255,136,0.10), 0 28px 80px rgba(0,0,0,0.75), inset 0 1px 0 rgba(0,255,136,0.18)"
-                  : "0 0 60px rgba(0,255,136,0.05), 0 28px 80px rgba(0,0,0,0.75), inset 0 1px 0 rgba(0,255,136,0.09)",
+                : idle
+                  ? "0 0 40px rgba(0,255,136,0.18), 0 28px 80px rgba(0,0,0,0.75), inset 0 1px 0 rgba(0,255,136,0.12)"
+                  : active
+                    ? "0 0 22px rgba(0,255,136,0.28), 0 0 50px rgba(0,255,136,0.10), 0 28px 80px rgba(0,0,0,0.75), inset 0 1px 0 rgba(0,255,136,0.18)"
+                    : "0 0 60px rgba(0,255,136,0.05), 0 28px 80px rgba(0,0,0,0.75), inset 0 1px 0 rgba(0,255,136,0.09)",
               display:      "flex", flexDirection: "column", gap: G,
               transition:   "border-color 0.6s ease, box-shadow 0.8s ease",
             }}>
+
+              {/* STANDBY overlay — shown during idle */}
+              {idle && (
+                <div style={{
+                  position:"absolute", inset:0, display:"flex",
+                  alignItems:"center", justifyContent:"center",
+                  zIndex:10, pointerEvents:"none", borderRadius:10,
+                  background:"rgba(4,12,7,0.55)", backdropFilter:"blur(1px)",
+                }}>
+                  <div style={{
+                    fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:"4px",
+                    color:"rgba(0,255,136,0.75)",
+                    animation:"kb-standby-fade 2s ease-in-out infinite",
+                  }}>
+                    // STANDBY
+                  </div>
+                </div>
+              )}
 
               {ROWS.map((row, ri) => (
                 <div key={ri} style={{ display:"flex", gap:G }}>
@@ -316,27 +568,36 @@ export default function CSSKeyboard() {
                     const space = label === "";
                     const w     = Math.round(mult * W);
 
-                    // Sequential glow: only during default mode and when this step matches
-                    const isSeq      = isLit && !active && step >= 0 && SEQUENCE[step] === label;
+                    // Sequential glow: only during default mode (not idle, not active)
+                    const isSeq      = isLit && !active && !idle && step >= 0 && SEQUENCE[step] === label;
                     // Click glow: any non-space key during click mode
                     const isClick    = active && !space && !!clickedKey
                       && clickedKey.ri === ri && clickedKey.ki === ki;
-                    // Physical key glow: real keyboard press
+                    // Physical key glow: real keyboard press (runs independently of sequential)
                     const physN      = physKeys[`${ri}-${ki}`];
-                    const isPhysical = active && physN !== undefined;
+                    const isPhysical = physN !== undefined;
                     // Flash glow: every key (including space bar) when MADAMINOV typed
                     const isFlash    = flash.on;
+                    // Test key highlight: key just pressed during typing test
+                    const isTestKey  = !!(test && testKey && testKey.label === label);
+                    const isTestErr  = isTestKey && !testKey.correct;
 
-                    const glow = isSeq || isClick || isPhysical || isFlash;
+                    const glow = isSeq || isClick || isPhysical || isFlash || (isTestKey && testKey.correct);
 
                     // Changing the React key remounts the div → CSS animation restarts.
-                    // Flash > physical > click > seq priority.
+                    // Flash > test > physical > click > seq priority.
                     let divKey;
-                    if (isFlash)        divKey = `${ri}-${ki}-f${flash.n}`;
+                    if (isFlash)         divKey = `${ri}-${ki}-f${flash.n}`;
+                    else if (isTestKey)  divKey = `${ri}-${ki}-tk${testKey.n}`;
                     else if (isPhysical) divKey = `${ri}-${ki}-pk${physN}`;
                     else if (isSeq)      divKey = `${ri}-${ki}-s${step}`;
                     else if (isClick)    divKey = `${ri}-${ki}-c${clickedKey.n}`;
                     else                 divKey = `${ri}-${ki}`;
+
+                    // Idle wave: LIT keys pulse with staggered delay (diagonal wave)
+                    const isIdleWave = idle && isLit && !flash.on;
+                    const idleDelay  = isIdleWave ? `${((ri * 4 + ki) * 0.12).toFixed(2)}s` : undefined;
+                    const idleDur    = isIdleWave ? `${(2.2 + (ri * 0.15)).toFixed(2)}s` : undefined;
 
                     // Wave effect during flash: each row starts slightly later (top→bottom)
                     const flashDelay = flash.on ? `${ri * 80}ms` : undefined;
@@ -344,12 +605,13 @@ export default function CSSKeyboard() {
                     return (
                       <div
                         key={divKey}
-                        className={`kb-key${space ? " kb-space" : ""}${glow ? " kb-glow" : ""}`}
+                        className={`kb-key${space ? " kb-space" : ""}${glow ? " kb-glow" : ""}${isTestErr ? " kb-error" : ""}${isIdleWave ? " kb-idle" : ""}`}
                         onClick={() => onKeyClick(ri, ki, label)}
                         style={{
                           width: w, height: H,
                           fontSize: w > 55 ? "7px" : "9px",
                           ...(flashDelay ? { animationDelay: flashDelay } : {}),
+                          ...(isIdleWave ? { "--idle-dur": idleDur, animationDelay: idleDelay } : {}),
                         }}
                       >
                         {/* LED dot only on LIT keys */}
@@ -364,6 +626,7 @@ export default function CSSKeyboard() {
             </div>
           </div>
         </div>
+        </div>{/* position:relative wrapper */}
       </div>
     </>
   );

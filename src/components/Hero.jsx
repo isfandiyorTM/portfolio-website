@@ -22,14 +22,41 @@ function TerminalCursor() {
   return <span style={{ display:"inline-block", width:"10px", height:"1.1em", background:v?"var(--green)":"transparent", marginLeft:"4px", verticalAlign:"middle", transition:"background 0.1s" }} />;
 }
 
+const IDLE_SECS = 90;
+
 export default function Hero() {
   const { t }               = useLang();
   const { displayed, done } = useTypewriter(t.hero.title, 800);
   const scrollTo            = id => document.getElementById(id)?.scrollIntoView({ behavior:"smooth" });
   const [resumeOpen, setResumeOpen] = useState(false);
+  const [idle, setIdle]     = useState(false);
 
-  const sectionRef   = useRef(null);
-  const mouseMoveRaf = useRef(null);
+  const sectionRef    = useRef(null);
+  const mouseMoveRaf  = useRef(null);
+  const lastActive    = useRef(Date.now());
+  const idleTimer     = useRef(null);
+
+  // Idle detection — resets on any interaction
+  useEffect(() => {
+    const bump = () => { lastActive.current = Date.now(); if (idle) setIdle(false); };
+    const tick = () => {
+      if (Date.now() - lastActive.current >= IDLE_SECS * 1000) setIdle(true);
+    };
+    window.addEventListener("mousemove",  bump, { passive: true });
+    window.addEventListener("keydown",    bump, { passive: true });
+    window.addEventListener("scroll",     bump, { passive: true });
+    window.addEventListener("click",      bump, { passive: true });
+    window.addEventListener("touchstart", bump, { passive: true });
+    idleTimer.current = setInterval(tick, 5000);
+    return () => {
+      window.removeEventListener("mousemove",  bump);
+      window.removeEventListener("keydown",    bump);
+      window.removeEventListener("scroll",     bump);
+      window.removeEventListener("click",      bump);
+      window.removeEventListener("touchstart", bump);
+      clearInterval(idleTimer.current);
+    };
+  }, [idle]);
 
   const handleMouseMove = useCallback((e) => {
     if (mouseMoveRaf.current) return;
@@ -64,10 +91,34 @@ export default function Hero() {
       </div>
 
       {/* CSS 3D Keyboard — right-middle, clickable */}
-      <CSSKeyboard />
+      <CSSKeyboard idle={idle} />
 
-      {/* Text content */}
-      <div style={{ maxWidth:"1100px", margin:"0 auto", width:"100%", position:"relative", zIndex:5, pointerEvents:"none" }}>
+      {/* rahimovdevs.tech badge — bottom right */}
+      <a
+        href="https://rahimovdevs.tech"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          position: "absolute", bottom: 24, right: 28, zIndex: 5,
+          display: "inline-flex", alignItems: "center", gap: 8,
+          padding: "7px 14px", borderRadius: 20,
+          fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "1.5px",
+          color: "rgba(0,255,136,0.65)", textDecoration: "none", whiteSpace: "nowrap",
+          background: "rgba(4,12,7,0.92)",
+          border: "1px solid rgba(0,255,136,0.22)",
+          boxShadow: "0 0 16px rgba(0,255,136,0.05)",
+          transition: "border-color 0.3s, box-shadow 0.3s, color 0.3s",
+        }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(0,255,136,0.55)"; e.currentTarget.style.boxShadow = "0 0 24px rgba(0,255,136,0.18)"; e.currentTarget.style.color = "rgba(0,255,136,1)"; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(0,255,136,0.22)"; e.currentTarget.style.boxShadow = "0 0 16px rgba(0,255,136,0.05)"; e.currentTarget.style.color = "rgba(0,255,136,0.65)"; }}
+      >
+        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", boxShadow: "0 0 6px var(--green)", animation: "pulse-glow 2s ease-in-out infinite", flexShrink: 0 }} />
+        rahimovdevs.tech
+        <span style={{ opacity: 0.5, fontSize: 12 }}>↗</span>
+      </a>
+
+      {/* Text content — dims during idle */}
+      <div style={{ maxWidth:"1100px", margin:"0 auto", width:"100%", position:"relative", zIndex:5, pointerEvents:"none", opacity: idle ? 0.18 : 1, transition:"opacity 2s ease" }}>
         <div style={{ maxWidth:"520px", pointerEvents:"auto" }}>
 
           {/* Availability badge */}
