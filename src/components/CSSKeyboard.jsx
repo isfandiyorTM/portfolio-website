@@ -347,6 +347,7 @@ export default function CSSKeyboard({ idle = false }) {
       const word      = t.words[t.wIdx];
 
       if (ch === " ") {
+        e.preventDefault(); // stop page scroll
         // Count uncompleted chars as errors
         const wordErrors = word.length - [...t.typed].filter((c, i) => c === word[i]).length;
         const newErrors  = t.errors + wordErrors;
