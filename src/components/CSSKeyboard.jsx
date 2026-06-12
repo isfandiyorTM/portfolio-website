@@ -110,17 +110,19 @@ const ROWS = [
   [["CTRL",1.5],["⌘",1.25],["ALT",1.25],["",6.25],["ALT",1.25],["⌘",1.25],["CTRL",1.5]],
 ];
 
-// Full name sequence — one step per second
-// null = silent step (creates the breaks between/after names)
+// Full sequence — one step per second
+// Starts with a greeting, then loops the full name forever
 const SEQUENCE = [
-  "I","S","F","A","N","D","I","Y","O","R",  // ISFANDIYOR  (steps 0-9)
-  null, null,                                  // 2 s break   (steps 10-11)
-  "M","A","D","A","M","I","N","O","V",       // MADAMINOV   (steps 12-20)
-  null, null, null,                            // 3 s break   (steps 21-23)
-]; // 24 steps → 24 s loop
+  "H","E","L","L","O",                       // HELLO       (steps 0-4)
+  null, null,                                  // 2 s break   (steps 5-6)
+  "I","S","F","A","N","D","I","Y","O","R",  // ISFANDIYOR  (steps 7-16)
+  null, null,                                  // 2 s break   (steps 17-18)
+  "M","A","D","A","M","I","N","O","V",       // MADAMINOV   (steps 19-27)
+  null, null, null,                            // 3 s break   (steps 28-30)
+]; // 31 steps → 31 s loop
 
-// All letters that ever light up across both names
-const LIT = new Set(["I","S","F","A","N","D","Y","O","R","M","V"]);
+// All letters that ever light up — greeting + both names
+const LIT = new Set(["H","E","L","I","S","F","A","N","D","Y","O","R","M","V"]);
 
 // Single-key glow: press down → peak green → release → dark (2.24 s, plays once).
 // Percentages match the timing in the original 14 s sequential keyframe:
