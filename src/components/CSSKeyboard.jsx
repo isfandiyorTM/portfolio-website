@@ -110,19 +110,28 @@ const ROWS = [
   [["CTRL",1.5],["⌘",1.25],["ALT",1.25],["",6.25],["ALT",1.25],["⌘",1.25],["CTRL",1.5]],
 ];
 
-// Full sequence — one step per second
-// Starts with a greeting, then loops the full name forever
-const SEQUENCE = [
-  "H","E","L","L","O",                       // HELLO       (steps 0-4)
-  null, null,                                  // 2 s break   (steps 5-6)
-  "I","S","F","A","N","D","I","Y","O","R",  // ISFANDIYOR  (steps 7-16)
-  null, null,                                  // 2 s break   (steps 17-18)
-  "M","A","D","A","M","I","N","O","V",       // MADAMINOV   (steps 19-27)
-  null, null, null,                            // 3 s break   (steps 28-30)
-]; // 31 steps → 31 s loop
+// Build time-appropriate greeting sequence (called once at module load)
+const SEQUENCE = (() => {
+  const h = new Date().getHours();
+  let greeting;
+  if      (h >= 5  && h < 12) greeting = ["G","O","O","D",null,"M","O","R","N","I","N","G"];
+  else if (h >= 12 && h < 17) greeting = ["G","O","O","D",null,"A","F","T","E","R","N","O","O","N"];
+  else if (h >= 17 && h < 21) greeting = ["G","O","O","D",null,"E","V","E","N","I","N","G"];
+  else                         greeting = ["G","O","O","D",null,"N","I","G","H","T"];
+  return [
+    ...greeting,
+    null, null,
+    "M","Y", null, "N","A","M","E", null, "I","S",
+    null, null,
+    "I","S","F","A","N","D","I","Y","O","R",
+    null, null,
+    "M","A","D","A","M","I","N","O","V",
+    null, null, null,
+  ];
+})();
 
-// All letters that ever light up — greeting + both names
-const LIT = new Set(["H","E","L","I","S","F","A","N","D","Y","O","R","M","V"]);
+// All letters that ever light up across all possible greetings + name
+const LIT = new Set(["G","T","H","E","I","S","F","A","N","D","Y","O","R","M","V"]);
 
 // Single-key glow: press down → peak green → release → dark (2.24 s, plays once).
 // Percentages match the timing in the original 14 s sequential keyframe:
