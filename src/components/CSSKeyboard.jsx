@@ -72,6 +72,23 @@ function newTest() {
   };
 }
 
+const RESULT_CSS = `
+@keyframes kb-result-in {
+  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.82); }
+  14%  { opacity:1; transform:translate(-50%,-50%) scale(1.04); }
+  22%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
+  100% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+@keyframes kb-result-wpm {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes kb-result-badge {
+  0%,100% { text-shadow:0 0 8px var(--green); }
+  50%     { text-shadow:0 0 20px var(--green), 0 0 40px rgba(0,255,136,0.4); }
+}
+`;
+
 const TEST_CSS = `
 @keyframes kb-key-error {
   0%,100% {
@@ -411,7 +428,56 @@ export default function CSSKeyboard({ idle = false }) {
 
   return (
     <>
-      <style>{CSS}{IDLE_CSS}{ACCESS_CSS}{TEST_CSS}</style>
+      <style>{CSS}{IDLE_CSS}{ACCESS_CSS}{TEST_CSS}{RESULT_CSS}</style>
+
+      {/* Typing test result overlay — shown when test is done */}
+      {test?.done && (
+        <div style={{
+          position: "fixed", top: "50%", left: "50%",
+          zIndex: 9991, pointerEvents: "none", textAlign: "center",
+          animation: "kb-result-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both",
+        }}>
+          <div style={{
+            fontFamily: "var(--font-mono)",
+            background: "rgba(4,12,7,0.96)",
+            border: "1px solid rgba(0,255,136,0.35)",
+            borderRadius: 12,
+            padding: "28px 44px 24px",
+            boxShadow: "0 0 60px rgba(0,255,136,0.15), 0 30px 80px rgba(0,0,0,0.9)",
+          }}>
+            <div style={{ fontSize: 9, letterSpacing: "4px", color: "rgba(0,255,136,0.35)", marginBottom: 10, textTransform: "uppercase" }}>
+              Typing Test Complete
+            </div>
+            <div style={{
+              fontSize: "clamp(56px,8vw,88px)", fontWeight: 900,
+              color: "#00ff88", lineHeight: 1,
+              textShadow: "0 0 40px rgba(0,255,136,0.5)",
+              animation: "kb-result-wpm 0.4s 0.15s ease both",
+            }}>
+              {test.wpm}
+            </div>
+            <div style={{ fontSize: 10, letterSpacing: "4px", color: "rgba(0,255,136,0.45)", marginBottom: 14 }}>
+              WPM
+            </div>
+            {test.wpm >= 60 && (
+              <div style={{
+                fontSize: 11, letterSpacing: "2.5px", color: "var(--green)",
+                marginBottom: 10, animation: "kb-result-badge 2s ease-in-out infinite",
+              }}>
+                ⚡ SPEED DEMON
+              </div>
+            )}
+            <div style={{ fontSize: 11, color: "rgba(0,255,136,0.35)", marginBottom: 16 }}>
+              {test.errors} error{test.errors !== 1 ? "s" : ""}
+              <span style={{ margin: "0 10px", opacity: 0.4 }}>·</span>
+              {TEST_LEN} words
+            </div>
+            <div style={{ fontSize: 9, color: "rgba(0,255,136,0.2)", letterSpacing: "2px" }}>
+              TAB to restart  ·  ESC to exit
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ACCESS GRANTED overlay — fixed center, plays for 3 s */}
       {flash.on && (
@@ -464,14 +530,7 @@ export default function CSSKeyboard({ idle = false }) {
           }}>
             {test.done ? (
               <div style={{ textAlign: "center", padding: "4px 0" }}>
-                <div style={{ fontSize: 38, fontWeight: 700, color: "#00ff88", lineHeight: 1 }}>{test.wpm}</div>
-                <div style={{ fontSize: 9, letterSpacing: 3, color: "rgba(0,255,136,0.4)", marginBottom: 8, textTransform: "uppercase" }}>words per minute</div>
-                <div style={{ fontSize: 11, color: "rgba(0,255,136,0.55)" }}>
-                  {test.errors} error{test.errors !== 1 ? "s" : ""}
-                  <span style={{ opacity: 0.4, margin: "0 8px" }}>·</span>
-                  {TEST_LEN} words
-                </div>
-                <div style={{ fontSize: 9, color: "rgba(0,255,136,0.25)", marginTop: 10, letterSpacing: 2 }}>TAB to restart</div>
+                <div style={{ fontSize: 9, color: "rgba(0,255,136,0.3)", letterSpacing: 2 }}>TAB to restart  ·  ESC to exit</div>
               </div>
             ) : (
               <>
