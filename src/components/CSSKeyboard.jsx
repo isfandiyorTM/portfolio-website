@@ -303,6 +303,7 @@ export default function CSSKeyboard({ idle = false }) {
         clearTimeout(flashTimer.current);
         setFlash(f => ({ on: true, n: f.n + 1 }));
         flashTimer.current = setTimeout(() => setFlash(f => ({ ...f, on: false })), 3000);
+        window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: "access" }));
       }
       resetTimer = setTimeout(() => { typed = ""; }, 2000);
     };
@@ -357,6 +358,8 @@ export default function CSSKeyboard({ idle = false }) {
 
         if (nextWIdx >= TEST_LEN) {
           setTest(prev => ({ ...prev, wIdx: nextWIdx, typed: "", done: true, wpm, errors: newErrors, startTime }));
+          window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: "typist" }));
+          if (wpm >= 60) window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: "speedDemon" }));
         } else {
           setTest(prev => ({ ...prev, wIdx: nextWIdx, typed: "", errors: newErrors, startTime }));
         }
@@ -379,6 +382,8 @@ export default function CSSKeyboard({ idle = false }) {
         const elapsed = (Date.now() - startTime) / 60000;
         const wpm     = Math.round(TEST_LEN / Math.max(elapsed, 0.001));
         setTest(prev => ({ ...prev, typed: newTyped, done: true, wpm, startTime }));
+        window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: "typist" }));
+        if (wpm >= 60) window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: "speedDemon" }));
       } else {
         setTest(prev => ({ ...prev, typed: newTyped, startTime }));
       }

@@ -21,6 +21,9 @@ import Terminal from "./components/Terminal";
 import VisitorScan from "./components/VisitorScan";
 import KonamiCode from "./components/KonamiCode";
 import RightClickTrap from "./components/RightClickTrap";
+import CursorTrail from "./components/CursorTrail";
+import ClickRipple from "./components/ClickRipple";
+import AchievementSystem from "./components/AchievementSystem";
 import GamesPage from "./pages/GamesPage";
 import ScoresPage from "./pages/ScoresPage";
 import ChontakPage from "./pages/ChontakPage";
@@ -141,6 +144,9 @@ export default function App() {
       <LanguageProvider>
         <Cursor />
         <CursorSpotlight />
+        <CursorTrail />
+        <ClickRipple />
+        <AchievementSystem />
         <Terminal />
         <VisitorScan />
         <KonamiCode />

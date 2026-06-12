@@ -2,7 +2,27 @@ import { useState, useRef, useEffect } from "react";
 
 const PROMPT = "ISF@PORTFOLIO ~ $";
 
-const ALL_CMDS = ["about","clear","close","contact","help","ls","projects","resume","secret","skills","whoami"];
+const ALL_CMDS = ["about","clear","close","contact","hack","help","ls","projects","resume","secret","skills","whoami"];
+
+const ach = (id) => window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: id }));
+
+const HACK_LINES = [
+  { t: "INITIATING HACK SEQUENCE..." },
+  { t: "──────────────────────────────────────────" },
+  { t: "  TARGET    isfandiyormadaminov12@gmail.com" },
+  { t: "  VECTOR    portfolio_terminal_v2" },
+  { t: "  PROTOCOL  SSH + SOCIAL_ENGINEERING" },
+  { t: "" },
+  { t: "  BYPASSING FIREWALL    [##########]  DONE", d: 400  },
+  { t: "  CRACKING ENCRYPTION   [##########]  DONE", d: 700  },
+  { t: "  ACCESSING MAINFRAME   [##########]  DONE", d: 1000 },
+  { t: "  EXTRACTING SECRETS    [##########]  DONE", d: 1300 },
+  { t: "" },
+  { t: "──────────────────────────────────────────", d: 1600 },
+  { t: "  ▸ ROOT ACCESS GRANTED",                   d: 1900, hi: true },
+  { t: "  ▸ WELCOME BACK, ISFANDIYOR MADAMINOV",    d: 2100, hi: true },
+  { t: "", d: 2200 },
+];
 
 function process(cmd) {
   switch (cmd.trim().toLowerCase()) {
@@ -17,6 +37,7 @@ function process(cmd) {
           "  whoami     identity check",
           "  ls         list directory",
           "  secret     ???",
+          "  hack       ...don't",
           "  clear      clear screen",
           "  close      close terminal",
         ],
@@ -104,6 +125,9 @@ function process(cmd) {
         ],
       };
 
+    case "hack":
+      return { stream: HACK_LINES };
+
     case "clear": case "cls":
       return "CLEAR";
 
@@ -156,6 +180,7 @@ export default function Terminal() {
       if (e.key === "/" && !openRef.current) {
         e.preventDefault();
         setOpen(true);
+        ach("curious");
       }
       if (e.key === "Escape" && openRef.current) {
         setOpen(false);
@@ -183,6 +208,16 @@ export default function Terminal() {
     const res = process(cmd);
     if (res === "CLEAR") { setHistory([]); return; }
     if (res === "CLOSE") { setTimeout(() => setOpen(false), 120); return; }
+    if (res?.stream) {
+      res.stream.forEach(({ t, d, hi }) => {
+        setTimeout(() => {
+          setHistory(h => [...h, { kind: hi ? "hi" : "out", text: t }]);
+        }, d ?? 0);
+      });
+      // Achievement after last line
+      setTimeout(() => ach("hacker"), (res.stream.at(-1)?.d ?? 0) + 200);
+      return;
+    }
     if (res) {
       setHistory(h => [
         ...h,
@@ -221,7 +256,6 @@ export default function Terminal() {
 
       {open && (
         <>
-          {/* Backdrop */}
           <div
             onClick={() => setOpen(false)}
             style={{
@@ -231,7 +265,6 @@ export default function Terminal() {
             }}
           />
 
-          {/* Terminal window */}
           <div style={{
             position: "fixed", top: "50%", left: "50%",
             zIndex: 9999,
@@ -247,7 +280,6 @@ export default function Terminal() {
             fontFamily: "var(--font-mono)",
           }}>
 
-            {/* Title bar */}
             <div style={{
               display: "flex", alignItems: "center", gap: 8,
               padding: "10px 16px",
@@ -265,15 +297,11 @@ export default function Terminal() {
                   }}
                 />
               ))}
-              <span style={{
-                marginLeft: 8, fontSize: 11,
-                color: "rgba(0,255,136,0.45)", letterSpacing: "2px",
-              }}>
+              <span style={{ marginLeft: 8, fontSize: 11, color: "rgba(0,255,136,0.45)", letterSpacing: "2px" }}>
                 TERMINAL  ·  ESC to close  ·  TAB to autocomplete
               </span>
             </div>
 
-            {/* History */}
             <div style={{
               flex: 1, overflowY: "auto", padding: "14px 20px 8px",
               scrollbarWidth: "thin",
@@ -286,7 +314,10 @@ export default function Terminal() {
                     ? "rgba(255,90,90,0.9)"
                     : item.kind === "in"
                       ? "rgba(0,255,136,1)"
-                      : "rgba(0,255,136,0.6)",
+                      : item.kind === "hi"
+                        ? "rgba(0,255,136,1)"
+                        : "rgba(0,255,136,0.6)",
+                  fontWeight: item.kind === "hi" ? 700 : 400,
                   whiteSpace: "pre",
                 }}>
                   {item.kind === "in" ? `${PROMPT} ${item.text}` : `  ${item.text}`}
@@ -295,7 +326,6 @@ export default function Terminal() {
               <div ref={bottomRef} />
             </div>
 
-            {/* Input */}
             <form onSubmit={submit} style={{
               display: "flex", alignItems: "center", gap: 8,
               padding: "10px 20px",

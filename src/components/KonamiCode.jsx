@@ -85,6 +85,7 @@ export default function KonamiCode() {
       if (next.join(",") === KONAMI.join(",")) {
         progress.current = [];
         clearTimeout(exitTimer.current);
+        window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: "matrix" }));
         setPhase("active");
         exitTimer.current = setTimeout(() => {
           setPhase("leaving");

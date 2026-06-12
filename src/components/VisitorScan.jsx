@@ -118,6 +118,7 @@ export default function VisitorScan() {
     const later = (fn, ms) => { const id = setTimeout(fn, ms); ids.current.push(id); };
 
     later(() => {
+      window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: "profiled" }));
       setPhase("scanning");
 
       // Cycle scan messages while progress bar runs

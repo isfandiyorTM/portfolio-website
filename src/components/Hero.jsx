@@ -7,13 +7,37 @@ import ResumeModal from "./ResumeModal";
 import CSSKeyboard from "./CSSKeyboard";
 
 
-function GlitchText({ text }) {
-  const [glitch, setGlitch] = useState(false);
-  useEffect(() => {
-    const i = setInterval(() => { setGlitch(true); setTimeout(() => setGlitch(false), 200); }, 4000);
-    return () => clearInterval(i);
-  }, []);
-  return <span style={{ position:"relative", display:"inline-block", animation:glitch?"glitch 0.2s steps(2) forwards":"none" }}>{text}</span>;
+const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#@!$%&*?";
+
+function ScrambleText({ text, style }) {
+  const [display, setDisplay] = useState(text);
+  const rafRef = useRef(null);
+
+  const scramble = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
+    let iter = 0;
+    const total = text.replace(/ /g, "").length * 2 + 8;
+    const tick = () => {
+      setDisplay(
+        text.split("").map((ch, i) => {
+          if (ch === " ") return " ";
+          if (i < Math.floor(iter / 2)) return text[i];
+          return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+        }).join("")
+      );
+      if (iter < total) { iter++; rafRef.current = requestAnimationFrame(tick); }
+      else setDisplay(text);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  }, [text]);
+
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), [scramble]);
+
+  return (
+    <span style={{ ...style, cursor: "default" }} onMouseEnter={scramble}>
+      {display}
+    </span>
+  );
 }
 
 function TerminalCursor() {
@@ -131,8 +155,8 @@ export default function Hero() {
 
           <div className="section-label" style={{ animation:"fadeUp 0.6s ease both" }}>{t.hero.greeting}</div>
           <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(36px,6vw,72px)", fontWeight:900, lineHeight:1.1, marginBottom:"16px", animation:"fadeUp 0.8s 0.2s ease both", opacity:0 }}>
-            <GlitchText text="ISFANDIYOR" /><br />
-            <span style={{ color:"var(--green)" }}>MADAMINOV</span>
+            <ScrambleText text="ISFANDIYOR" /><br />
+            <ScrambleText text="MADAMINOV" style={{ color:"var(--green)" }} />
           </h1>
 
           <div style={{ fontFamily:"var(--font-mono)", fontSize:"clamp(13px,2vw,17px)", color:"var(--green-dim)", marginBottom:"28px", animation:"fadeUp 0.8s 0.4s ease both", opacity:0, minHeight:"28px" }}>
