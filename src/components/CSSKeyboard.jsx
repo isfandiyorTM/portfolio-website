@@ -247,13 +247,12 @@ export default function CSSKeyboard({ idle = false }) {
   const startedRef   = useRef(false);
 
   // Typing test
-  const [test,     setTest]     = useState(null);   // null = inactive
-  const [testKey,  setTestKey]  = useState(null);   // { ri, ki, n, correct }
-  const testRef    = useRef(null);
-  const testKeyRef = useRef(null);
-  const testKeyTimer = useRef(null);
-  testRef.current    = test;
-  testKeyRef.current = testKey;
+  const [test,       setTest]       = useState(null); // null = inactive
+  // activeKeys: { "ri-ki": { n, correct } } — one entry per key position, own timer each
+  const [activeKeys, setActiveKeys] = useState({});
+  const testRef         = useRef(null);
+  const activeKeyTimers = useRef({});
+  testRef.current = test;
 
   const startSequence = useCallback(() => {
     if (startedRef.current) return;
@@ -349,7 +348,10 @@ export default function CSSKeyboard({ idle = false }) {
         if (prev && prev.done) return newTest(); // restart when done
         return prev ? null : newTest();          // toggle when active/inactive
       });
-      setTestKey(null);
+      // Clear all active key highlights and their timers
+      Object.values(activeKeyTimers.current).forEach(clearTimeout);
+      activeKeyTimers.current = {};
+      setActiveKeys({});
     };
     window.addEventListener("keydown", onTab);
     return () => window.removeEventListener("keydown", onTab);
@@ -375,8 +377,25 @@ export default function CSSKeyboard({ idle = false }) {
       const startTime = t.startTime ?? Date.now();
       const word      = t.words[t.wIdx];
 
+      // Helper: light up key positions for a label, each with its own cleanup timer
+      const glowPositions = (keyLabel, correct, duration) => {
+        const positions = findPositions(keyLabel);
+        positions.forEach(posKey => {
+          setActiveKeys(prev => ({
+            ...prev,
+            [posKey]: { n: (prev[posKey]?.n ?? 0) + 1, correct },
+          }));
+          clearTimeout(activeKeyTimers.current[posKey]);
+          activeKeyTimers.current[posKey] = setTimeout(() => {
+            setActiveKeys(prev => { const next = { ...prev }; delete next[posKey]; return next; });
+            delete activeKeyTimers.current[posKey];
+          }, duration);
+        });
+      };
+
       if (ch === " ") {
         e.preventDefault(); // stop page scroll
+        glowPositions("", true, 380);
         // Count uncompleted chars as errors
         const wordErrors = word.length - [...t.typed].filter((c, i) => c === word[i]).length;
         const newErrors  = t.errors + wordErrors;
@@ -391,20 +410,15 @@ export default function CSSKeyboard({ idle = false }) {
         } else {
           setTest(prev => ({ ...prev, wIdx: nextWIdx, typed: "", errors: newErrors, startTime }));
         }
-        setTestKey(prev => ({ label: "", correct: true, n: (prev?.n ?? 0) + 1 }));
-        clearTimeout(testKeyTimer.current);
-        testKeyTimer.current = setTimeout(() => setTestKey(null), 450);
         return;
       }
 
-      const correct = t.typed.length < word.length && ch === word[t.typed.length];
-      setTestKey(prev => ({ label: ch.toUpperCase(), correct, n: (prev?.n ?? 0) + 1 }));
-      clearTimeout(testKeyTimer.current);
-      testKeyTimer.current = setTimeout(() => setTestKey(null), correct ? 550 : 650);
+      const correct    = t.typed.length < word.length && ch === word[t.typed.length];
+      glowPositions(ch.toUpperCase(), correct, correct ? 500 : 600);
 
-      const newTyped       = t.typed + ch;
-      const isLastWord     = t.wIdx === TEST_LEN - 1;
-      const wordComplete   = correct && newTyped.length === word.length;
+      const newTyped     = t.typed + ch;
+      const isLastWord   = t.wIdx === TEST_LEN - 1;
+      const wordComplete = correct && newTyped.length === word.length;
 
       if (isLastWord && wordComplete) {
         const elapsed = (Date.now() - startTime) / 60000;
@@ -417,7 +431,10 @@ export default function CSSKeyboard({ idle = false }) {
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => { window.removeEventListener("keydown", onKey); clearTimeout(testKeyTimer.current); };
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      Object.values(activeKeyTimers.current).forEach(clearTimeout);
+    };
   }, []);
 
   const onKeyClick = (ri, ki, label) => {
@@ -666,17 +683,18 @@ export default function CSSKeyboard({ idle = false }) {
                     const isPhysical = physN !== undefined;
                     // Flash glow: every key (including space bar) when MADAMINOV typed
                     const isFlash    = flash.on;
-                    // Test key highlight: key just pressed during typing test
-                    const isTestKey  = !!(test && testKey && testKey.label === label);
-                    const isTestErr  = isTestKey && !testKey.correct;
+                    // Test key highlight: per-position map — multiple keys can glow at once
+                    const activeKey  = test ? activeKeys[`${ri}-${ki}`] : undefined;
+                    const isTestKey  = !!activeKey;
+                    const isTestErr  = isTestKey && !activeKey.correct;
 
-                    const glow = isSeq || isClick || isPhysical || isFlash || (isTestKey && testKey.correct);
+                    const glow = isSeq || isClick || isPhysical || isFlash || (isTestKey && activeKey.correct);
 
                     // Changing the React key remounts the div → CSS animation restarts.
                     // Flash > test > physical > click > seq priority.
                     let divKey;
                     if (isFlash)         divKey = `${ri}-${ki}-f${flash.n}`;
-                    else if (isTestKey)  divKey = `${ri}-${ki}-tk${testKey.n}`;
+                    else if (isTestKey)  divKey = `${ri}-${ki}-tk${activeKey.n}`;
                     else if (isPhysical) divKey = `${ri}-${ki}-pk${physN}`;
                     else if (isSeq)      divKey = `${ri}-${ki}-s${step}`;
                     else if (isClick)    divKey = `${ri}-${ki}-c${clickedKey.n}`;
