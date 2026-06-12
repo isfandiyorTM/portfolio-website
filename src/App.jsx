@@ -19,6 +19,8 @@ import PlasmaBlobs from "./components/PlasmaBlobs";
 
 import Terminal from "./components/Terminal";
 import VisitorScan from "./components/VisitorScan";
+import KonamiCode from "./components/KonamiCode";
+import RightClickTrap from "./components/RightClickTrap";
 import GamesPage from "./pages/GamesPage";
 import ScoresPage from "./pages/ScoresPage";
 import ChontakPage from "./pages/ChontakPage";
@@ -141,6 +143,8 @@ export default function App() {
         <CursorSpotlight />
         <Terminal />
         <VisitorScan />
+        <KonamiCode />
+        <RightClickTrap />
         {!loaded && <LoadingScreen onDone={() => setLoaded(true)} />}
 
         <div
