@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 
 const PROMPT = "ISF@PORTFOLIO ~ $";
 
-const ALL_CMDS = ["about","clear","contact","help","ls","projects","resume","secret","skills","whoami"];
+const ALL_CMDS = ["about","clear","close","contact","help","ls","projects","resume","secret","skills","whoami"];
 
 function process(cmd) {
   switch (cmd.trim().toLowerCase()) {
@@ -18,6 +18,7 @@ function process(cmd) {
           "  ls         list directory",
           "  secret     ???",
           "  clear      clear screen",
+          "  close      close terminal",
         ],
       };
 
@@ -106,6 +107,9 @@ function process(cmd) {
     case "clear": case "cls":
       return "CLEAR";
 
+    case "close": case "exit": case "quit":
+      return "CLOSE";
+
     case "":
       return null;
 
@@ -178,6 +182,7 @@ export default function Terminal() {
     setHistory(h => [...h, { kind: "in", text: cmd }]);
     const res = process(cmd);
     if (res === "CLEAR") { setHistory([]); return; }
+    if (res === "CLOSE") { setTimeout(() => setOpen(false), 120); return; }
     if (res) {
       setHistory(h => [
         ...h,
