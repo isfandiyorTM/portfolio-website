@@ -370,7 +370,18 @@ export default function CSSKeyboard({ idle = false }) {
       setTestKey(prev => ({ label: ch.toUpperCase(), correct, n: (prev?.n ?? 0) + 1 }));
       clearTimeout(testKeyTimer.current);
       testKeyTimer.current = setTimeout(() => setTestKey(null), correct ? 550 : 650);
-      setTest(prev => ({ ...prev, typed: prev.typed + ch, startTime }));
+
+      const newTyped       = t.typed + ch;
+      const isLastWord     = t.wIdx === TEST_LEN - 1;
+      const wordComplete   = correct && newTyped.length === word.length;
+
+      if (isLastWord && wordComplete) {
+        const elapsed = (Date.now() - startTime) / 60000;
+        const wpm     = Math.round(TEST_LEN / Math.max(elapsed, 0.001));
+        setTest(prev => ({ ...prev, typed: newTyped, done: true, wpm, startTime }));
+      } else {
+        setTest(prev => ({ ...prev, typed: newTyped, startTime }));
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => { window.removeEventListener("keydown", onKey); clearTimeout(testKeyTimer.current); };
