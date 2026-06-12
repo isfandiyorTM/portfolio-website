@@ -76,8 +76,8 @@ const RESULT_CSS = `
 @keyframes kb-result-in {
   0%   { opacity:0; transform:translate(-50%,-50%) scale(0.82); }
   14%  { opacity:1; transform:translate(-50%,-50%) scale(1.04); }
-  22%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
-  100% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+  22%  { opacity:1; transform:translate(-50%,-50%) scale(1);    }
+  100% { opacity:1; transform:translate(-50%,-50%) scale(1);    }
 }
 @keyframes kb-result-wpm {
   from { opacity:0; transform:translateY(12px); }
@@ -445,7 +445,8 @@ export default function CSSKeyboard({ idle = false }) {
       {test?.done && (
         <div style={{
           position: "fixed", top: "50%", left: "50%",
-          zIndex: 9991, pointerEvents: "none", textAlign: "center",
+          transform: "translate(-50%,-50%)",
+          zIndex: 9994, pointerEvents: "none", textAlign: "center",
           animation: "kb-result-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both",
         }}>
           <div style={{
@@ -655,8 +656,8 @@ export default function CSSKeyboard({ idle = false }) {
                     const space = label === "";
                     const w     = Math.round(mult * W);
 
-                    // Sequential glow: only during default mode (not idle, not active)
-                    const isSeq      = isLit && !active && !idle && step >= 0 && SEQUENCE[step] === label;
+                    // Sequential glow: only during default mode (not idle, not active, not test)
+                    const isSeq      = isLit && !active && !idle && !test && step >= 0 && SEQUENCE[step] === label;
                     // Click glow: any non-space key during click mode
                     const isClick    = active && !space && !!clickedKey
                       && clickedKey.ri === ri && clickedKey.ki === ki;
