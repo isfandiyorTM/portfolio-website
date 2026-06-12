@@ -3,36 +3,36 @@
 
   <url>
     <loc>https://isfandiyormadaminov.dev/</loc>
-    <lastmod>2026-04-21</lastmod>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://isfandiyormadaminov.dev/games</loc>
-    <lastmod>2026-04-21</lastmod>
+    <loc>https://isfandiyormadaminov.dev/chontak</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://isfandiyormadaminov.dev/chontak</loc>
-    <lastmod>2026-04-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
-  <url>
     <loc>https://isfandiyormadaminov.dev/hoji-jalyuzi</loc>
-    <lastmod>2026-04-21</lastmod>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://isfandiyormadaminov.dev/rahimovdevs</loc>
-    <lastmod>2026-04-21</lastmod>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://isfandiyormadaminov.dev/resume</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
 
