@@ -23,6 +23,10 @@ function TerminalCursor() {
 }
 
 const IDLE_SECS = 90;
+// How far everything but the name and the keyboard fades once idle
+const DIM_TEXT = 0.12;
+const DIM_BG   = 0.25; // multiplier on the background layers' own opacity
+const DIM_EASE = "opacity 2s ease";
 
 export default function Hero() {
   const { t }               = useLang();
@@ -81,17 +85,18 @@ export default function Hero() {
       style={{ minHeight:"100vh", position:"relative", overflow:"hidden", display:"flex", alignItems:"center", padding:"100px 40px 60px", width:"100%" }}
     >
       {/* Matrix Rain — desktop only */}
-      <div className="hero-bg-only-desktop" style={{ position:"absolute", inset:0, zIndex:0, opacity:0.07, pointerEvents:"none", filter:"blur(0.8px)" }}>
+      <div className="hero-bg-only-desktop" style={{ position:"absolute", inset:0, zIndex:0, opacity:0.07 * (idle ? DIM_BG : 1), pointerEvents:"none", filter:"blur(0.8px)", transition:DIM_EASE }}>
         <MatrixRain style={{ width:"100%", height:"100%" }} />
       </div>
 
       {/* Particle background — desktop only */}
-      <div className="hero-bg-only-desktop" style={{ position:"absolute", inset:0, zIndex:2, opacity:0.18, pointerEvents:"none" }}>
+      <div className="hero-bg-only-desktop" style={{ position:"absolute", inset:0, zIndex:2, opacity:0.18 * (idle ? DIM_BG : 1), pointerEvents:"none", transition:DIM_EASE }}>
         <ParticleCanvas style={{ width:"100%", height:"100%" }} />
       </div>
 
-      {/* CSS 3D Keyboard — right-middle, clickable */}
-      <CSSKeyboard idle={idle} />
+      {/* CSS 3D Keyboard — right-middle, clickable. Deliberately not dimmed:
+          it keeps greeting and responding to keypresses while the rest sleeps. */}
+      <CSSKeyboard />
 
       {/* rahimovdevs.tech badge — bottom right */}
       <a
@@ -100,6 +105,7 @@ export default function Hero() {
         rel="noopener noreferrer"
         style={{
           position: "absolute", bottom: 24, right: 28, zIndex: 5,
+          opacity: idle ? DIM_TEXT : 1,
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "7px 14px", borderRadius: 20,
           fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "1.5px",
@@ -107,7 +113,7 @@ export default function Hero() {
           background: "rgba(4,12,7,0.92)",
           border: "1px solid rgba(0,255,136,0.22)",
           boxShadow: "0 0 16px rgba(0,255,136,0.05)",
-          transition: "border-color 0.3s, box-shadow 0.3s, color 0.3s",
+          transition: `border-color 0.3s, box-shadow 0.3s, color 0.3s, ${DIM_EASE}`,
         }}
         onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(0,255,136,0.55)"; e.currentTarget.style.boxShadow = "0 0 24px rgba(0,255,136,0.18)"; e.currentTarget.style.color = "rgba(0,255,136,1)"; }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(0,255,136,0.22)"; e.currentTarget.style.boxShadow = "0 0 16px rgba(0,255,136,0.05)"; e.currentTarget.style.color = "rgba(0,255,136,0.65)"; }}
@@ -117,36 +123,45 @@ export default function Hero() {
         <span style={{ opacity: 0.5, fontSize: 12 }}>↗</span>
       </a>
 
-      {/* Text content — dims during idle */}
-      <div style={{ maxWidth:"1100px", margin:"0 auto", width:"100%", position:"relative", zIndex:5, pointerEvents:"none", opacity: idle ? 0.18 : 1, transition:"opacity 2s ease" }}>
+      {/* Text content — everything except the name dims during idle.
+          The dim lives on these wrappers, not on the elements themselves: the
+          children run fadeUp with `both`, and an animation fill outranks an
+          inline opacity, so dimming them directly would do nothing. */}
+      <div style={{ maxWidth:"1100px", margin:"0 auto", width:"100%", position:"relative", zIndex:5, pointerEvents:"none" }}>
         <div style={{ maxWidth:"520px", pointerEvents:"auto" }}>
 
-          {/* Availability badge */}
-          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:18, animation:"fadeUp 0.5s ease both" }}>
-            <div style={{ width:7, height:7, borderRadius:"50%", background:"#f59e0b", boxShadow:"0 0 8px #f59e0b88", animation:"pulse-glow 2s ease-in-out infinite" }} />
-            <span style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--text-muted)", textTransform:"uppercase" }}>
-              {t.hero.status}
-            </span>
+          <div style={{ opacity: idle ? DIM_TEXT : 1, transition: DIM_EASE }}>
+            {/* Availability badge */}
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:18, animation:"fadeUp 0.5s ease both" }}>
+              <div style={{ width:7, height:7, borderRadius:"50%", background:"#f59e0b", boxShadow:"0 0 8px #f59e0b88", animation:"pulse-glow 2s ease-in-out infinite" }} />
+              <span style={{ fontFamily:"var(--font-mono)", fontSize:9, letterSpacing:3, color:"var(--text-muted)", textTransform:"uppercase" }}>
+                {t.hero.status}
+              </span>
+            </div>
+
+            <div className="section-label" style={{ animation:"fadeUp 0.6s ease both" }}>{t.hero.greeting}</div>
           </div>
 
-          <div className="section-label" style={{ animation:"fadeUp 0.6s ease both" }}>{t.hero.greeting}</div>
+          {/* The name stays lit while the hero sleeps */}
           <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(36px,6vw,72px)", fontWeight:900, lineHeight:1.1, marginBottom:"16px", animation:"fadeUp 0.8s 0.2s ease both", opacity:0 }}>
             <GlitchText text="ISFANDIYOR" /><br />
             <span style={{ color:"var(--green)" }}>MADAMINOV</span>
           </h1>
 
-          <div style={{ fontFamily:"var(--font-mono)", fontSize:"clamp(13px,2vw,17px)", color:"var(--green-dim)", marginBottom:"28px", animation:"fadeUp 0.8s 0.4s ease both", opacity:0, minHeight:"28px" }}>
-            {displayed}{!done && <TerminalCursor />}
-          </div>
+          <div style={{ opacity: idle ? DIM_TEXT : 1, transition: DIM_EASE }}>
+            <div style={{ fontFamily:"var(--font-mono)", fontSize:"clamp(13px,2vw,17px)", color:"var(--green-dim)", marginBottom:"28px", animation:"fadeUp 0.8s 0.4s ease both", opacity:0, minHeight:"28px" }}>
+              {displayed}{!done && <TerminalCursor />}
+            </div>
 
-          <p style={{ color:"var(--text-muted)", lineHeight:1.8, fontSize:"15px", maxWidth:"460px", marginBottom:"36px", animation:"fadeUp 0.8s 0.6s ease both", opacity:0 }}>
-            {t.hero.bio}
-          </p>
+            <p style={{ color:"var(--text-muted)", lineHeight:1.8, fontSize:"15px", maxWidth:"460px", marginBottom:"36px", animation:"fadeUp 0.8s 0.6s ease both", opacity:0 }}>
+              {t.hero.bio}
+            </p>
 
-          <div style={{ display:"flex", gap:"16px", flexWrap:"wrap", animation:"fadeUp 0.8s 0.8s ease both", opacity:0 }}>
-            <button className="btn btn-primary"   onClick={() => scrollTo("projects")}>{t.hero.cta_projects}</button>
-            <button className="btn btn-secondary" onClick={() => scrollTo("contact")}>{t.hero.cta_contact}</button>
-            <button className="btn btn-secondary" onClick={() => setResumeOpen(true)}>{t.hero.cta_cv}</button>
+            <div style={{ display:"flex", gap:"16px", flexWrap:"wrap", animation:"fadeUp 0.8s 0.8s ease both", opacity:0 }}>
+              <button className="btn btn-primary"   onClick={() => scrollTo("projects")}>{t.hero.cta_projects}</button>
+              <button className="btn btn-secondary" onClick={() => scrollTo("contact")}>{t.hero.cta_contact}</button>
+              <button className="btn btn-secondary" onClick={() => setResumeOpen(true)}>{t.hero.cta_cv}</button>
+            </div>
           </div>
 
         </div>
