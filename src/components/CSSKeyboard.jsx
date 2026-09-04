@@ -110,21 +110,24 @@ const ROWS = [
   [["CTRL",1.5],["⌘",1.25],["ALT",1.25],["",6.25],["ALT",1.25],["⌘",1.25],["CTRL",1.5]],
 ];
 
+// The space bar's ROWS label — used as the word separator in SEQUENCE
+const SPACE = "";
+
 // Build time-appropriate greeting sequence (called once at module load)
 const SEQUENCE = (() => {
   const h = new Date().getHours();
   let greeting;
-  if      (h >= 5  && h < 12) greeting = ["G","O","O","D",null,"M","O","R","N","I","N","G"];
-  else if (h >= 12 && h < 17) greeting = ["G","O","O","D",null,"A","F","T","E","R","N","O","O","N"];
-  else if (h >= 17 && h < 21) greeting = ["G","O","O","D",null,"E","V","E","N","I","N","G"];
-  else                         greeting = ["G","O","O","D",null,"N","I","G","H","T"];
+  if      (h >= 5  && h < 12) greeting = ["G","O","O","D",SPACE,"M","O","R","N","I","N","G"];
+  else if (h >= 12 && h < 17) greeting = ["G","O","O","D",SPACE,"A","F","T","E","R","N","O","O","N"];
+  else if (h >= 17 && h < 21) greeting = ["G","O","O","D",SPACE,"E","V","E","N","I","N","G"];
+  else                         greeting = ["G","O","O","D",SPACE,"N","I","G","H","T"];
   return [
     ...greeting,
-    null, null,
-    "M","Y", null, "N","A","M","E", null, "I","S",
-    null, null,
+    SPACE, null,
+    "M","Y", SPACE, "N","A","M","E", SPACE, "I","S",
+    SPACE, null,
     "I","S","F","A","N","D","I","Y","O","R",
-    null, null,
+    SPACE, null,
     "M","A","D","A","M","I","N","O","V",
     null, null, null,
   ];
@@ -195,8 +198,39 @@ const CSS = `
 }
 .kb-space { background: rgba(16,30,20,0.80); cursor: default; }
 
+/* Space bar glows the same way but rests on its own lighter background,
+   otherwise the forwards fill would freeze it at the normal-key colour. */
+@keyframes kb-space-glow {
+  0%,100% {
+    background:   rgba(16,30,20,0.80);
+    border-color: rgba(0,255,136,0.07);
+    box-shadow:   0 3px 0 rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.025);
+    transform:    translateY(0px);
+  }
+  25% {
+    background:   rgba(0,255,136,0.10);
+    border-color: rgba(0,255,136,0.45);
+    box-shadow:   0 0 14px rgba(0,255,136,0.35), 0 2px 0 rgba(0,0,0,0.55), inset 0 1px 0 rgba(0,255,136,0.2);
+    transform:    translateY(2px);
+  }
+  62.5% {
+    background:   rgba(0,255,136,0.18);
+    border-color: rgba(0,255,136,0.75);
+    box-shadow:   0 0 28px rgba(0,255,136,0.65), 0 0 56px rgba(0,255,136,0.25),
+                  0 1px 0 rgba(0,0,0,0.55), inset 0 1px 0 rgba(0,255,136,0.45);
+    transform:    translateY(2px);
+  }
+  87.5% {
+    background:   rgba(0,255,136,0.07);
+    border-color: rgba(0,255,136,0.28);
+    box-shadow:   0 0 10px rgba(0,255,136,0.20), 0 3px 0 rgba(0,0,0,0.55);
+    transform:    translateY(0px);
+  }
+}
+
 /* Glow class: single play, holds dark at the end */
 .kb-key.kb-glow { animation: kb-key-glow 2.24s ease-in-out 1 forwards; }
+.kb-key.kb-space.kb-glow { animation: kb-space-glow 2.24s ease-in-out 1 forwards; }
 
 .kb-badge {
   display: inline-flex; align-items: center; gap: 8px;
@@ -702,7 +736,7 @@ export default function CSSKeyboard({ idle = false }) {
                     const w     = Math.round(mult * W);
 
                     // Sequential glow: only during default mode (not idle, not active, not test)
-                    const isSeq      = isLit && !active && !idle && !test && step >= 0 && SEQUENCE[step] === label;
+                    const isSeq      = !active && !idle && !test && step >= 0 && SEQUENCE[step] === label;
                     // Click glow: any non-space key during click mode
                     const isClick    = active && !space && !!clickedKey
                       && clickedKey.ri === ri && clickedKey.ki === ki;
