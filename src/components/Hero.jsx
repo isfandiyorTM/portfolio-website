@@ -5,6 +5,7 @@ import ParticleCanvas from "./ParticleCanvas";
 import MatrixRain from "./MatrixRain";
 import ResumeModal from "./ResumeModal";
 import CSSKeyboard from "./CSSKeyboard";
+import { useIdle, DIM_TEXT, DIM_BG, DIM_EASE } from "../context/IdleContext";
 
 
 function GlitchText({ text }) {
@@ -22,44 +23,42 @@ function TerminalCursor() {
   return <span style={{ display:"inline-block", width:"10px", height:"1.1em", background:v?"var(--green)":"transparent", marginLeft:"4px", verticalAlign:"middle", transition:"background 0.1s" }} />;
 }
 
-const IDLE_SECS = 90;
-// How far everything but the name and the keyboard fades once idle
-const DIM_TEXT = 0.12;
-const DIM_BG   = 0.25; // multiplier on the background layers' own opacity
-const DIM_EASE = "opacity 2s ease";
+// How long the name takes to drift to the keyboard's level and back
+const DRIFT_EASE = "transform 1.4s cubic-bezier(0.22,1,0.36,1)";
 
 export default function Hero() {
   const { t }               = useLang();
   const { displayed, done } = useTypewriter(t.hero.title, 800);
   const scrollTo            = id => document.getElementById(id)?.scrollIntoView({ behavior:"smooth" });
   const [resumeOpen, setResumeOpen] = useState(false);
-  const [idle, setIdle]     = useState(false);
+  const idle = useIdle();
+  // Pixels the name drifts down to sit level with the keyboard (0 = in place)
+  const [nameShift, setNameShift] = useState(0);
 
   const sectionRef    = useRef(null);
+  const nameRef       = useRef(null);
   const mouseMoveRaf  = useRef(null);
-  const lastActive    = useRef(Date.now());
-  const idleTimer     = useRef(null);
 
-  // Idle detection — resets on any interaction
+  // While idle the name drifts to the hero's vertical middle — the keyboard's
+  // level. Measured rather than hard-coded: the gap depends on viewport height
+  // and on how tall the translated copy above the name happens to render.
   useEffect(() => {
-    const bump = () => { lastActive.current = Date.now(); if (idle) setIdle(false); };
-    const tick = () => {
-      if (Date.now() - lastActive.current >= IDLE_SECS * 1000) setIdle(true);
+    if (!idle) { setNameShift(0); return; }
+
+    const measure = () => {
+      const section = sectionRef.current;
+      const name    = nameRef.current;
+      if (!section || !name) return;
+      const s = section.getBoundingClientRect();
+      const n = name.getBoundingClientRect();
+      // n is untransformed here: leaving idle resets the shift to 0, and idle
+      // cannot return until 90 s of stillness — long after the drift settles.
+      setNameShift((s.top + s.height / 2) - (n.top + n.height / 2));
     };
-    window.addEventListener("mousemove",  bump, { passive: true });
-    window.addEventListener("keydown",    bump, { passive: true });
-    window.addEventListener("scroll",     bump, { passive: true });
-    window.addEventListener("click",      bump, { passive: true });
-    window.addEventListener("touchstart", bump, { passive: true });
-    idleTimer.current = setInterval(tick, 5000);
-    return () => {
-      window.removeEventListener("mousemove",  bump);
-      window.removeEventListener("keydown",    bump);
-      window.removeEventListener("scroll",     bump);
-      window.removeEventListener("click",      bump);
-      window.removeEventListener("touchstart", bump);
-      clearInterval(idleTimer.current);
-    };
+
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
   }, [idle]);
 
   const handleMouseMove = useCallback((e) => {
@@ -142,11 +141,23 @@ export default function Hero() {
             <div className="section-label" style={{ animation:"fadeUp 0.6s ease both" }}>{t.hero.greeting}</div>
           </div>
 
-          {/* The name stays lit while the hero sleeps */}
-          <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(36px,6vw,72px)", fontWeight:900, lineHeight:1.1, marginBottom:"16px", animation:"fadeUp 0.8s 0.2s ease both", opacity:0 }}>
-            <GlitchText text="ISFANDIYOR" /><br />
-            <span style={{ color:"var(--green)" }}>MADAMINOV</span>
-          </h1>
+          {/* The name stays lit while the hero sleeps, and drifts down to the
+              keyboard's level. Like the dim, the drift has to sit on a wrapper:
+              fadeUp's `both` fill pins translateY(0) on the h1 itself. Raised
+              above the dimmed block it slides over. */}
+          <div
+            ref={nameRef}
+            style={{
+              position: "relative", zIndex: 2,
+              transform: `translateY(${nameShift}px)`,
+              transition: DRIFT_EASE,
+            }}
+          >
+            <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(36px,6vw,72px)", fontWeight:900, lineHeight:1.1, marginBottom:"16px", animation:"fadeUp 0.8s 0.2s ease both", opacity:0 }}>
+              <GlitchText text="ISFANDIYOR" /><br />
+              <span style={{ color:"var(--green)" }}>MADAMINOV</span>
+            </h1>
+          </div>
 
           <div style={{ opacity: idle ? DIM_TEXT : 1, transition: DIM_EASE }}>
             <div style={{ fontFamily:"var(--font-mono)", fontSize:"clamp(13px,2vw,17px)", color:"var(--green-dim)", marginBottom:"28px", animation:"fadeUp 0.8s 0.4s ease both", opacity:0, minHeight:"28px" }}>

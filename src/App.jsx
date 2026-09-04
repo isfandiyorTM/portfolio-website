@@ -10,6 +10,7 @@ import LoadingScreen from "./components/Loadingscreen";
 import ScrollProgress from "./components/ScrollProgress";
 import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
+import { IdleProvider } from "./context/IdleContext";
 import Hero from "./components/Hero";
 import About from "./components/About";
 import Projects from "./components/Projects";
@@ -87,21 +88,23 @@ function Divider() {
 /* Portfolio page */
 function Portfolio({ onGamesClick }) {
   return (
-    <div style={{ width: "100%", maxWidth: "100vw", minHeight: "100vh", background: "var(--bg)", overflowX: "hidden" }}>
-      <Scanline />
-      <PlasmaBlobs />
-      <ScrollProgress />
-      <Navbar onGamesClick={onGamesClick} />
-      <Hero />
-      <Divider />
-      <About />
-      <Divider />
-      <Projects />
-      <Divider />
-      <Contact />
-      <Footer />
-      <ScrollToTop />
-    </div>
+    <IdleProvider>
+      <div style={{ width: "100%", maxWidth: "100vw", minHeight: "100vh", background: "var(--bg)", overflowX: "hidden" }}>
+        <Scanline />
+        <PlasmaBlobs />
+        <ScrollProgress />
+        <Navbar onGamesClick={onGamesClick} />
+        <Hero />
+        <Divider />
+        <About />
+        <Divider />
+        <Projects />
+        <Divider />
+        <Contact />
+        <Footer />
+        <ScrollToTop />
+      </div>
+    </IdleProvider>
   );
 }
 

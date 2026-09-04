@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useLang  } from "../i18n/LanguageContext";
+import { useIdle, DIM_NAV, DIM_EASE } from "../context/IdleContext";
 
 const GAME_NAMES = ["GAMES","MEMORY","SNAKE","TYPERАCER","QUIZ","WHACK-BUG","DEBUGGER","REACTION","FLAPPY"];
 
@@ -104,6 +105,13 @@ export default function Navbar({ onGamesClick }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { dark, toggle }        = useTheme();
   const { lang, t, switchLang } = useLang();
+  const idle                    = useIdle();
+
+  // Only sleep over the hero. The nav is fixed and outlives the hero, so
+  // dimming it while the reader sits on a full-brightness section below
+  // would read as a bug rather than as the hero's screensaver.
+  const asleep = idle && active === "home";
+  const dim    = { opacity: asleep ? DIM_NAV : 1, transition: DIM_EASE };
 
   const NAV_KEYS = ["home","about","projects","contact"];
 
@@ -143,13 +151,13 @@ export default function Navbar({ onGamesClick }) {
 
       <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:100, borderBottom:"1px solid var(--border)", background:"var(--bg-nav)", backdropFilter:"blur(12px)", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 24px", height:"64px", width:"100%" }}>
 
-        {/* Logo */}
+        {/* Logo — stays lit while the rest of the nav sleeps, same rule as the hero's name */}
         <div style={{ fontFamily:"var(--font-display)", fontSize:"18px", fontWeight:900, color:"var(--green)", letterSpacing:"4px", animation:"flicker 6s infinite", flexShrink:0 }}>
           IM<span style={{ color:"var(--text)", fontWeight:400 }}>_DEV</span>
         </div>
 
         {/* Desktop nav */}
-        <div className="desktop-nav" style={{ display:"flex", alignItems:"center", gap:"2px" }}>
+        <div className="desktop-nav" style={{ display:"flex", alignItems:"center", gap:"2px", ...dim }}>
           {NAV_KEYS.map(key => (
             <button key={key} className={`nav-link ${active===key?"active":""}`} onClick={() => scrollTo(key)}>
               {t.nav[key]}
@@ -169,7 +177,7 @@ export default function Navbar({ onGamesClick }) {
         </div>
 
         {/* Mobile right side */}
-        <div style={{ display:"flex", gap:"6px", alignItems:"center" }}>
+        <div style={{ display:"flex", gap:"6px", alignItems:"center", ...dim }}>
           {/* Language dropdown on mobile */}
           <div className="mobile-menu-btn">
             <LangDropdown lang={lang} switchLang={switchLang} />
