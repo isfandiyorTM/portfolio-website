@@ -254,9 +254,9 @@ export default function CSSKeyboard({ idle = false }) {
   const activeKeyTimers = useRef({});
   testRef.current = test;
 
-  const startSequence = useCallback(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
+  // Runs the greeting sequence from the very beginning (index 0)
+  const runSequence = useCallback(() => {
+    if (seqRef.current) clearInterval(seqRef.current);
     let s = 0;
     setStep(s);
     seqRef.current = setInterval(() => {
@@ -264,6 +264,18 @@ export default function CSSKeyboard({ idle = false }) {
       setStep(s);
     }, 1000);
   }, []);
+
+  // Stops the sequence and clears the lit key — next run starts over from "G"
+  const pauseSequence = useCallback(() => {
+    if (seqRef.current) { clearInterval(seqRef.current); seqRef.current = null; }
+    setStep(-1);
+  }, []);
+
+  const startSequence = useCallback(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    runSequence();
+  }, [runSequence]);
 
   useEffect(() => {
     // Start after loading screen finishes: window.load + 1800 ms covers the
@@ -293,7 +305,8 @@ export default function CSSKeyboard({ idle = false }) {
     };
   }, [startSequence]);
 
-  // Physical keyboard → visual key glow (never pauses the sequential animation)
+  // Physical keyboard → visual key glow. Typing pauses the greeting sequence;
+  // 3 s after the last keypress it replays from the beginning.
   useEffect(() => {
     const onKey = (e) => {
       if (e.repeat) return;
@@ -304,18 +317,25 @@ export default function CSSKeyboard({ idle = false }) {
       const positions = findPositions(label);
       if (positions.length === 0) return;
 
+      pauseSequence();
+
       setPhysKeys(prev => {
         const next = { ...prev };
         positions.forEach(k => { next[k] = (next[k] ?? 0) + 1; });
         return next;
       });
-      // Clear physKeys 3 s after the last keypress (glow animation is 2.24 s)
+      // Clear physKeys 3 s after the last keypress (glow animation is 2.24 s),
+      // then replay the greeting from its first letter.
       clearTimeout(physTimer.current);
-      physTimer.current = setTimeout(() => setPhysKeys({}), 3000);
+      physTimer.current = setTimeout(() => {
+        setPhysKeys({});
+        // Don't resume underneath an in-progress typing test (TAB is a keypress too)
+        if (startedRef.current && !testRef.current) runSequence();
+      }, 3000);
     };
     window.addEventListener("keydown", onKey);
     return () => { window.removeEventListener("keydown", onKey); clearTimeout(physTimer.current); };
-  }, []);
+  }, [pauseSequence, runSequence]);
 
   // MADAMINOV easter egg — tracks last 9 typed chars, ignores input fields
   useEffect(() => {
@@ -345,8 +365,10 @@ export default function CSSKeyboard({ idle = false }) {
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
       e.preventDefault();
       setTest(prev => {
-        if (prev && prev.done) return newTest(); // restart when done
-        return prev ? null : newTest();          // toggle when active/inactive
+        if (prev && prev.done) { pauseSequence(); return newTest(); } // restart when done
+        if (prev) { if (startedRef.current) runSequence(); return null; } // exit test
+        pauseSequence();
+        return newTest();
       });
       // Clear all active key highlights and their timers
       Object.values(activeKeyTimers.current).forEach(clearTimeout);
@@ -355,7 +377,7 @@ export default function CSSKeyboard({ idle = false }) {
     };
     window.addEventListener("keydown", onTab);
     return () => window.removeEventListener("keydown", onTab);
-  }, []);
+  }, [pauseSequence, runSequence]);
 
   // Test mode key processing (mounted once; reads testRef for latest state)
   useEffect(() => {
@@ -366,7 +388,11 @@ export default function CSSKeyboard({ idle = false }) {
 
       const ch = e.key;
       if (ch === "Tab")    return; // handled by TAB effect
-      if (ch === "Escape") { setTest(null); return; }
+      if (ch === "Escape") {
+        setTest(null);
+        if (startedRef.current) runSequence();
+        return;
+      }
 
       if (ch === "Backspace") {
         setTest(prev => prev ? { ...prev, typed: prev.typed.slice(0, -1) } : prev);
@@ -435,20 +461,22 @@ export default function CSSKeyboard({ idle = false }) {
       window.removeEventListener("keydown", onKey);
       Object.values(activeKeyTimers.current).forEach(clearTimeout);
     };
-  }, []);
+  }, [runSequence]);
 
   const onKeyClick = (ri, ki, label) => {
     if (!label) return; // skip space bar
     setActive(true);
+    pauseSequence();
     setClickedKey(prev => {
       const same = prev && prev.ri === ri && prev.ki === ki;
       return { ri, ki, n: same ? prev.n + 1 : 0 };
     });
-    // Resume the default sequence 5 s after the last click
+    // Replay the default sequence from the beginning 5 s after the last click
     clearTimeout(clickTimer.current);
     clickTimer.current = setTimeout(() => {
       setActive(false);
       setClickedKey(null);
+      if (startedRef.current) runSequence();
     }, 5000);
   };
 
