@@ -31,7 +31,7 @@ export default function LoadingScreen({ onDone }) {
       window.removeEventListener("load", finish);
       clearTimeout(cap);
     };
-  }, []);
+  }, [onDone]);
 
   return (
     <div style={{

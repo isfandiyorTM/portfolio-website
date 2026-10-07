@@ -31,7 +31,7 @@ export default function NotFoundPage() {
   useEffect(() => {
     let i = 0;
     const iv = setInterval(() => {
-      if (i < LINES.length) { setVisibleLines(l => [...l, LINES[i]]); i++; }
+      if (i < LINES.length) { const line = LINES[i]; i++; setVisibleLines(l => [...l, line]); }
       else clearInterval(iv);
     }, 320);
     return () => clearInterval(iv);
@@ -73,10 +73,10 @@ export default function NotFoundPage() {
         {nf.label}
       </div>
 
-      {/* Terminal window */}
-      <div style={{
+      {/* Terminal window — a terminal stays dark in the light theme too */}
+      <div data-theme="dark" style={{
         width: "100%", maxWidth: 560, border: "1px solid var(--green-dark)",
-        background: "rgba(0,10,5,0.7)", position: "relative", zIndex: 1,
+        background: "#020a08", position: "relative", zIndex: 1,
         marginBottom: 40,
       }}>
         {/* Title bar */}

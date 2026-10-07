@@ -2,10 +2,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useLang  } from "../i18n/LanguageContext";
 import { useIdle, DIM_NAV, DIM_EASE } from "../context/IdleContext";
+import { NAV_ITEMS } from "../constants/data";
 
-const GAME_NAMES = ["GAMES","MEMORY","SNAKE","TYPERАCER","QUIZ","WHACK-BUG","DEBUGGER","REACTION","FLAPPY"];
+const GAME_NAMES = ["GAMES","MEMORY","SNAKE","TYPERACER","QUIZ","WHACK-BUG","DEBUGGER","REACTION","FLAPPY"];
 
-function AnimatedGamesBtn({ onClick }) {
+function AnimatedGamesBtn({ onClick, label }) {
   const [idx,   setIdx]   = useState(0);
   const [phase, setPhase] = useState("show"); // "show" | "out" | "in"
   const timerRef  = useRef(null);
@@ -35,6 +36,7 @@ function AnimatedGamesBtn({ onClick }) {
   return (
     <button
       onClick={onClick}
+      aria-label={label}
       style={{
         fontFamily:"var(--font-mono)", fontSize:"12px", letterSpacing:"2px",
         padding:"6px 14px", border:"1px solid var(--green)",
@@ -59,7 +61,7 @@ const LANGS = [
   { code:"uz", flag:"🇺🇿", label:"UZ" },
 ];
 
-function LangDropdown({ lang, switchLang }) {
+function LangDropdown({ lang, switchLang, label }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const current = LANGS.find(l => l.code === lang) || LANGS[0];
@@ -69,18 +71,27 @@ function LangDropdown({ lang, switchLang }) {
   }, []);
 
   useEffect(() => {
-    if (open) document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+    if (!open) return;
+    const onEsc = (e) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", onEsc);
+    };
   }, [open, close]);
 
   return (
     <div ref={ref} style={{ position:"relative" }}>
       <button
         className="lang-btn active"
+        aria-label={`${label}: ${current.label}`}
+        aria-haspopup="true"
+        aria-expanded={open}
         onClick={() => setOpen(o => !o)}
         style={{ display:"flex", alignItems:"center", gap:"4px", fontSize:"16px", opacity:1, padding:"4px 8px", border:"1px solid var(--border)" }}
       >
-        {current.flag} <span style={{ fontSize:"10px", opacity:0.6 }}>{open ? "▲" : "▼"}</span>
+        <span aria-hidden="true">{current.flag}</span> <span aria-hidden="true" style={{ fontSize:"10px", opacity:0.6 }}>{open ? "▲" : "▼"}</span>
       </button>
       {open && (
         <div style={{ position:"absolute", top:"calc(100% + 6px)", right:0, background:"var(--bg-nav)", border:"1px solid var(--border)", backdropFilter:"blur(12px)", zIndex:200, minWidth:"90px" }}>
@@ -88,10 +99,12 @@ function LangDropdown({ lang, switchLang }) {
             <button
               key={l.code}
               className="lang-btn"
+              lang={l.code}
+              aria-current={lang === l.code ? "true" : undefined}
               onClick={() => { switchLang(l.code); setOpen(false); }}
               style={{ display:"flex", alignItems:"center", gap:"8px", width:"100%", padding:"8px 12px", fontSize:"16px", opacity: lang === l.code ? 1 : 0.5, borderBottom:"1px solid var(--border)" }}
             >
-              {l.flag} <span style={{ fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"1px" }}>{l.label}</span>
+              <span aria-hidden="true">{l.flag}</span> <span style={{ fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"1px" }}>{l.label}</span>
             </button>
           ))}
         </div>
@@ -113,15 +126,14 @@ export default function Navbar({ onGamesClick }) {
   const asleep = idle && active === "home";
   const dim    = { opacity: asleep ? DIM_NAV : 1, transition: DIM_EASE };
 
-  const NAV_KEYS = ["home","about","projects","contact"];
+  const themeLabel = dark ? t.a11y.theme_light : t.a11y.theme_dark;
 
   useEffect(() => {
-    const ids = NAV_KEYS.map(k => k);
     const observer = new IntersectionObserver(
       (entries) => { entries.forEach(e => { if(e.isIntersecting) setActive(e.target.id); }); },
       { threshold: 0.4 }
     );
-    ids.forEach(id => { const el=document.getElementById(id); if(el) observer.observe(el); });
+    NAV_ITEMS.forEach(id => { const el=document.getElementById(id); if(el) observer.observe(el); });
     return () => observer.disconnect();
   }, []);
 
@@ -149,7 +161,7 @@ export default function Navbar({ onGamesClick }) {
         .lang-btn.active { opacity: 1; filter: drop-shadow(0 0 6px rgba(0,255,136,0.6)); transform: scale(1.1); }
       `}</style>
 
-      <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:100, borderBottom:"1px solid var(--border)", background:"var(--bg-nav)", backdropFilter:"blur(12px)", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 24px", height:"64px", width:"100%" }}>
+      <nav aria-label={t.a11y.main_nav} style={{ position:"fixed", top:0, left:0, right:0, zIndex:100, borderBottom:"1px solid var(--border)", background:"var(--bg-nav)", backdropFilter:"blur(12px)", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 24px", height:"64px", width:"100%" }}>
 
         {/* Logo — stays lit while the rest of the nav sleeps, same rule as the hero's name */}
         <div style={{ fontFamily:"var(--font-display)", fontSize:"18px", fontWeight:900, color:"var(--green)", letterSpacing:"4px", animation:"flicker 6s infinite", flexShrink:0 }}>
@@ -158,21 +170,21 @@ export default function Navbar({ onGamesClick }) {
 
         {/* Desktop nav */}
         <div className="desktop-nav" style={{ display:"flex", alignItems:"center", gap:"2px", ...dim }}>
-          {NAV_KEYS.map(key => (
-            <button key={key} className={`nav-link ${active===key?"active":""}`} onClick={() => scrollTo(key)}>
+          {NAV_ITEMS.map(key => (
+            <button key={key} className={`nav-link ${active===key?"active":""}`} aria-current={active===key ? "true" : undefined} onClick={() => scrollTo(key)}>
               {t.nav[key]}
             </button>
           ))}
-          <AnimatedGamesBtn onClick={onGamesClick} />
+          <AnimatedGamesBtn onClick={onGamesClick} label={t.nav.games} />
 
           {/* Language dropdown */}
           <div style={{ marginLeft:"8px" }}>
-            <LangDropdown lang={lang} switchLang={switchLang} />
+            <LangDropdown lang={lang} switchLang={switchLang} label={t.a11y.language} />
           </div>
 
           {/* Theme toggle */}
-          <button onClick={toggle} className="theme-toggle" style={{ marginLeft:"8px" }}>
-            {dark ? "☀️" : "🌙"}
+          <button onClick={toggle} className="theme-toggle" style={{ marginLeft:"8px" }} aria-label={themeLabel}>
+            <span aria-hidden="true">{dark ? "☀️" : "🌙"}</span>
           </button>
         </div>
 
@@ -180,13 +192,13 @@ export default function Navbar({ onGamesClick }) {
         <div style={{ display:"flex", gap:"6px", alignItems:"center", ...dim }}>
           {/* Language dropdown on mobile */}
           <div className="mobile-menu-btn">
-            <LangDropdown lang={lang} switchLang={switchLang} />
+            <LangDropdown lang={lang} switchLang={switchLang} label={t.a11y.language} />
           </div>
-          <button onClick={toggle} className="theme-toggle mobile-menu-btn" style={{ display:"flex" }}>
-            {dark ? "☀️" : "🌙"}
+          <button onClick={toggle} className="theme-toggle mobile-menu-btn" style={{ display:"flex" }} aria-label={themeLabel}>
+            <span aria-hidden="true">{dark ? "☀️" : "🌙"}</span>
           </button>
-          <button className="mobile-menu-btn" onClick={() => setMenuOpen(!menuOpen)} style={{ background:"none", border:"1px solid var(--green)", color:"var(--green)", padding:"8px 12px", fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"2px", cursor:"pointer", display:"flex" }}>
-            {menuOpen ? "✕" : "☰"}
+          <button className="mobile-menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? t.a11y.menu_close : t.a11y.menu_open} aria-expanded={menuOpen} style={{ background:"none", border:"1px solid var(--green)", color:"var(--green)", padding:"8px 12px", fontFamily:"var(--font-mono)", fontSize:"11px", letterSpacing:"2px", cursor:"pointer", display:"flex" }}>
+            <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
           </button>
         </div>
       </nav>
@@ -194,7 +206,7 @@ export default function Navbar({ onGamesClick }) {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="mobile-nav" style={{ position:"fixed", top:"64px", left:0, right:0, zIndex:99, background:"var(--bg)", borderBottom:"1px solid var(--border)", display:"flex", flexDirection:"column" }}>
-          {NAV_KEYS.map(key => (
+          {NAV_ITEMS.map(key => (
             <button key={key} className={`nav-link ${active===key?"active":""}`} style={{ textAlign:"left", padding:"16px 24px", borderBottom:"1px solid var(--border)" }} onClick={() => scrollTo(key)}>
               {t.nav[key]}
             </button>

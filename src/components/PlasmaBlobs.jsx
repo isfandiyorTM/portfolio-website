@@ -6,7 +6,6 @@ const isLowEndDevice =
    window.matchMedia("(pointer: coarse)").matches);
 
 const PlasmaBlobs = memo(function PlasmaBlobs() {
-  if (isLowEndDevice) return null;
   const wrapRef = useRef(null);
   const b1Ref   = useRef(null);
   const b2Ref   = useRef(null);
@@ -43,22 +42,27 @@ const PlasmaBlobs = memo(function PlasmaBlobs() {
       s.sp = Math.min(1, Math.max(0, (y - start) / (end - start)));
     };
 
+    // ── rAF loop: lerp blob positions toward scroll+mouse target ──
+    let raf;
+    let running = false;
+    const LERP = 0.08; // responds during scroll, not just after
+    const REST = 0.02; // % from target at which a blob counts as settled
+
+    // The loop rests once every blob has reached its target; scroll and mouse wake it
+    const wake = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
+
     // ── Mouse: update normalised mouse ──
     const onMouse = (e) => {
       s.mx = e.clientX / window.innerWidth;
       s.my = e.clientY / window.innerHeight;
+      wake();
     };
 
-    window.addEventListener("scroll",    onScroll, { passive: true });
-    window.addEventListener("mousemove", onMouse,  { passive: true });
-    onScroll();
-
-    // ── rAF loop: lerp blob positions toward scroll+mouse target ──
-    let raf;
-    const LERP = 0.08; // responds during scroll, not just after
-
     const tick = () => {
-      raf = requestAnimationFrame(tick);
       const { mx, my, sp } = s;
 
       // Target positions: scroll drives large sweeping motion, mouse adds local offset
@@ -81,16 +85,29 @@ const PlasmaBlobs = memo(function PlasmaBlobs() {
       if (b1Ref.current) { b1Ref.current.style.left = s.b1x + "%"; b1Ref.current.style.top = s.b1y + "%"; }
       if (b2Ref.current) { b2Ref.current.style.left = s.b2x + "%"; b2Ref.current.style.top = s.b2y + "%"; }
       if (b3Ref.current) { b3Ref.current.style.left = s.b3x + "%"; b3Ref.current.style.top = s.b3y + "%"; }
+
+      const settled =
+        Math.abs(t1x - s.b1x) < REST && Math.abs(t1y - s.b1y) < REST &&
+        Math.abs(t2x - s.b2x) < REST && Math.abs(t2y - s.b2y) < REST &&
+        Math.abs(t3x - s.b3x) < REST && Math.abs(t3y - s.b3y) < REST;
+      if (settled) { running = false; return; }
+      raf = requestAnimationFrame(tick);
     };
 
-    raf = requestAnimationFrame(tick);
+    const onScrollWake = () => { onScroll(); wake(); };
+    window.addEventListener("scroll",    onScrollWake, { passive: true });
+    window.addEventListener("mousemove", onMouse,      { passive: true });
+    onScroll();
+    wake();
 
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("scroll",    onScroll);
+      window.removeEventListener("scroll",    onScrollWake);
       window.removeEventListener("mousemove", onMouse);
     };
   }, []);
+
+  if (isLowEndDevice) return null;
 
   const base = {
     position: "fixed",

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { useLang } from "../i18n/LanguageContext";
 import { saveScore } from "../lib/scores";
 
@@ -472,6 +472,9 @@ function PauseOverlay({ visible }) {
   );
 }
 
+const LEN_LINES = { short: 1, medium: 3, long: 5, marathon: 9 };
+const getLinesForKey = (key) => LEN_LINES[key] ?? 1;
+
 /* ── Main component ───────────────────────────────────────────────────── */
 export default function TypeRacer() {
   const { t, lang } = useLang();
@@ -486,10 +489,10 @@ export default function TypeRacer() {
   };
 
   const LEN_META = [
-    { key: "short",    lines: 1, label: g.tr_len_short    ?? "Short"    },
-    { key: "medium",   lines: 3, label: g.tr_len_medium   ?? "Medium"   },
-    { key: "long",     lines: 5, label: g.tr_len_long     ?? "Long"     },
-    { key: "marathon", lines: 9, label: g.tr_len_marathon ?? "Marathon" },
+    { key: "short",    label: g.tr_len_short    ?? "Short"    },
+    { key: "medium",   label: g.tr_len_medium   ?? "Medium"   },
+    { key: "long",     label: g.tr_len_long     ?? "Long"     },
+    { key: "marathon", label: g.tr_len_marathon ?? "Marathon" },
   ];
 
   const [mode,    setMode]    = useState("easy");
@@ -503,6 +506,8 @@ export default function TypeRacer() {
   const [elapsed, setElapsed] = useState(0);
   const [best,    setBest]    = useState(() => { try { return parseInt(localStorage.getItem("typeracerBest") || "0") || 0; } catch { return 0; } });
   const [newBest, setNewBest] = useState(false);
+  // Mirrors errorsRef.current.size, so the count can be shown without reading a ref in render
+  const [errorCount, setErrorCount] = useState(0);
 
   const [pressedKey,     setPressedKey]     = useState(null);
   const [pressedCorrect, setPressedCorrect] = useState(true);
@@ -523,21 +528,16 @@ export default function TypeRacer() {
   const pauseStartRef    = useRef(null);
   const totalPausedRef   = useRef(0);
 
-  // Refs so Enter handler always sees latest mode/lenKey
+  // Refs so the window-level handlers and timers always see the latest values
   const modeRef   = useRef(mode);
   const lenKeyRef = useRef(lenKey);
-  modeRef.current   = mode;
-  lenKeyRef.current = lenKey;
-
-  textRef.current   = text;
-  phaseRef.current  = phase;
-  pausedRef.current = paused;
+  const resetRef  = useRef(null);
 
   const isTyping = phase === "typing" && !paused;
 
-  const clearTimer = () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  const clearTimer = useCallback(() => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
 
-  const startTimer = (startText) => {
+  const startTimer = useCallback((startText) => {
     clearTimer();
     intervalRef.current = setInterval(() => {
       if (pausedRef.current) return;
@@ -549,7 +549,7 @@ export default function TypeRacer() {
       const { total, correct: ck } = keyRef.current;
       setAcc(total === 0 ? 100 : Math.round((ck / total) * 100));
     }, 200);
-  };
+  }, [clearTimer]);
 
   const scheduleAutoPause = useCallback(() => {
     clearTimeout(inactivityRef.current);
@@ -560,7 +560,7 @@ export default function TypeRacer() {
       pauseStartRef.current = Date.now();
       clearTimer();
     }, 2000);
-  }, []);
+  }, [clearTimer]);
 
   const resumeFromPause = useCallback((currentText) => {
     if (!pausedRef.current) return;
@@ -571,13 +571,13 @@ export default function TypeRacer() {
     setPaused(false);
     pausedRef.current = false;
     startTimer(currentText);
-  }, []);
+  }, [startTimer]);
 
   useEffect(() => () => {
     clearTimer();
     clearTimeout(pressTimer.current);
     clearTimeout(inactivityRef.current);
-  }, []);
+  }, [clearTimer]);
 
   // ── Key listener: keyboard viz + Enter-to-new-text ───────────────────
   useEffect(() => {
@@ -607,7 +607,6 @@ export default function TypeRacer() {
   }, []);
 
   // Listen for the new-text custom event (avoids stale closure on reset)
-  const resetRef = useRef(null);
   useEffect(() => {
     const handler = () => {
       resetRef.current?.(modeRef.current, lenKeyRef.current, null);
@@ -627,12 +626,11 @@ export default function TypeRacer() {
     container.scrollTo({ top: Math.max(0, targetScrollTop), behavior: "smooth" });
   }, [typed]);
 
-  const getLinesForKey = (key) => LEN_META.find(l => l.key === key)?.lines ?? 1;
-
   const reset = useCallback((newMode, newLenKey, newText) => {
     clearTimer();
     clearTimeout(inactivityRef.current);
     errorsRef.current = new Set();
+    setErrorCount(0);
     keyRef.current = { total: 0, correct: 0 };
     typedRef.current = "";
     totalPausedRef.current = 0;
@@ -656,10 +654,18 @@ export default function TypeRacer() {
     textRef.current  = tx;
     phaseRef.current = "idle";
     setTimeout(() => inputRef.current?.focus(), 50);
-  }, [mode, lenKey, lang]);
+  }, [mode, lenKey, lang, clearTimer]);
 
-  // Keep resetRef current
-  resetRef.current = reset;
+  // Runs after every render, before any handler or timer can fire, so the refs
+  // always mirror the state that was just rendered.
+  useLayoutEffect(() => {
+    modeRef.current   = mode;
+    lenKeyRef.current = lenKey;
+    textRef.current   = text;
+    phaseRef.current  = phase;
+    pausedRef.current = paused;
+    resetRef.current  = reset;
+  });
 
   const handleInput = (e) => {
     const val = e.target.value;
@@ -679,7 +685,7 @@ export default function TypeRacer() {
       const correct = val[idx] === text[idx];
       keyRef.current.total++;
       if (correct) keyRef.current.correct++;
-      else errorsRef.current.add(idx);
+      else { errorsRef.current.add(idx); setErrorCount(errorsRef.current.size); }
     }
 
     typedRef.current = val;
@@ -844,7 +850,7 @@ export default function TypeRacer() {
               {[
                 { label: g.wpm,    value: phase === "idle" ? "—" : wpm,                    color: "var(--green)" },
                 { label: g.acc,    value: phase === "idle" ? "—" : acc + "%",              color: acc >= 95 ? "var(--green)" : acc >= 80 ? "#ffcc44" : "#ff3c3c" },
-                { label: g.errors, value: phase === "idle" ? "—" : errorsRef.current.size, color: errorsRef.current.size === 0 ? "var(--green)" : "#ff6060" },
+                { label: g.errors, value: phase === "idle" ? "—" : errorCount,             color: errorCount === 0 ? "var(--green)" : "#ff6060" },
                 { label: g.time,   value: phase === "idle" ? "—" : elapsed + "s",          color: "var(--text-muted)" },
               ].map(s => (
                 <div key={s.label} className="tr-stat-card">
@@ -909,7 +915,7 @@ export default function TypeRacer() {
           <div style={{ display: "flex", justifyContent: "center", gap: 0, flexWrap: "wrap", margin: "20px 0 24px", border: "1px solid var(--border)" }}>
             {[
               { label: g.acc,    value: acc + "%",              color: acc >= 95 ? "var(--green)" : acc >= 80 ? "#ffcc44" : "#ff3c3c" },
-              { label: g.errors, value: errorsRef.current.size, color: errorsRef.current.size === 0 ? "var(--green)" : "#ff6060" },
+              { label: g.errors, value: errorCount,             color: errorCount === 0 ? "var(--green)" : "#ff6060" },
               { label: g.time,   value: elapsed + "s",          color: "var(--text)" },
               { label: g.best,   value: best + " wpm",          color: "var(--green-dim)" },
             ].map((s, i) => (

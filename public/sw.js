@@ -1,9 +1,10 @@
-const CACHE = "im-dev-v1";
-const PRECACHE = ["/", "/index.html", "/site.webmanifest"];
+// Bump when the caching rules change — every older cache is dropped on activate.
+const CACHE = "im-dev-v2";
+const SHELL = "/index.html";
 
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(c => c.add(SHELL)).then(() => self.skipWaiting())
   );
 });
 
@@ -16,20 +17,38 @@ self.addEventListener("activate", e => {
 });
 
 self.addEventListener("fetch", e => {
-  if (e.request.method !== "GET") return;
-  const url = new URL(e.request.url);
+  const req = e.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
   if (url.origin !== location.origin) return;
 
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      const fresh = fetch(e.request).then(res => {
+  // Pages: network first, so a new deploy is visible on the very next visit.
+  // The cached shell is only the offline fallback.
+  if (req.mode === "navigate") {
+    e.respondWith(
+      fetch(req).then(res => {
         if (res.ok) {
           const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
+          caches.open(CACHE).then(c => c.put(SHELL, clone));
         }
         return res;
-      }).catch(() => cached);
-      return cached || fresh;
-    })
-  );
+      }).catch(() => caches.match(SHELL))
+    );
+    return;
+  }
+
+  // Build assets carry a content hash in their name and never change.
+  if (url.pathname.startsWith("/assets/")) {
+    e.respondWith(
+      caches.match(req).then(cached => cached || fetch(req).then(res => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(req, clone));
+        }
+        return res;
+      }))
+    );
+  }
+
+  // Everything else (APK downloads, images, the CV) goes straight to the network.
 });

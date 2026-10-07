@@ -18,6 +18,7 @@ export const PROJECTS = [
     statusKey: "live",
     tags: ["Web"],
     internalLink: "/rahimovdevs",
+    preview: "/screenshots/rahimovdevs/home.jpg",
   },
   {
     id: "02",
@@ -32,6 +33,11 @@ export const PROJECTS = [
     statusKey: "shipped",
     tags: ["Flutter", "Dart"],
     internalLink: "/chontak",
+    shots: [
+      "/screenshots/chontak/home.jpg",
+      "/screenshots/chontak/stats.jpg",
+      "/screenshots/chontak/savings.jpg",
+    ],
   },
   {
     id: "03",
@@ -66,7 +72,7 @@ export const RESUME = {
     { icon: "✉", text: "isfandiyormadaminov12@gmail.com" },
     { icon: "🌐", text: "rahimovdevs.tech" },
     { icon: "📍", text: "Tashkent, Uzbekistan" },
-    { icon: "⌥",  text: "github.com/isfandiyordev" },
+    { icon: "⌥",  text: "github.com/isfandiyorTM" },
   ],
   experience: [
     { company: "Rahimov School" },
@@ -90,10 +96,17 @@ export const RESUME = {
   ],
   stats: [
     { v: "4+"   },
-    { v: "450+" },
+    { v: "500+" },
     { v: "2+"   },
-    { v: "5★"   },
+    { v: "5"    },
   ],
+};
+
+// Pre-rendered CVs, one per language — regenerate with `npm run resume:pdf`
+export const CV_PDF = {
+  en: "/cv/isfandiyor-madaminov-cv-en.pdf",
+  uz: "/cv/isfandiyor-madaminov-cv-uz.pdf",
+  ru: "/cv/isfandiyor-madaminov-cv-ru.pdf",
 };
 
 export const SOCIAL_LINKS = {

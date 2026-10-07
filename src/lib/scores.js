@@ -5,11 +5,11 @@ const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = url && key ? createClient(url, key) : null;
 
 export async function saveScore(game, score) {
-  try { localStorage.setItem(`${game}Best`, score); } catch {}
+  try { localStorage.setItem(`${game}Best`, score); } catch { /* storage unavailable */ }
   if (!supabase) return;
   try {
     await supabase.from("game_scores").insert({ game, score });
-  } catch {}
+  } catch { /* the local best is already saved; the leaderboard is optional */ }
 }
 
 export async function getLeaderboard(game, limit = 10) {

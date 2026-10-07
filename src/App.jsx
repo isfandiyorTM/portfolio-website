@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { lazy, Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import "./styles/global.css";
 
 import { ThemeProvider } from "./context/ThemeContext";
 import { LanguageProvider } from "./i18n/LanguageContext";
+import { useSeo } from "./hooks/useSeo";
+import { useReveal } from "./hooks/useReveal";
 
 import Cursor from "./components/Cursor";
 import LoadingScreen from "./components/Loadingscreen";
@@ -21,17 +23,19 @@ import PlasmaBlobs from "./components/PlasmaBlobs";
 import Terminal from "./components/Terminal";
 import VisitorScan from "./components/VisitorScan";
 import KonamiCode from "./components/KonamiCode";
-import RightClickTrap from "./components/RightClickTrap";
-import CursorTrail from "./components/CursorTrail";
-import ClickRipple from "./components/ClickRipple";
 import AchievementSystem from "./components/AchievementSystem";
-import GamesPage from "./pages/GamesPage";
-import ScoresPage from "./pages/ScoresPage";
-import ChontakPage from "./pages/ChontakPage";
-import HojiJalyuziPage from "./pages/HojiJalyuziPage";
-import RahimovDevsPage from "./pages/RahimovDevsPage";
-import ResumePage from "./pages/ResumePage";
-import NotFoundPage from "./pages/NotFoundPage";
+
+/* Everything but the home page loads on demand */
+const GamesPage       = lazy(() => import("./pages/GamesPage"));
+const ScoresPage      = lazy(() => import("./pages/ScoresPage"));
+const ChontakPage     = lazy(() => import("./pages/ChontakPage"));
+const HojiJalyuziPage = lazy(() => import("./pages/HojiJalyuziPage"));
+const RahimovDevsPage = lazy(() => import("./pages/RahimovDevsPage"));
+const ResumePage      = lazy(() => import("./pages/ResumePage"));
+const NotFoundPage    = lazy(() => import("./pages/NotFoundPage"));
+
+/* The intro plays once per browser session, not on every page load */
+const INTRO_SEEN_KEY = "intro_seen_v1";
 
 /* Cursor spotlight — direct DOM writes, rAF-throttled, skipped on touch */
 function CursorSpotlight() {
@@ -57,27 +61,10 @@ function CursorSpotlight() {
   return <div ref={ref} style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:1 }} />;
 }
 
-/* UI effects */
-function Scanline() {
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 9999, pointerEvents: "none", overflow: "hidden" }}>
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: "linear-gradient(transparent,rgba(0,255,136,0.08),transparent)",
-          animation: "scanline 8s linear infinite",
-        }}
-      />
-    </div>
-  );
-}
-
 function Divider() {
+  const ref = useReveal(0.5);
   return (
-    <div className="divider">
+    <div ref={ref} className="divider">
       <div className="divider-line left" />
       <div className="divider-dot" />
       <div className="divider-line right" />
@@ -90,17 +77,18 @@ function Portfolio({ onGamesClick }) {
   return (
     <IdleProvider>
       <div style={{ width: "100%", maxWidth: "100vw", minHeight: "100vh", background: "var(--bg)", overflowX: "hidden" }}>
-        <Scanline />
         <PlasmaBlobs />
         <ScrollProgress />
         <Navbar onGamesClick={onGamesClick} />
-        <Hero />
-        <Divider />
-        <About />
-        <Divider />
-        <Projects />
-        <Divider />
-        <Contact />
+        <main>
+          <Hero />
+          <Divider />
+          <About />
+          <Divider />
+          <Projects />
+          <Divider />
+          <Contact />
+        </main>
         <Footer />
         <ScrollToTop />
       </div>
@@ -121,40 +109,48 @@ function PageTransition({ children }) {
 /* Routes */
 function AppRoutes() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  useSeo(pathname);
 
   return (
     <PageTransition>
-      <Routes>
-        <Route path="/" element={<Portfolio onGamesClick={() => navigate("/games")} />} />
-        <Route path="/games" element={<GamesPage onBack={() => navigate("/")} />} />
-        <Route path="/scores" element={<ScoresPage />} />
-        <Route path="/chontak" element={<ChontakPage />} />
-        <Route path="/hoji-jalyuzi" element={<HojiJalyuziPage />} />
-        <Route path="/rahimovdevs" element={<RahimovDevsPage />} />
-        <Route path="/resume" element={<ResumePage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/" element={<Portfolio onGamesClick={() => navigate("/games")} />} />
+          <Route path="/games" element={<GamesPage onBack={() => navigate("/")} />} />
+          <Route path="/scores" element={<ScoresPage />} />
+          <Route path="/chontak" element={<ChontakPage />} />
+          <Route path="/hoji-jalyuzi" element={<HojiJalyuziPage />} />
+          <Route path="/rahimovdevs" element={<RahimovDevsPage />} />
+          <Route path="/resume" element={<ResumePage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
     </PageTransition>
   );
 }
 
 /* Main App */
 export default function App() {
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(() => {
+    try { return sessionStorage.getItem(INTRO_SEEN_KEY) === "1"; } catch { return false; }
+  });
+
+  const handleLoaded = useCallback(() => {
+    setLoaded(true);
+    try { sessionStorage.setItem(INTRO_SEEN_KEY, "1"); } catch { /* storage unavailable */ }
+  }, []);
 
   return (
     <ThemeProvider>
       <LanguageProvider>
         <Cursor />
         <CursorSpotlight />
-        <CursorTrail />
-        <ClickRipple />
         <AchievementSystem />
         <Terminal />
         <VisitorScan />
         <KonamiCode />
-        <RightClickTrap />
-        {!loaded && <LoadingScreen onDone={() => setLoaded(true)} />}
+        {!loaded && <LoadingScreen onDone={handleLoaded} />}
 
         <div
           style={{

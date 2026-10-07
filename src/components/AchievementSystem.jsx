@@ -7,7 +7,7 @@ const DEFS = {
   typist:     { icon: "___", title: "TYPIST",         desc: "You completed the typing test"     },
   speedDemon: { icon: ">>",  title: "SPEED DEMON",    desc: "Typed over 60 WPM"                 },
   nightOwl:   { icon: "~~~", title: "NIGHT OWL",      desc: "Visiting between midnight and 4am" },
-  profiled:   { icon: "***", title: "PROFILED",       desc: "Your system was scanned on arrival"},
+  profiled:   { icon: "***", title: "PROFILED",       desc: "You ran a system scan"             },
   hacker:     { icon: "#!",  title: "HACKER",         desc: "You ran the hack sequence"         },
 };
 
@@ -36,7 +36,7 @@ export default function AchievementSystem() {
     const onUnlock = ({ detail: id }) => {
       if (!DEFS[id] || unlocked.current.has(id)) return;
       unlocked.current.add(id);
-      try { localStorage.setItem(LS_KEY, JSON.stringify([...unlocked.current])); } catch {}
+      try { localStorage.setItem(LS_KEY, JSON.stringify([...unlocked.current])); } catch { /* storage unavailable */ }
 
       const uid = Date.now() + Math.random();
       setToasts(prev => [...prev, { uid, id, leaving: false }]);

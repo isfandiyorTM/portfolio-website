@@ -1,14 +1,13 @@
 import { useLang } from "../i18n/LanguageContext";
-import { RESUME } from "../constants/data";
+import { RESUME, CV_PDF } from "../constants/data";
 
 export default function ResumePage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const rv = t.resume;
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap');
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'JetBrains Mono', monospace; background:#fff; color:#111; }
         .page { max-width:820px; margin:0 auto; padding:48px 52px; }
@@ -44,32 +43,35 @@ export default function ResumePage() {
         .pdf-btn:hover { background:#007a3d !important; transform:translateY(-1px); transition:transform 0.15s,background 0.15s; }
         .dl-arrow { display:inline-block; animation:dl-bounce 1.1s ease-in-out infinite; margin-right:4px; }
 
+        @page { size:A4; }
         @media print {
           body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
           .no-print { display:none !important; }
           .page { padding:32px 40px; }
+          /* Keep each job and project in one piece, and a heading with what follows it */
+          .section > div { break-inside:avoid; }
+          h2 { break-after:avoid; }
         }
       `}</style>
 
-      {/* Print button — hidden on print */}
-      <div className="no-print" style={{ position:"fixed", top:16, right:16, display:"flex", flexDirection:"column", alignItems:"flex-end", gap:6, zIndex:10 }}>
+      {/* Download button — hidden on print */}
+      <div className="no-print" style={{ position:"fixed", top:16, right:16, zIndex:10 }}>
         <div style={{ display:"flex", gap:8 }}>
-          <button
+          <a
             className="pdf-btn"
-            onClick={() => window.print()}
-            style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:2, padding:"9px 18px", border:"1px solid #00994d", background:"#00994d", color:"#fff", cursor:"pointer" }}
+            href={CV_PDF[lang]}
+            download
+            style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, letterSpacing:2, padding:"9px 18px", border:"1px solid #00994d", background:"#00994d", color:"#fff", cursor:"pointer", textDecoration:"none", display:"inline-block" }}
           >
-            <span className="dl-arrow">↓</span> {rv.download} PDF
-          </button>
+            <span className="dl-arrow" aria-hidden="true">↓</span> {rv.download} PDF
+          </a>
           <button
             onClick={() => window.close()}
+            aria-label={t.a11y.close}
             style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, padding:"9px 12px", border:"1px solid #ccc", background:"#fff", cursor:"pointer" }}
           >
             ✕
           </button>
-        </div>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, letterSpacing:1, color:"#aaa" }}>
-          choose <span style={{color:"#00994d"}}>Save&nbsp;as&nbsp;PDF</span> in the dialog
         </div>
       </div>
 

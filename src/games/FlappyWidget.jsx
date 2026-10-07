@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLang } from "../i18n/LanguageContext";
 import { saveScore } from "../lib/scores";
 
@@ -25,7 +25,7 @@ export default function FlappyWidget() {
     score: 0,
   });
 
-  const flap = () => {
+  const flap = useCallback(() => {
     if (phase === "idle") {
       const s = initState();
       s.bird.vy = FLAP_V; // give initial upward kick so bird doesn't fall immediately
@@ -43,13 +43,13 @@ export default function FlappyWidget() {
       return;
     }
     if (stateRef.current) stateRef.current.bird.vy = FLAP_V;
-  };
+  }, [phase]);
 
   useEffect(() => {
     const handleKey = (e) => { if (e.code === "Space") { e.preventDefault(); flap(); } };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [phase]);
+  }, [flap]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -226,7 +226,7 @@ export default function FlappyWidget() {
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [phase, score, best]);
+  }, [phase, score, best, g]);
 
   return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:12 }}>

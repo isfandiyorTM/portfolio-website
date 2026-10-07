@@ -25,7 +25,6 @@ export default function ReactionTest() {
   const g = t.games;
   const [phase,   setPhase]   = useState("idle");   // idle | waiting | go | early | result | done
   const [times,   setTimes]   = useState([]);
-  const [current, setCurrent] = useState(0);
   const [best,    setBest]    = useState(() => {
     try { const s = localStorage.getItem("reactionBest"); return s ? parseInt(s) : null; } catch { return null; }
   });
@@ -41,7 +40,7 @@ export default function ReactionTest() {
     }, delay);
   };
 
-  const handleClick = () => {
+  const handleClick = (e) => {
     if (phase === "idle" || phase === "result" || phase === "done") {
       if (phase === "done") reset();
       else startRound();
@@ -53,10 +52,11 @@ export default function ReactionTest() {
       return;
     }
     if (phase === "go") {
-      const ms = Math.round(performance.now() - startRef.current);
+      // The event's timestamp is on the same clock as performance.now() and marks
+      // the click itself rather than the moment this handler ran.
+      const ms = Math.round(e.timeStamp - startRef.current);
       const next = [...times, ms];
       setTimes(next);
-      setCurrent(next.length);
 
       const newBest = best === null || ms < best ? ms : best;
       if (newBest !== best) {
@@ -82,7 +82,6 @@ export default function ReactionTest() {
     clearTimeout(timerRef.current);
     setPhase("idle");
     setTimes([]);
-    setCurrent(0);
   };
 
   useEffect(() => () => clearTimeout(timerRef.current), []);

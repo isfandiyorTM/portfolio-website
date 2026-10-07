@@ -267,7 +267,7 @@ export default function CSSKeyboard({ idle = false }) {
   // active: click mode — sequential display paused, clicked key glows
   const [active,     setActive]     = useState(false);
   const [clickedKey, setClickedKey] = useState(null); // { ri, ki, n }
-  const [show,       setShow]       = useState(true);
+  const [show,       setShow]       = useState(() => !window.matchMedia("(max-width:900px)").matches);
   // flash: triggered when MADAMINOV is typed on physical keyboard
   const [flash,      setFlash]      = useState({ on: false, n: 0 });
   const [hovered,    setHovered]    = useState(false);
@@ -286,7 +286,9 @@ export default function CSSKeyboard({ idle = false }) {
   const [activeKeys, setActiveKeys] = useState({});
   const testRef         = useRef(null);
   const activeKeyTimers = useRef({});
-  testRef.current = test;
+  // Mirrors `hovered` for the window-level key handlers
+  const hoveredRef      = useRef(false);
+  useEffect(() => { testRef.current = test; }, [test]);
 
   // Runs the greeting sequence from the very beginning (index 0)
   const runSequence = useCallback(() => {
@@ -324,7 +326,6 @@ export default function CSSKeyboard({ idle = false }) {
     }
 
     const mq = window.matchMedia("(max-width:900px)");
-    setShow(!mq.matches);
     const onMq = e => setShow(!e.matches);
     mq.addEventListener("change", onMq);
 
@@ -392,11 +393,14 @@ export default function CSSKeyboard({ idle = false }) {
     return () => { window.removeEventListener("keydown", onKey); clearTimeout(resetTimer); };
   }, []);
 
-  // TAB → toggle typing test
+  // TAB → toggle typing test. Tab is also how keyboard users move through the
+  // page, so it is only taken over while the pointer rests on the keyboard, or
+  // to restart / leave a test that is already running.
   useEffect(() => {
     const onTab = (e) => {
       if (e.key !== "Tab") return;
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      if (!hoveredRef.current && !testRef.current) return;
       e.preventDefault();
       setTest(prev => {
         if (prev && prev.done) { pauseSequence(); return newTest(); } // restart when done
@@ -468,7 +472,7 @@ export default function CSSKeyboard({ idle = false }) {
           window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: "typist" }));
           if (wpm >= 60) window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: "speedDemon" }));
         } else {
-          setTest(prev => ({ ...prev, wIdx: nextWIdx, typed: "", errors: newErrors, startTime }));
+          setTest(prev => ({ ...prev, wIdx: nextWIdx, typed: "", errors: newErrors, wpm, startTime }));
         }
         return;
       }
@@ -601,8 +605,8 @@ export default function CSSKeyboard({ idle = false }) {
 
       <div
         style={{ position: "absolute", right: "3%", top: "50%", transform: "translateY(-50%)", zIndex: 3 }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={() => { hoveredRef.current = true;  setHovered(true); }}
+        onMouseLeave={() => { hoveredRef.current = false; setHovered(false); }}
       >
         <div style={{ position: "relative" }}>
 
@@ -659,9 +663,7 @@ export default function CSSKeyboard({ idle = false }) {
                 {/* Footer */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ fontSize: 11, color: "rgba(0,255,136,0.5)" }}>
-                    {test.startTime
-                      ? `${Math.round(test.wIdx / Math.max((Date.now() - test.startTime) / 60000, 0.001))} wpm`
-                      : "start typing"}
+                    {test.startTime ? `${test.wpm} wpm` : "start typing"}
                   </span>
                   <span style={{ fontSize: 10, color: "rgba(0,255,136,0.3)", letterSpacing: 1 }}>
                     {test.wIdx}/{TEST_LEN}

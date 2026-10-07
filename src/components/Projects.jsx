@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useReveal } from "../hooks/useReveal";
 import { useScrollTypewriter } from "../hooks/useScrollTypewriter";
 import { useLang } from "../i18n/LanguageContext";
@@ -8,7 +8,6 @@ import { PROJECTS, FILTER_TAGS_KEYS } from "../constants/data";
 function ProjectCard({ project, index }) {
   const ref     = useReveal();
   const cardRef = useRef(null);
-  const navigate = useNavigate();
   const { t, lang } = useLang();
   const [hovered, setHovered] = useState(false);
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
@@ -32,10 +31,12 @@ function ProjectCard({ project, index }) {
 
   const status = t.projects.status[project.statusKey] || project.statusKey.toUpperCase();
 
-  const handleClick = () => {
-    if (project.internalLink) navigate(project.internalLink);
-    else if (project.link) window.open(project.link, "_blank");
-  };
+  // A real link, so the card can be reached by keyboard, opened in a new tab,
+  // and followed by crawlers
+  const Card = project.internalLink ? Link : "a";
+  const linkProps = project.internalLink
+    ? { to: project.internalLink }
+    : { href: project.link, target: "_blank", rel: "noopener noreferrer" };
 
   const tilting = tilt.rx !== 0 || tilt.ry !== 0;
 
@@ -45,13 +46,15 @@ function ProjectCard({ project, index }) {
   const shimAngle = Math.atan2(shimY - 50, shimX - 50) * (180 / Math.PI);
 
   return (
-    <div
+    <Card
+      {...linkProps}
       ref={(el) => { ref.current = el; cardRef.current = el; }}
       className="project-card reveal"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
       style={{
         transitionDelay: `${index * 120}ms`, cursor: "pointer",
         position: "relative", overflow: "hidden",
@@ -80,60 +83,74 @@ function ProjectCard({ project, index }) {
         ` : "none",
         mixBlendMode: "screen",
       }} />
-      <div style={{
-        display:"flex", justifyContent:"space-between",
-        alignItems:"flex-start", marginBottom:16, flexWrap:"wrap", gap:12,
-      }}>
-        <div style={{ display:"flex", alignItems:"center", gap:20 }}>
-          <span style={{ fontFamily:"var(--font-display)", fontSize:11, color:"var(--text-muted)", letterSpacing:2 }}>
-            {project.id}
-          </span>
-          <h3 style={{
-            fontFamily:"var(--font-display)", fontSize:20, fontWeight:700,
-            color: hovered ? "var(--green)" : "var(--text)",
-            transition:"color 0.3s",
+
+      <div className="project-card-body">
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            display:"flex", justifyContent:"space-between",
+            alignItems:"flex-start", marginBottom:16, flexWrap:"wrap", gap:12,
           }}>
-            {project.name}
-          </h3>
-          <span style={{
-            fontFamily:"var(--font-mono)", fontSize:11,
-            color: hovered ? "var(--green)" : "var(--text-muted)",
-            transition:"color .3s, transform .3s",
-            display:"inline-block",
-            transform: hovered ? "translateX(4px)" : "none",
-          }}>→</span>
+            <div style={{ display:"flex", alignItems:"center", gap:20 }}>
+              <span style={{ fontFamily:"var(--font-display)", fontSize:11, color:"var(--text-muted)", letterSpacing:2 }}>
+                {project.id}
+              </span>
+              <h3 style={{
+                fontFamily:"var(--font-display)", fontSize:20, fontWeight:700,
+                color: hovered ? "var(--green)" : "var(--text)",
+                transition:"color 0.3s",
+              }}>
+                {project.name}
+              </h3>
+              <span aria-hidden="true" style={{
+                fontFamily:"var(--font-mono)", fontSize:11,
+                color: hovered ? "var(--green)" : "var(--text-muted)",
+                transition:"color .3s, transform .3s",
+                display:"inline-block",
+                transform: hovered ? "translateX(4px)" : "none",
+              }}>→</span>
+            </div>
+            <span className="project-status">
+              {status}
+            </span>
+          </div>
+
+          <p style={{ color:"var(--text-muted)", lineHeight:1.7, marginBottom:20, fontSize:14 }}>
+            {desc}
+          </p>
+
+          <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+            {project.stack.map((tech) => (
+              <span key={tech} style={{
+                fontFamily:"var(--font-mono)", fontSize:11, letterSpacing:1,
+                color:"var(--green-dim)", background:"var(--bg-card)",
+                padding:"3px 10px", border:"1px solid var(--border)",
+              }}>
+                {tech}
+              </span>
+            ))}
+          </div>
         </div>
-        <span style={{
-          fontFamily:"var(--font-mono)", fontSize:10, letterSpacing:3,
-          color:"var(--green)", border:"1px solid #00ff8844", padding:"4px 10px",
-        }}>
-          {status}
-        </span>
-      </div>
 
-      <p style={{ color:"var(--text-muted)", lineHeight:1.7, marginBottom:20, fontSize:14 }}>
-        {desc}
-      </p>
-
-      <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-        {project.stack.map((tech) => (
-          <span key={tech} style={{
-            fontFamily:"var(--font-mono)", fontSize:11, letterSpacing:1,
-            color:"var(--green-dim)", background:"var(--bg-card)",
-            padding:"3px 10px", border:"1px solid var(--border)",
-          }}>
-            {tech}
-          </span>
-        ))}
+        {/* Screenshots of the real thing: a wide one for sites, phone frames for apps */}
+        {project.preview && (
+          <img className="project-preview" src={project.preview} alt="" loading="lazy" width="960" height="600" />
+        )}
+        {project.shots && (
+          <div className="project-shots">
+            {project.shots.map((src) => (
+              <img key={src} className="project-shot" src={src} alt="" loading="lazy" width="1080" height="2400" />
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </Card>
   );
 }
 
 export default function Projects() {
   const [activeFilter, setActiveFilter] = useState("all");
   const titleRef = useReveal();
-  const { t, lang } = useLang();
+  const { t } = useLang();
 
   const { ref: labelRef,  displayed: labelTxt,  done: labelDone  } = useScrollTypewriter(t.projects.label,    40);
   const { ref: h1Ref,     displayed: h1Txt,     done: h1Done     } = useScrollTypewriter(t.projects.heading,  28);
@@ -164,6 +181,7 @@ export default function Projects() {
             <button
               key={key}
               className={`filter-btn ${activeFilter === key ? "active" : ""}`}
+              aria-pressed={activeFilter === key}
               onClick={() => setActiveFilter(key)}
             >
               {filterLabel(key)}

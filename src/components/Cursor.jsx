@@ -15,9 +15,33 @@ export default function Cursor() {
     /* Hide on touch / stylus devices — no mouse present */
     if (window.matchMedia("(pointer: coarse)").matches) return;
 
+    /* Animation loop — lerp the ring toward mouse. It stops once the ring has
+       caught up, and the next mousemove starts it again. */
+    const LERP = 0.095;
+    let running = false;
+    const loop = () => {
+      const dx = mouse.current.x - ring.current.x;
+      const dy = mouse.current.y - ring.current.y;
+      ring.current.x += dx * LERP;
+      ring.current.y += dy * LERP;
+
+      if (dotRef.current) {
+        dotRef.current.style.transform =
+          `translate3d(${mouse.current.x}px, ${mouse.current.y}px, 0) translate(-50%, -50%)`;
+      }
+      if (ringRef.current) {
+        ringRef.current.style.transform =
+          `translate3d(${ring.current.x}px, ${ring.current.y}px, 0) translate(-50%, -50%)`;
+      }
+      // Keep going until both elements exist and the ring is within 0.1px
+      if (dotRef.current && Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) { running = false; return; }
+      rafId.current = requestAnimationFrame(loop);
+    };
+
     const onMove = (e) => {
       mouse.current = { x: e.clientX, y: e.clientY };
       setVisible(true);
+      if (!running) { running = true; rafId.current = requestAnimationFrame(loop); }
     };
 
     const onDown = () => setState("click");
@@ -40,24 +64,6 @@ export default function Cursor() {
     document.addEventListener("mouseover",  onEnter);
     document.addEventListener("mouseout",   onLeave);
     document.body.style.cursor = "none";
-
-    /* Animation loop — lerp the ring toward mouse */
-    const LERP = 0.095;
-    const loop = () => {
-      ring.current.x += (mouse.current.x - ring.current.x) * LERP;
-      ring.current.y += (mouse.current.y - ring.current.y) * LERP;
-
-      if (dotRef.current) {
-        dotRef.current.style.transform =
-          `translate3d(${mouse.current.x}px, ${mouse.current.y}px, 0) translate(-50%, -50%)`;
-      }
-      if (ringRef.current) {
-        ringRef.current.style.transform =
-          `translate3d(${ring.current.x}px, ${ring.current.y}px, 0) translate(-50%, -50%)`;
-      }
-      rafId.current = requestAnimationFrame(loop);
-    };
-    rafId.current = requestAnimationFrame(loop);
 
     return () => {
       document.removeEventListener("mousemove",  onMove);

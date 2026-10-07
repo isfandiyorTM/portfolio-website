@@ -39,7 +39,8 @@ function getStatus() {
   return "VISITOR IDENTIFIED";
 }
 
-const SESSION_KEY = "vscan_v1";
+// Rows in the results list: browser, OS, screen, timezone, language
+const ROW_COUNT = 5;
 
 const MSGS = [
   "SCANNING VISITOR",
@@ -93,32 +94,34 @@ export default function VisitorScan() {
   const ids = useRef([]);
   const clear = () => ids.current.forEach(id => { clearTimeout(id); clearInterval(id); });
 
-  const info = useRef(null);
-  if (!info.current) info.current = {
+  // Read once, on first render
+  const [info] = useState(() => ({
     browser:  getBrowser(),
     os:       getOS(),
     screen:   `${screen.width} × ${screen.height}`,
     timezone: getTimezone(),
     language: navigator.language || "Unknown",
     status:   getStatus(),
-  };
+  }));
 
   const rows = [
-    ["BROWSER",  info.current.browser],
-    ["OS",       info.current.os],
-    ["SCREEN",   info.current.screen],
-    ["TIMEZONE", info.current.timezone],
-    ["LANGUAGE", info.current.language],
+    ["BROWSER",  info.browser],
+    ["OS",       info.os],
+    ["SCREEN",   info.screen],
+    ["TIMEZONE", info.timezone],
+    ["LANGUAGE", info.language],
   ];
 
+  // The scan is opt-in: the terminal's `scan` command fires "visitor:scan"
   useEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY)) return;
-    sessionStorage.setItem(SESSION_KEY, "1");
-
     const later = (fn, ms) => { const id = setTimeout(fn, ms); ids.current.push(id); };
 
-    later(() => {
+    const run = () => {
+      clear();
+      ids.current = [];
       window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: "profiled" }));
+      setMsgIdx(0);
+      setVisibleRows(0);
       setPhase("scanning");
 
       // Cycle scan messages while progress bar runs
@@ -131,7 +134,7 @@ export default function VisitorScan() {
         setPhase("results");
 
         // Reveal rows + status line one by one
-        for (let i = 1; i <= rows.length + 1; i++) {
+        for (let i = 1; i <= ROW_COUNT + 1; i++) {
           later(() => setVisibleRows(i), i * 190);
         }
 
@@ -139,11 +142,12 @@ export default function VisitorScan() {
         later(() => {
           setPhase("leaving");
           later(() => setPhase("hidden"), 550);
-        }, (rows.length + 1) * 190 + 5000);
+        }, (ROW_COUNT + 1) * 190 + 5000);
       }, 1900);
-    }, 3200);
+    };
 
-    return clear;
+    window.addEventListener("visitor:scan", run);
+    return () => { window.removeEventListener("visitor:scan", run); clear(); };
   }, []);
 
   const dismiss = () => {
@@ -246,7 +250,7 @@ export default function VisitorScan() {
                   fontSize: 10, letterSpacing: "2.5px", color: "var(--green)",
                   animation: "vs-status-glow 2s ease-in-out infinite",
                 }}>
-                  ▸ {info.current.status}
+                  ▸ {info.status}
                 </div>
                 <div style={{ fontSize: 9, color: "rgba(0,255,136,0.22)", marginTop: 4, letterSpacing: "2px" }}>
                   CLEARANCE LEVEL : GRANTED

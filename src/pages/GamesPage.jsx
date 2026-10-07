@@ -70,7 +70,7 @@ function ScoreDashboard({ onPlay }) {
   const g = t.games;
   const scores = SCORE_MAP.map(s => {
     let val = null;
-    try { val = localStorage.getItem(s.key); } catch {}
+    try { val = localStorage.getItem(s.key); } catch { /* storage unavailable */ }
     return { ...s, val };
   }).filter(s => s.val !== null);
 
@@ -194,7 +194,7 @@ export default function GamesPage({ onBack }) {
   const handleCardClick = (gm, e) => {
     const cx = e.clientX;
     const cy = e.clientY;
-    const id = Date.now();
+    const id = e.timeStamp; // unique per click
     const particles = Array.from({ length: 18 }, (_, i) => {
       const angle = (i / 18) * Math.PI * 2;
       const dist  = 55 + Math.random() * 55;

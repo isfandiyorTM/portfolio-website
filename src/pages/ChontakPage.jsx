@@ -1,6 +1,10 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLang } from "../i18n/LanguageContext";
+import { Reveal, CountUp, MoreProjects } from "../components/ProjectPage";
+
+// This page's palette and content width for the shared "more projects" strip
+const MORE_THEME = { "--pp-accent": "#F0B429", "--pp-line": "#0d2a1a", "--pp-dim": "#4a8a6a", "--pp-wrap": "1020px", paddingTop: 80 };
 
 // ── Phone mockup ──────────────────────────────────────────────────────────────
 function PhoneMockup() {
@@ -63,7 +67,7 @@ export default function ChontakPage() {
   const shotTitle = lang==="uz" ? "Ko'rinishi." : lang==="ru" ? "Скриншоты." : "See it in action.";
 
   return (
-    <div className="ct-root">
+    <div className="ct-root" data-theme="dark">
 
       {/* ── CSS ── */}
       <style>{`
@@ -380,6 +384,8 @@ export default function ChontakPage() {
           background: #F0B429; border-radius: 50%;
           border: 2px solid #050a0f;
         }
+        .reveal .ct-tl-dot { scale: 0; transition: scale .5s cubic-bezier(.34,1.56,.64,1) .3s; }
+        .reveal.visible .ct-tl-dot { scale: 1; }
         .ct-tl-title { font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 5px; }
         .ct-tl-desc  { font-size: 12px; color: #7a9ab0; line-height: 1.65; }
 
@@ -531,73 +537,79 @@ export default function ChontakPage() {
 
       {/* ── Stats ── */}
       <div className="ct-stats">
-        <div className="ct-stats-grid">
+        <Reveal className="ct-stats-grid">
           {c.stats.map(({ n, l }) => (
             <div key={l} className="ct-stat">
-              <div className="ct-stat-n">{n}</div>
+              <div className="ct-stat-n"><CountUp value={n} /></div>
               <div className="ct-stat-l">{l}</div>
             </div>
           ))}
-        </div>
+        </Reveal>
       </div>
 
       {/* ── Features ── */}
       <div className="ct-wrap">
-        <span className="ct-tag">{c.feat_label}</span>
-        <h2 className="ct-h2">{c.feat_title}<br /><span>{c.feat_title2}</span></h2>
-        <p className="ct-sub">{c.feat_sub}</p>
-        <div className="ct-feat-grid">
+        <Reveal variant="from-left">
+          <span className="ct-tag">{c.feat_label}</span>
+          <h2 className="ct-h2">{c.feat_title}<br /><span>{c.feat_title2}</span></h2>
+          <p className="ct-sub">{c.feat_sub}</p>
+        </Reveal>
+        <Reveal className="ct-feat-grid">
           {c.features.map(f => (
-            <div key={f.title} className="ct-feat-card">
+            <div key={f.title} className="ct-feat-card stagger-item">
               <div className="ct-feat-icon">{f.icon}</div>
               <div className="ct-feat-title">{f.title}</div>
               <div className="ct-feat-desc">{f.desc}</div>
             </div>
           ))}
-        </div>
+        </Reveal>
       </div>
 
       {/* ── Screenshots ── */}
       <div className="ct-wrap ct-wrap--dark">
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
-          <span className="ct-tag">// SCREENSHOTS.PNG</span>
-          <h2 className="ct-h2" style={{ marginBottom:36 }}>{shotTitle}</h2>
-          <div className="ct-shots-row">
+          <Reveal variant="from-left">
+            <span className="ct-tag">// SCREENSHOTS.PNG</span>
+            <h2 className="ct-h2" style={{ marginBottom:36 }}>{shotTitle}</h2>
+          </Reveal>
+          <Reveal className="ct-shots-row">
             {[
-              { src:"/screenshots/chontak/home.png",       label:"HOME" },
-              { src:"/screenshots/chontak/stats.png",      label:"STATS" },
-              { src:"/screenshots/chontak/add.png",        label:"ADD TX" },
-              { src:"/screenshots/chontak/savings.png",    label:"SAVINGS" },
-              { src:"/screenshots/chontak/onboarding.png", label:"ONBOARDING" },
+              { src:"/screenshots/chontak/home.jpg",       label:"HOME" },
+              { src:"/screenshots/chontak/stats.jpg",      label:"STATS" },
+              { src:"/screenshots/chontak/add.jpg",        label:"ADD TX" },
+              { src:"/screenshots/chontak/savings.jpg",    label:"SAVINGS" },
+              { src:"/screenshots/chontak/onboarding.jpg", label:"ONBOARDING" },
             ].map(s => (
-              <div key={s.label} className="ct-shot">
+              <div key={s.label} className="ct-shot stagger-item">
                 <div className="ct-shot-frame">
                   <div className="ct-shot-notch" />
-                  <img src={s.src} alt={s.label} className="ct-shot-img"
+                  <img src={s.src} alt={s.label} className="ct-shot-img" loading="lazy"
                        onError={e => { e.target.style.background="#1a2030"; e.target.removeAttribute("src"); }} />
                 </div>
                 <div className="ct-shot-label">{s.label}</div>
               </div>
             ))}
-          </div>
+          </Reveal>
         </div>
       </div>
 
       {/* ── Timeline ── */}
       <div className="ct-wrap">
-        <span className="ct-tag">{c.build_label}</span>
-        <h2 className="ct-h2">{c.build_title}</h2>
-        <p className="ct-sub">{c.build_sub}</p>
+        <Reveal variant="from-left">
+          <span className="ct-tag">{c.build_label}</span>
+          <h2 className="ct-h2">{c.build_title}</h2>
+          <p className="ct-sub">{c.build_sub}</p>
+        </Reveal>
         <div className="ct-timeline">
           {c.timeline.map(item => (
-            <div key={item.date} className="ct-tl-row">
+            <Reveal key={item.date} variant="from-left" className="ct-tl-row">
               <div className="ct-tl-date">{item.date}</div>
               <div className="ct-tl-line"><div className="ct-tl-dot" /></div>
               <div>
                 <div className="ct-tl-title">{item.title}</div>
                 <div className="ct-tl-desc">{item.desc}</div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -605,19 +617,23 @@ export default function ChontakPage() {
       {/* ── CTA ── */}
       <div className="ct-cta ct-wrap--mid">
         <div className="ct-cta-glow" />
-        <span className="ct-tag" style={{ display:"block", marginBottom:12 }}>{c.cta_label}</span>
-        <h2 className="ct-cta-title">
-          {c.cta_title}<br /><span>{c.cta_title2}</span>
-        </h2>
-        <p className="ct-cta-sub">{c.cta_sub}</p>
-        <div className="ct-cta-btns">
-          <a href="/cho'ntak.apk" download className="ct-btn-amber"
-             style={{ padding:"16px 40px", fontSize:13 }}>{c.download}</a>
-          <a href="https://github.com/isfandiyorTM/cho-ntak" target="_blank"
-             rel="noopener noreferrer" className="ct-btn-ghost"
-             style={{ padding:"16px 40px", fontSize:13 }}>{c.source}</a>
-        </div>
+        <Reveal variant="scale-in">
+          <span className="ct-tag" style={{ display:"block", marginBottom:12 }}>{c.cta_label}</span>
+          <h2 className="ct-cta-title">
+            {c.cta_title}<br /><span>{c.cta_title2}</span>
+          </h2>
+          <p className="ct-cta-sub">{c.cta_sub}</p>
+          <div className="ct-cta-btns">
+            <a href="/cho'ntak.apk" download className="ct-btn-amber"
+               style={{ padding:"16px 40px", fontSize:13 }}>{c.download}</a>
+            <a href="https://github.com/isfandiyorTM/cho-ntak" target="_blank"
+               rel="noopener noreferrer" className="ct-btn-ghost"
+               style={{ padding:"16px 40px", fontSize:13 }}>{c.source}</a>
+          </div>
+        </Reveal>
       </div>
+
+      <MoreProjects current="chontak" style={MORE_THEME} />
 
       {/* ── Footer ── */}
       <footer className="ct-footer">

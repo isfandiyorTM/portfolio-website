@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 
 const PROMPT = "ISF@PORTFOLIO ~ $";
 
-const ALL_CMDS = ["about","clear","close","contact","hack","help","ls","projects","resume","secret","skills","whoami"];
+const ALL_CMDS = ["about","clear","close","contact","hack","help","ls","projects","resume","scan","secret","skills","whoami"];
 
 const ach = (id) => window.dispatchEvent(new CustomEvent("achievement:unlock", { detail: id }));
 
@@ -57,6 +57,7 @@ function process(cmd) {
           "  resume     view my CV",
           "  whoami     identity check",
           "  ls         list directory",
+          "  scan       profile this browser",
           "  secret     ???",
           "  hack       ...don't",
           "  clear      clear screen",
@@ -76,7 +77,7 @@ function process(cmd) {
     case "about":
       return {
         lines: [
-          "Teaching 450+ students at Rahimov School.",
+          "Teaching 500+ students at Rahimov School.",
           "Flutter apps with Clean Architecture & BLoC.",
           "From computer basics to full-stack — I cover it.",
           "Available for freelance and full-time roles.",
@@ -90,7 +91,7 @@ function process(cmd) {
           "FRAMEWORKS  Flutter · React",
           "BACKEND     Firebase · REST · Node.js",
           "TOOLS       Git · Figma · VS Code",
-          "TEACHING    450+ students · 4+ years",
+          "TEACHING    500+ students · 4+ years",
         ],
       };
 
@@ -100,9 +101,9 @@ function process(cmd) {
       }, 400);
       return {
         lines: [
-          "→ Chontak       social platform (Flutter)",
-          "→ HojiJalyuzi   business management (Flutter)",
-          "→ RahimovDevs   dev agency website (React)",
+          "→ RahimovDevs   student projects platform (React)",
+          "→ Cho'ntak      personal finance app (Flutter)",
+          "→ Hoji Jalyuzi  blinds measuring & orders (Flutter)",
           "",
           "Navigating to #projects...",
         ],
@@ -125,6 +126,10 @@ function process(cmd) {
     case "resume": case "cv":
       setTimeout(() => window.open("/resume", "_blank"), 300);
       return { lines: ["Opening resume in a new tab..."] };
+
+    case "scan":
+      setTimeout(() => window.dispatchEvent(new CustomEvent("visitor:scan")), 400);
+      return { lines: ["Scanning visitor environment..."], close: true };
 
     case "ls": case "dir":
       return {
@@ -193,7 +198,7 @@ export default function Terminal() {
   const inputRef  = useRef(null);
   const bottomRef = useRef(null);
   const openRef   = useRef(false);
-  openRef.current = open;
+  useEffect(() => { openRef.current = open; }, [open]);
 
   useEffect(() => {
     const h = (e) => {

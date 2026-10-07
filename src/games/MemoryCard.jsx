@@ -32,25 +32,29 @@ export default function MemoryCard() {
 
   useEffect(()=>{ if(!running)return; const t=setInterval(()=>setTime(s=>s+1),1000); return()=>clearInterval(t); },[running]);
 
-  useEffect(()=>{
-    if(matched.length===TECH_CARDS.length*2&&matched.length>0){
-      setWon(true); setRunning(false);
-      if(!best||moves<best){ setBest(moves); saveScore("memory",moves); }
-    }
-  },[matched]);
-
-  useEffect(()=>{
-    if(flipped.length!==2) return;
-    setLocked(true); const[a,b]=flipped;
-    if(deck[a].id===deck[b].id){ setMatched(m=>[...m,deck[a].uid,deck[b].uid]); setFlipped([]); setLocked(false); }
-    else{ setTimeout(()=>{ setFlipped([]); setLocked(false); },900); }
-    setMoves(m=>m+1);
-  },[flipped]);
-
   const click = (i) => {
     if(locked||flipped.includes(i)||matched.includes(deck[i].uid)||flipped.length===2) return;
     if(!running) setRunning(true);
-    setFlipped(f=>[...f,i]);
+    const next = [...flipped, i];
+    setFlipped(next);
+    if(next.length!==2) return;
+
+    // Second card of the turn: count the move, then keep the pair or flip both back
+    const [a,b] = next;
+    const nextMoves = moves+1;
+    setMoves(nextMoves);
+    if(deck[a].id===deck[b].id){
+      const nextMatched = [...matched, deck[a].uid, deck[b].uid];
+      setMatched(nextMatched);
+      setFlipped([]);
+      if(nextMatched.length===TECH_CARDS.length*2){
+        setWon(true); setRunning(false);
+        if(!best||nextMoves<best){ setBest(nextMoves); saveScore("memory",nextMoves); }
+      }
+    } else {
+      setLocked(true);
+      setTimeout(()=>{ setFlipped([]); setLocked(false); },900);
+    }
   };
 
   const restart = () => { setDeck(createDeck()); setFlipped([]); setMatched([]); setMoves(0); setLocked(false); setWon(false); setTime(0); setRunning(false); };

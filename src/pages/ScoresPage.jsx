@@ -17,7 +17,7 @@ function LocalBoard() {
   const { t } = useLang();
   const scores = LOCAL_SCORES.map(s => {
     let val = null;
-    try { val = localStorage.getItem(s.key); } catch {}
+    try { val = localStorage.getItem(s.key); } catch { /* storage unavailable */ }
     return { ...s, val };
   });
 
@@ -67,16 +67,19 @@ function LocalBoard() {
 function GlobalBoard({ gameId }) {
   const { t } = useLang();
   const g = t.games;
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Rows are stored with the game they belong to, so switching games shows
+  // "loading" until that game's rows arrive, and a slow earlier reply is ignored.
+  const [board, setBoard] = useState({ gameId: null, rows: [] });
   const meta = LOCAL_SCORES.find(s => s.id === gameId);
+  const loading = board.gameId !== gameId;
+  const rows = loading ? [] : board.rows;
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
     getLeaderboard(gameId, 10).then(data => {
-      setRows(data);
-      setLoading(false);
+      if (!cancelled) setBoard({ gameId, rows: data });
     });
+    return () => { cancelled = true; };
   }, [gameId]);
 
   if (!supabaseReady) {

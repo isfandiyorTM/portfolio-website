@@ -67,14 +67,57 @@ function SkillTag({ text, delay }) {
   );
 }
 
-function RevealBlock({ children, delay=0 }) {
+// `variant` picks the entrance: from-left, from-right or scale-in (default: rise)
+function RevealBlock({ children, delay=0, variant="" }) {
   const ref = useReveal(0.05);
-  return <div ref={ref} className="reveal" style={{ transitionDelay:`${delay}ms` }}>{children}</div>;
+  return <div ref={ref} className={`reveal ${variant}`} style={{ transitionDelay:`${delay}ms` }}>{children}</div>;
+}
+
+// Draws an element in step with scroll: --draw goes from 0 when the element's
+// top is 88% of the way down the screen to 1 when its bottom gets there — low
+// enough that the line arrives at each entry about when the entry appears.
+function useScrollDraw() {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const r    = el.getBoundingClientRect();
+      const mark = window.innerHeight * 0.88;
+      const p    = Math.min(1, Math.max(0, (mark - r.top) / r.height));
+      el.style.setProperty("--draw", p.toFixed(3));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  return ref;
+}
+
+// A section label that types itself out when scrolled into view
+function TypedLabel({ text, style }) {
+  const { ref, displayed, done } = useScrollTypewriter(text, 40);
+  return (
+    <p ref={ref} className="section-label" style={style}>
+      {displayed}{!done && <span className="tw-cursor">▋</span>}
+    </p>
+  );
 }
 
 export default function About() {
   const { t } = useLang();
   const ab = t.about;
+  const timelineRef = useScrollDraw();
 
   const { ref: labelRef,      displayed: labelTxt,      done: labelDone }      = useScrollTypewriter(ab.label,       40);
   const { ref: h1Ref,         displayed: h1Txt,          done: h1Done }          = useScrollTypewriter(ab.heading,     28);
@@ -87,7 +130,7 @@ export default function About() {
       <div style={{ maxWidth:"1100px", margin:"0 auto" }}>
         <div className="about-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"80px", alignItems:"start", marginBottom:"80px" }}>
 
-          <RevealBlock delay={0}>
+          <RevealBlock delay={0} variant="from-left">
             <p ref={labelRef} className="section-label">
               {labelTxt}{!labelDone && <span className="tw-cursor">▋</span>}
             </p>
@@ -100,7 +143,7 @@ export default function About() {
             <p style={{ color:"var(--text-muted)", lineHeight:1.9 }}>{ab.p2}</p>
           </RevealBlock>
 
-          <RevealBlock delay={200}>
+          <RevealBlock delay={200} variant="from-right">
             <p ref={stackLabelRef} className="section-label">
               {stackLabelTxt}{!stackLabelDone && <span className="tw-cursor">▋</span>}
             </p>
@@ -119,9 +162,25 @@ export default function About() {
           {ab.stats.map((s,i) => <StatCard key={s.label} value={s.value} label={s.label} index={i} link={s.link} />)}
         </div>
 
+        {/* ── Testimonials ── */}
+        <TypedLabel text={ab.testimonials_label} style={{ marginTop:"80px", marginBottom:"28px" }} />
+        <div className="testimonial-grid">
+          {ab.testimonials.map((tm, i) => (
+            <RevealBlock key={tm.name} delay={i * 140} variant="scale-in">
+              <figure className="testimonial">
+                <blockquote>{tm.quote}</blockquote>
+                <figcaption>
+                  <span className="testimonial-name">{tm.name}</span>
+                  <span className="testimonial-role">{tm.role}</span>
+                </figcaption>
+              </figure>
+            </RevealBlock>
+          ))}
+        </div>
+
         {/* ── Skill Meters ── */}
+        <TypedLabel text={ab.proficiency_label} style={{ marginTop:"80px", marginBottom:"28px" }} />
         <RevealBlock delay={0}>
-          <p className="section-label" style={{ marginTop:"80px", marginBottom:"28px" }}>{ab.proficiency_label}</p>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 60px" }}>
             {SKILL_METERS.map((sk, i) => (
               <SkillMeter key={sk.label} label={sk.label} level={sk.level} delay={i * 80} />
@@ -130,20 +189,16 @@ export default function About() {
         </RevealBlock>
 
         {/* ── Experience Timeline ── */}
-        <RevealBlock delay={0}>
-          <p className="section-label" style={{ marginTop:"80px", marginBottom:"40px" }}>
-            {ab.experience_label}
-          </p>
-        </RevealBlock>
-        <div style={{ position:"relative", paddingLeft:"28px" }}>
-          {/* Vertical line */}
-          <div style={{ position:"absolute", left:"6px", top:"8px", bottom:"8px", width:"1px", background:"linear-gradient(to bottom, var(--green) 0%, var(--green-dark) 100%)" }} />
+        <TypedLabel text={ab.experience_label} style={{ marginTop:"80px", marginBottom:"40px" }} />
+        <div ref={timelineRef} className="timeline">
+          {/* Vertical line — draws itself downward as the timeline scrolls through the screen */}
+          <div className="timeline-line" />
 
           {ab.experience?.map((item, i) => (
-            <RevealBlock key={i} delay={i * 80}>
+            <RevealBlock key={i} delay={i * 80} variant="from-left">
               <div style={{ position:"relative", marginBottom: i < ab.experience.length - 1 ? "40px" : 0 }}>
-                {/* Diamond dot */}
-                <div style={{ position:"absolute", left:"-25px", top:"5px", width:"10px", height:"10px", background:"var(--green)", transform:"rotate(45deg)", boxShadow:"0 0 8px rgba(0,255,136,0.5)" }} />
+                {/* Diamond dot — pops in once its entry has arrived */}
+                <div className="timeline-dot" />
 
                 <div style={{ fontFamily:"var(--font-mono)", fontSize:"9px", letterSpacing:"3px", color:"var(--green)", marginBottom:"5px" }}>
                   {item.period}

@@ -2,20 +2,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useTypewriter } from "../hooks/useTypewriter";
 import { useLang } from "../i18n/LanguageContext";
 import ParticleCanvas from "./ParticleCanvas";
-import MatrixRain from "./MatrixRain";
 import ResumeModal from "./ResumeModal";
 import CSSKeyboard from "./CSSKeyboard";
 import { useIdle, DIM_TEXT, DIM_BG, DIM_EASE } from "../context/IdleContext";
 
-
-function GlitchText({ text }) {
-  const [glitch, setGlitch] = useState(false);
-  useEffect(() => {
-    const i = setInterval(() => { setGlitch(true); setTimeout(() => setGlitch(false), 200); }, 4000);
-    return () => clearInterval(i);
-  }, []);
-  return <span style={{ position:"relative", display:"inline-block", animation:glitch?"glitch 0.2s steps(2) forwards":"none" }}>{text}</span>;
-}
 
 function TerminalCursor() {
   const [v, setV] = useState(true);
@@ -32,8 +22,6 @@ export default function Hero() {
   const scrollTo            = id => document.getElementById(id)?.scrollIntoView({ behavior:"smooth" });
   const [resumeOpen, setResumeOpen] = useState(false);
   const idle = useIdle();
-  // Pixels the name drifts down to sit level with the keyboard (0 = in place)
-  const [nameShift, setNameShift] = useState(0);
 
   const sectionRef    = useRef(null);
   const nameRef       = useRef(null);
@@ -42,18 +30,23 @@ export default function Hero() {
   // While idle the name drifts to the hero's vertical middle — the keyboard's
   // level. Measured rather than hard-coded: the gap depends on viewport height
   // and on how tall the translated copy above the name happens to render.
+  // The shift is written straight to the wrapper's style: it is a pure visual
+  // offset, so there is nothing for React to re-render.
   useEffect(() => {
-    if (!idle) { setNameShift(0); return; }
+    const name = nameRef.current;
+    if (!name) return;
+    if (!idle) { name.style.transform = "translateY(0px)"; return; }
 
+    // Pixels the name currently sits below its resting place
+    let shift = 0;
     const measure = () => {
       const section = sectionRef.current;
-      const name    = nameRef.current;
-      if (!section || !name) return;
+      if (!section) return;
       const s = section.getBoundingClientRect();
       const n = name.getBoundingClientRect();
-      // n is untransformed here: leaving idle resets the shift to 0, and idle
-      // cannot return until 90 s of stillness — long after the drift settles.
-      setNameShift((s.top + s.height / 2) - (n.top + n.height / 2));
+      // n already includes the current shift, so add the remaining distance to it
+      shift += (s.top + s.height / 2) - (n.top + n.height / 2);
+      name.style.transform = `translateY(${shift}px)`;
     };
 
     measure();
@@ -83,11 +76,6 @@ export default function Hero() {
       onMouseMove={handleMouseMove}
       style={{ minHeight:"100vh", position:"relative", overflow:"hidden", display:"flex", alignItems:"center", padding:"100px 40px 60px", width:"100%" }}
     >
-      {/* Matrix Rain — desktop only */}
-      <div className="hero-bg-only-desktop" style={{ position:"absolute", inset:0, zIndex:0, opacity:0.07 * (idle ? DIM_BG : 1), pointerEvents:"none", filter:"blur(0.8px)", transition:DIM_EASE }}>
-        <MatrixRain style={{ width:"100%", height:"100%" }} />
-      </div>
-
       {/* Particle background — desktop only */}
       <div className="hero-bg-only-desktop" style={{ position:"absolute", inset:0, zIndex:2, opacity:0.18 * (idle ? DIM_BG : 1), pointerEvents:"none", transition:DIM_EASE }}>
         <ParticleCanvas style={{ width:"100%", height:"100%" }} />
@@ -102,22 +90,10 @@ export default function Hero() {
         href="https://rahimovdevs.tech"
         target="_blank"
         rel="noopener noreferrer"
-        style={{
-          position: "absolute", bottom: 24, right: 28, zIndex: 5,
-          opacity: idle ? DIM_TEXT : 1,
-          display: "inline-flex", alignItems: "center", gap: 8,
-          padding: "7px 14px", borderRadius: 20,
-          fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "1.5px",
-          color: "rgba(0,255,136,0.65)", textDecoration: "none", whiteSpace: "nowrap",
-          background: "rgba(4,12,7,0.92)",
-          border: "1px solid rgba(0,255,136,0.22)",
-          boxShadow: "0 0 16px rgba(0,255,136,0.05)",
-          transition: `border-color 0.3s, box-shadow 0.3s, color 0.3s, ${DIM_EASE}`,
-        }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(0,255,136,0.55)"; e.currentTarget.style.boxShadow = "0 0 24px rgba(0,255,136,0.18)"; e.currentTarget.style.color = "rgba(0,255,136,1)"; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(0,255,136,0.22)"; e.currentTarget.style.boxShadow = "0 0 16px rgba(0,255,136,0.05)"; e.currentTarget.style.color = "rgba(0,255,136,0.65)"; }}
+        className="hero-badge"
+        style={{ opacity: idle ? DIM_TEXT : 1 }}
       >
-        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", boxShadow: "0 0 6px var(--green)", animation: "pulse-glow 2s ease-in-out infinite", flexShrink: 0 }} />
+        <span className="hero-badge-dot" />
         rahimovdevs.tech
         <span style={{ opacity: 0.5, fontSize: 12 }}>↗</span>
       </a>
@@ -147,14 +123,10 @@ export default function Hero() {
               above the dimmed block it slides over. */}
           <div
             ref={nameRef}
-            style={{
-              position: "relative", zIndex: 2,
-              transform: `translateY(${nameShift}px)`,
-              transition: DRIFT_EASE,
-            }}
+            style={{ position: "relative", zIndex: 2, transition: DRIFT_EASE }}
           >
             <h1 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(36px,6vw,72px)", fontWeight:900, lineHeight:1.1, marginBottom:"16px", animation:"fadeUp 0.8s 0.2s ease both", opacity:0 }}>
-              <GlitchText text="ISFANDIYOR" /><br />
+              ISFANDIYOR<br />
               <span style={{ color:"var(--green)" }}>MADAMINOV</span>
             </h1>
           </div>

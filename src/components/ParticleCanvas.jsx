@@ -34,7 +34,6 @@ const isLowEndDevice =
    window.matchMedia("(pointer: coarse)").matches);
 
 const ParticleCanvas = memo(function ParticleCanvas({ style }) {
-  if (isLowEndDevice) return null;
   const canvasRef = useRef(null);
   const mouse     = useRef({ x: 0, y: 0 });
   const camera    = useRef({ rotX: 0, rotY: 0 });
@@ -43,7 +42,7 @@ const ParticleCanvas = memo(function ParticleCanvas({ style }) {
   const time      = useRef(0);
   const { dark }  = useTheme();
   const darkRef   = useRef(dark);
-  darkRef.current = dark;
+  useEffect(() => { darkRef.current = dark; }, [dark]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -150,7 +149,7 @@ const ParticleCanvas = memo(function ParticleCanvas({ style }) {
       }
 
       /* Draw particles */
-      sorted.forEach(({ i, x, y, s }) => {
+      sorted.forEach(({ x, y, s }) => {
         const depth = (s - 0.3) / 0.7;  // normalise depth 0–1
         const opacity = Math.max(0.08, depth * 0.7);
         const radius  = Math.max(0.8, s * 2.4);
@@ -166,14 +165,29 @@ const ParticleCanvas = memo(function ParticleCanvas({ style }) {
       rafId.current = requestAnimationFrame(draw);
     };
 
-    rafId.current = requestAnimationFrame(draw);
+    /* Only draw while the canvas is on screen — once the hero has scrolled
+       away there is nothing to see, so the loop stops until it comes back. */
+    let running = false;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !running) {
+        running = true;
+        rafId.current = requestAnimationFrame(draw);
+      } else if (!entry.isIntersecting && running) {
+        running = false;
+        cancelAnimationFrame(rafId.current);
+      }
+    });
+    io.observe(canvas);
 
     return () => {
       cancelAnimationFrame(rafId.current);
       window.removeEventListener("mousemove", onMove);
       ro.disconnect();
+      io.disconnect();
     };
   }, []);
+
+  if (isLowEndDevice) return null;
 
   return (
     <canvas

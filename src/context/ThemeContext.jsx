@@ -9,7 +9,7 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
-    try { localStorage.setItem("theme", dark ? "dark" : "light"); } catch {}
+    try { localStorage.setItem("theme", dark ? "dark" : "light"); } catch { /* storage unavailable */ }
   }, [dark]);
 
   return (

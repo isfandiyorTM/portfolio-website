@@ -26,4 +26,14 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    // A context file exports its provider together with the hook that reads it.
+    // The only cost is a full reload instead of a hot update when one is edited.
+    files: ['src/context/**', 'src/i18n/LanguageContext.jsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
+  {
+    files: ['vite.config.js', 'scripts/**'],
+    languageOptions: { globals: globals.node },
+  },
 ])

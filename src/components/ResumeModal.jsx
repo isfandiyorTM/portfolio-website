@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLang } from "../i18n/LanguageContext";
-import { RESUME } from "../constants/data";
+import { RESUME, CV_PDF } from "../constants/data";
 
 function ResumeContent() {
   const { t } = useLang();
@@ -124,9 +124,8 @@ function ResumeContent() {
 }
 
 function ModalInner({ onClose }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [hoverClose, setHoverClose] = useState(false);
-  const [hoverDl,    setHoverDl]    = useState(false);
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
@@ -141,6 +140,9 @@ function ModalInner({ onClose }) {
   return (
     <div
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="resume.pdf"
       style={{
         position: "fixed", inset: 0, zIndex: 9000,
         background: "rgba(5,10,15,0.88)",
@@ -201,22 +203,22 @@ function ModalInner({ onClose }) {
               .modal-dl-arrow { display:inline-block; animation:modal-dl-bounce 1.1s ease-in-out infinite; margin-right:3px; }
             `}</style>
             <a
-              href="/resume"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: "none" }}
-            >
-              <button className="modal-dl-btn" style={{
+              href={CV_PDF[lang]}
+              download
+              className="modal-dl-btn"
+              style={{
                 fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: 2,
                 padding: "5px 14px", border: "1px solid var(--green-dark)",
                 background: "rgba(0,255,136,0.06)",
-                color: "var(--green)", cursor: "pointer",
-              }}>
-                <span className="modal-dl-arrow">↓</span> {t.resume.download}
-              </button>
+                color: "var(--green)", cursor: "pointer", textDecoration: "none",
+                display: "inline-flex", alignItems: "center",
+              }}
+            >
+              <span className="modal-dl-arrow" aria-hidden="true">↓</span> {t.resume.download}
             </a>
             <button
               onClick={onClose}
+              aria-label={t.a11y.close}
               onMouseEnter={() => setHoverClose(true)}
               onMouseLeave={() => setHoverClose(false)}
               style={{

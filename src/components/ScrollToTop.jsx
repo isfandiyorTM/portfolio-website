@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useLang } from "../i18n/LanguageContext";
 
 export default function ScrollToTop() {
   const [visible, setVisible] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 500);
@@ -33,9 +35,10 @@ export default function ScrollToTop() {
         transition: "all 0.2s",
         animation: "fadeUp 0.3s ease both",
       }}
-      title="Back to top"
+      aria-label={t.a11y.to_top}
+      title={t.a11y.to_top}
     >
-      ↑
+      <span aria-hidden="true">↑</span>
     </button>
   );
 }
