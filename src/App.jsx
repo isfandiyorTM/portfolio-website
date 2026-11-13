@@ -28,6 +28,7 @@ import AchievementSystem from "./components/AchievementSystem";
 /* Everything but the home page loads on demand */
 const GamesPage       = lazy(() => import("./pages/GamesPage"));
 const ScoresPage      = lazy(() => import("./pages/ScoresPage"));
+const CompilandPage   = lazy(() => import("./pages/CompilandPage"));
 const ChontakPage     = lazy(() => import("./pages/ChontakPage"));
 const HojiJalyuziPage = lazy(() => import("./pages/HojiJalyuziPage"));
 const RahimovDevsPage = lazy(() => import("./pages/RahimovDevsPage"));
@@ -122,6 +123,7 @@ function AppRoutes() {
           <Route path="/" element={<Portfolio onGamesClick={() => navigate("/games")} />} />
           <Route path="/games" element={<GamesPage onBack={() => navigate("/")} />} />
           <Route path="/scores" element={<ScoresPage />} />
+          <Route path="/compiland" element={<CompilandPage />} />
           <Route path="/chontak" element={<ChontakPage />} />
           <Route path="/hoji-jalyuzi" element={<HojiJalyuziPage />} />
           <Route path="/rahimovdevs" element={<RahimovDevsPage />} />

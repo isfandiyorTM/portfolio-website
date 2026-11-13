@@ -1,0 +1,614 @@
+/* The Compiland project page (src/pages/CompilandPage.jsx), drawn in
+   Compiland's own look rather than the portfolio's terminal one: the town's
+   sky, its hills and its navy, the Inter typeface, round shapes, and Compi.
+   Day or night is the page's own (data-sky), not the portfolio's theme.
+   Everything is scoped under .cl. */
+
+/* Inter, as compiland.uz serves it: one variable file per alphabet */
+@font-face { font-family: 'CL Inter'; font-style: normal; font-weight: 400 900; font-display: swap; src: url(/fonts/inter-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'CL Inter'; font-style: normal; font-weight: 400 900; font-display: swap; src: url(/fonts/inter-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'CL Inter'; font-style: normal; font-weight: 400 900; font-display: swap; src: url(/fonts/inter-cyrillic.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'CL Inter'; font-style: normal; font-weight: 400 900; font-display: swap; src: url(/fonts/inter-cyrillic-ext.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+
+.cl {
+  --bg: #fffdf7;
+  --bg-2: #fbf6e9;
+  --ink: #13224b;
+  --ink-2: #4f5b78;
+  --line: #eae4d3;
+  --card: #ffffff;
+  --sky-1: #fffbeb;
+  --sky-2: #fef3c7;
+  --sky-3: #fde68a;
+  --hill-far: #22c55e;
+  --hill-near: #16a34a;
+  --green: #15803d;
+  --green-hover: #166534;
+  --green-ink: #15803d;
+  --road: #39435c;
+  --road-line: #8a92a6;
+  --skyline: #bfcbe1;
+  --window: rgba(255, 255, 255, 0.55);
+  --logo-compi: #1e3a8a;
+  --logo-land: #16a34a;
+  --shadow: 0 24px 60px -24px rgba(19, 34, 75, 0.35);
+  --shadow-sm: 0 14px 34px -20px rgba(19, 34, 75, 0.38);
+  --ring: inset 0 0 0 1px var(--line);
+
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'CL Inter', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 17px;
+  line-height: 1.55;
+  overflow-x: clip;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+.cl[data-sky="night"] {
+  --bg: #0a1228;
+  --bg-2: #0e1833;
+  --ink: #eef2fb;
+  --ink-2: #a3b0cb;
+  --line: #1f2c4e;
+  --card: #111c3a;
+  --sky-1: #0b1437;
+  --sky-2: #141d4d;
+  --sky-3: #241f5e;
+  --hill-far: #14532d;
+  --hill-near: #0f3f22;
+  --green: #16a34a;
+  --green-hover: #15803d;
+  --green-ink: #4ade80;
+  --road: #26304a;
+  --road-line: #59627a;
+  --skyline: #1c2654;
+  --window: #fde68a;
+  --logo-compi: #7dd3fc;
+  --logo-land: #4ade80;
+  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.75);
+  --shadow-sm: 0 14px 34px -20px rgba(0, 0, 0, 0.8);
+}
+
+/* (:where, so any rule below wins) */
+:where(.cl) :where(h1, h2, h3, p, ul, ol, li, figure, dl, dd) { margin: 0; padding: 0; }
+:where(.cl) :where(ul, ol) { list-style: none; }
+:where(.cl) :where(a) { color: inherit; text-decoration: none; }
+:where(.cl) :where(h2) { font-size: clamp(30px, 4vw, 46px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; text-wrap: balance; }
+:where(.cl) :where(h3) { font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.cl ::selection { background: #fde68a; color: #13224b; }
+.cl a:focus-visible, .cl button:focus-visible { outline: 3px solid #f59e0b; outline-offset: 3px; border-radius: 10px; }
+
+.cl-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.cl-wrap { width: min(1200px, 100%); margin: 0 auto; padding: 0 28px; }
+.cl-head { max-width: 760px; margin-bottom: 48px; }
+.cl-head > p:last-child { margin-top: 14px; color: var(--ink-2); font-size: 18px; }
+.cl-kicker {
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px !important;
+  font-size: 14px; font-weight: 700; letter-spacing: 0.02em; color: var(--green-ink);
+}
+.cl-kicker::before { content: ''; width: 22px; height: 4px; border-radius: 4px; background: currentColor; }
+
+/* things come up as they come into sight; the ones in a row one after another.
+   (Cards lift on hover with `translate`, so the two never fight over `transform`.) */
+.cl { --rise: opacity 0.6s ease var(--wait, 0ms), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--wait, 0ms); }
+.cl-rise { opacity: 0; transform: translateY(20px); transition: var(--rise); }
+.cl-rise.is-in { opacity: 1; transform: none; }
+.cl code { padding: 1px 6px; border-radius: 6px; background: var(--bg-2); box-shadow: var(--ring); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.86em; color: var(--ink); white-space: nowrap; }
+
+/* ── buttons ─────────────────────────────────────────────────────────────── */
+.cl-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 54px; padding: 0 26px; border: 0; border-radius: 15px;
+  background: var(--green); color: #fff !important;
+  font: inherit; font-size: 17px; font-weight: 700; white-space: nowrap;
+  box-shadow: 0 10px 22px -10px rgba(21, 128, 61, 0.85);
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.cl-btn:hover { background: var(--green-hover); transform: translateY(-2px); }
+.cl-btn:active { transform: translateY(0) scale(0.98); }
+.cl-btn span[aria-hidden] { transition: transform 0.2s ease; }
+.cl-btn:hover span[aria-hidden] { transform: translateX(3px); }
+.cl-btn--small { min-height: 42px; padding: 0 18px; border-radius: 12px; font-size: 15px; box-shadow: none; }
+.cl-btn--ghost { background: rgba(255, 255, 255, 0.72); color: var(--ink) !important; box-shadow: inset 0 0 0 2px rgba(19, 34, 75, 0.2); }
+.cl-btn--ghost:hover { background: #fff; }
+.cl[data-sky="night"] .cl-btn--ghost { background: rgba(255, 255, 255, 0.07); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22); }
+.cl[data-sky="night"] .cl-btn--ghost:hover { background: rgba(255, 255, 255, 0.14); }
+.cl-btn--light { background: #fff; color: #14532d !important; box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.45); }
+.cl-btn--light:hover { background: #ecfdf5; }
+.cl-btn--line { background: transparent; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6); }
+.cl-btn--line:hover { background: rgba(255, 255, 255, 0.12); }
+
+/* ── the logo ────────────────────────────────────────────────────────────── */
+.cl-logo { display: block; width: 100%; height: auto; overflow: visible; }
+.cl-logo__compi { fill: var(--logo-compi); transition: fill 0.5s ease; }
+.cl-logo__land { fill: var(--logo-land); transition: fill 0.5s ease; }
+/* the dot of the i bounces, as on compiland.uz */
+.cl-logo__dot { animation: cl-dot 2.6s cubic-bezier(0.3, 0, 0.3, 1) 1.2s infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes cl-dot { 0%, 64%, 100% { transform: translateY(0); } 74% { transform: translateY(-14px) scaleY(1.06); } 86% { transform: translateY(2px) scaleY(0.92); } }
+
+/* ── the top row ─────────────────────────────────────────────────────────── */
+.cl-top {
+  position: fixed; inset: 0 0 auto; z-index: 60;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+  height: 68px; padding: 0 28px;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+.cl-top.is-solid { background: color-mix(in srgb, var(--bg) 96%, transparent); box-shadow: 0 1px 0 var(--line); }
+.cl-top__back {
+  justify-self: start; display: inline-flex; align-items: center; gap: 8px;
+  height: 42px; padding: 0 16px 0 14px; border-radius: 12px;
+  font-size: 15px; font-weight: 700; color: var(--ink);
+  background: color-mix(in srgb, var(--card) 70%, transparent); box-shadow: inset 0 0 0 1.5px var(--line);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.cl-top__back:hover { background: var(--card); }
+.cl-top__back span[aria-hidden] { transition: transform 0.2s ease; }
+.cl-top__back:hover span[aria-hidden] { transform: translateX(-3px); }
+.cl-top__logo { display: block; width: 170px; opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; }
+.cl-top.is-solid .cl-top__logo { opacity: 1; transform: none; pointer-events: auto; }
+.cl-top__end { justify-self: end; display: flex; align-items: center; gap: 10px; }
+.cl-top__sky {
+  display: grid; place-items: center; width: 42px; height: 42px;
+  border: 0; border-radius: 12px; background: transparent; color: var(--ink);
+  transition: background 0.15s ease, transform 0.3s ease;
+}
+.cl-top__sky:hover { background: rgba(127, 127, 127, 0.14); transform: rotate(-18deg); }
+
+/* ── the first screen ────────────────────────────────────────────────────── */
+.cl-hero {
+  --hills: clamp(140px, 22vh, 230px);
+  position: relative; isolation: isolate; overflow: hidden;
+  display: flex; align-items: center;
+  min-height: min(100svh, 920px);
+  padding: 104px 0 calc(var(--hills) * 0.78);
+}
+.cl-hero__in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); align-items: center; gap: 56px; width: min(1200px, 100%); }
+
+.cl-sky { position: absolute; inset: 0; z-index: -3; overflow: hidden; background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 58%, var(--sky-3) 100%); transition: background 0.6s ease; pointer-events: none; }
+.cl-sun {
+  position: absolute; top: 92px; right: 5%; width: 88px; height: 88px; border-radius: 50%;
+  background: #fbbf24; box-shadow: 0 0 0 26px rgba(251, 191, 36, 0.2), 0 0 0 64px rgba(251, 191, 36, 0.1);
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+.cl-sun::after {
+  content: ''; position: absolute; inset: -34px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.3), transparent 68%);
+  animation: cl-glow 5s ease-in-out infinite alternate;
+}
+@keyframes cl-glow { from { opacity: 0.6; transform: scale(0.9); } to { opacity: 1; transform: scale(1.12); } }
+.cl[data-sky="night"] .cl-sun { background: #e2e8f0; box-shadow: inset -16px -6px 0 0 #cbd5e1, 0 0 0 22px rgba(226, 232, 240, 0.07), 0 0 60px rgba(226, 232, 240, 0.25); }
+.cl[data-sky="night"] .cl-sun::after { background: radial-gradient(circle, rgba(226, 232, 240, 0.16), transparent 68%); }
+
+.cl-cloud {
+  position: absolute; left: 0; width: calc(190px * var(--size, 1));
+  animation: cl-cloud linear infinite; will-change: transform;
+  transition: opacity 0.6s ease;
+}
+.cl-cloud svg { display: block; width: 100%; height: auto; fill: #fff; opacity: 0.9; }
+@keyframes cl-cloud { from { transform: translate3d(-260px, 0, 0); } to { transform: translate3d(100vw, 0, 0); } }
+.cl-star { position: absolute; border-radius: 50%; background: #fff; opacity: 0; transition: opacity 0.6s ease; }
+.cl-shoot { position: absolute; top: 14%; left: 64%; width: 90px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0)); opacity: 0; }
+.cl[data-sky="night"] .cl-cloud { opacity: 0; }
+.cl[data-sky="night"] .cl-star { animation: cl-twinkle 3.6s ease-in-out infinite; }
+.cl[data-sky="night"] .cl-shoot { animation: cl-shoot 13s ease-in 3s infinite; }
+@keyframes cl-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@keyframes cl-shoot { 0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(-18deg); } 2% { opacity: 1; } 7%, 100% { opacity: 0; transform: translate3d(-260px, 85px, 0) rotate(-18deg); } }
+
+/* the time of year, falling beside the words: leaves, snow, blossom, or summer's fluff */
+.cl-fall { position: absolute; inset: 0 0 0 48%; overflow: hidden; }
+.cl-fall i { position: absolute; top: -24px; width: 10px; height: 10px; animation: cl-fall linear infinite; will-change: transform; }
+@keyframes cl-fall { from { transform: translate3d(0, 0, 0) rotate(0); } to { transform: translate3d(var(--dx), 960px, 0) rotate(var(--spin)); } }
+@keyframes cl-float { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(var(--dx), -780px, 0); } }
+.cl-fall--autumn i { border-radius: 0 80% 0 80%; background: #f59e0b; }
+.cl-fall--autumn i:nth-child(3n) { background: #ea580c; }
+.cl-fall--autumn i:nth-child(4n) { background: #b45309; }
+.cl-fall--winter i { width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(148, 163, 184, 0.7); }
+.cl-fall--spring i { width: 9px; height: 7px; border-radius: 60% 0 60% 0; background: #fbcfe8; }
+.cl-fall--spring i:nth-child(2n) { background: #f9a8d4; }
+.cl-fall--summer i { top: auto; bottom: 10%; width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); box-shadow: 0 0 8px rgba(255, 255, 255, 0.8); animation-name: cl-float; }
+
+/* the hills, with the town behind them */
+.cl-land { position: absolute; left: 0; right: 0; bottom: 0; z-index: -1; height: var(--hills); pointer-events: none; }
+.cl-land svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cl-hill--far { fill: var(--hill-far); transition: fill 0.6s ease; }
+.cl-hill--near { fill: var(--hill-near); transition: fill 0.6s ease; }
+.cl-town__shape { fill: var(--skyline); stroke: var(--skyline); transition: fill 0.6s ease; }
+.cl-town__lights { fill: var(--window); opacity: 0; transition: opacity 0.6s ease; }
+.cl[data-sky="night"] .cl-town__lights { opacity: 1; }
+
+.cl-hero__text { position: relative; z-index: 2; }
+.cl-hero__text > * { animation: cl-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.cl-hero__text > :nth-child(2) { animation-delay: 0.08s; }
+.cl-hero__text > :nth-child(3) { animation-delay: 0.16s; }
+.cl-hero__text > :nth-child(4) { animation-delay: 0.24s; }
+.cl-hero__text > :nth-child(5) { animation-delay: 0.32s; }
+.cl-hero__text > :nth-child(6) { animation-delay: 0.4s; }
+@keyframes cl-up { from { opacity: 0; transform: translateY(20px); } }
+
+.cl-eyebrow {
+  display: inline-flex; align-items: center; gap: 9px; margin-bottom: 26px !important;
+  padding: 7px 14px 7px 12px; border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 78%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--green) 30%, transparent);
+  font-size: 14px; font-weight: 700; color: var(--ink);
+}
+.cl-live { position: relative; width: 9px; height: 9px; border-radius: 50%; background: #22c55e; }
+.cl-live::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #22c55e; animation: cl-ping 1.8s ease-out infinite; }
+@keyframes cl-ping { from { opacity: 0.9; transform: scale(0.5); } to { opacity: 0; transform: scale(1.7); } }
+.cl-hero__logo { width: min(430px, 100%); margin-bottom: 18px; font-size: 0; line-height: 0; }
+.cl-hero__tag { font-size: clamp(32px, 4.4vw, 54px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.04; text-wrap: balance; }
+.cl-hero__tag em { font-style: normal; color: var(--green-ink); }
+.cl-hero__lead { max-width: 33em; margin-top: 20px !important; font-size: 18px; color: var(--ink-2); }
+.cl-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.cl-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px !important; }
+.cl-chips li {
+  padding: 7px 14px; border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 82%, transparent); box-shadow: 0 6px 16px -10px rgba(19, 34, 75, 0.35);
+  font-size: 15px; font-weight: 700; color: var(--ink);
+}
+
+.cl-hero__show { position: relative; z-index: 1; animation: cl-up-far 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s backwards; }
+@keyframes cl-up-far { from { opacity: 0; transform: translateY(46px); } }
+.cl-hero__compi { position: absolute; left: -46px; bottom: -58px; z-index: 3; width: 128px; animation: cl-hop 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) 0.75s backwards; }
+@keyframes cl-hop { from { opacity: 0; transform: translateY(34px) scale(0.9); } 70% { transform: translateY(-5px) scale(1.02); } }
+
+/* ── a browser window around a clip of the real site ─────────────────────── */
+.cl-screen {
+  position: relative; overflow: hidden;
+  border-radius: 18px; background: var(--card);
+  box-shadow: var(--shadow), inset 0 0 0 1px var(--line);
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.35s ease, background 0.5s ease;
+}
+.cl-screen__bar { display: flex; align-items: center; gap: 7px; height: 38px; padding: 0 14px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg-2) 70%, var(--card)); }
+.cl-screen__bar > i { width: 11px; height: 11px; border-radius: 50%; background: #f87171; }
+.cl-screen__bar > i:nth-child(2) { background: #fbbf24; }
+.cl-screen__bar > i:nth-child(3) { background: #34d399; }
+.cl-screen__url {
+  display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; min-width: 0;
+  padding: 3px 12px; border-radius: 8px; background: var(--bg);
+  font-size: 12.5px; font-weight: 600; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cl-screen__url svg { flex: none; }
+.cl-screen__url span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cl-screen__view { position: relative; aspect-ratio: 16 / 9; background: var(--bg-2); }
+.cl-screen__view video, .cl-screen__view img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.cl-screen--link { display: block; }
+.cl-screen__go {
+  position: absolute; right: 12px; bottom: 12px;
+  padding: 6px 11px; border-radius: 10px; background: rgba(19, 34, 75, 0.82); color: #fff;
+  font-size: 13px; font-weight: 700; opacity: 0; transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.cl-screen--link:hover .cl-screen__go, .cl-screen--link:focus-visible .cl-screen__go { opacity: 1; transform: none; }
+.cl-screen--link:focus-visible { outline: 3px solid #f59e0b; outline-offset: 4px; }
+
+/* ── Compi ───────────────────────────────────────────────────────────────── */
+.cl-compi { display: block; position: relative; }
+.cl-compi svg { display: block; width: 100%; height: auto; overflow: visible; }
+.cl-compi__body { animation: cl-bob 3.2s ease-in-out infinite; }
+@keyframes cl-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.cl-compi__pupil { transform: translate(calc(var(--ex, 0) * 1px), calc(var(--ey, 0) * 1px)); transition: transform 0.14s ease-out; }
+.cl-compi__open { transform-box: fill-box; transform-origin: center; animation: cl-blink 5.2s ease-in-out infinite; }
+@keyframes cl-blink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.08); } }
+.cl-compi__glad, .cl-compi__grin { opacity: 0; transition: opacity 0.15s ease; }
+.cl-compi__smile { transition: opacity 0.15s ease; }
+.cl-compi__arm { transform-box: view-box; transform-origin: 100px 62px; animation: cl-wave 0.55s ease-in-out 1.5s 4 alternate both; }
+@keyframes cl-wave { from { transform: rotate(0deg); } to { transform: rotate(-24deg); } }
+.cl-compi:hover .cl-compi__open, .cl-compi.is-glad .cl-compi__open, .cl-compi:hover .cl-compi__smile, .cl-compi.is-glad .cl-compi__smile { opacity: 0; }
+.cl-compi:hover .cl-compi__glad, .cl-compi.is-glad .cl-compi__glad, .cl-compi:hover .cl-compi__grin, .cl-compi.is-glad .cl-compi__grin { opacity: 1; }
+.cl-compi:hover .cl-compi__arm { animation: cl-wave 0.4s ease-in-out infinite alternate; }
+.cl-compi__say {
+  position: absolute; left: 82%; bottom: 92%; z-index: 2;
+  width: max-content; max-width: 220px; padding: 9px 13px; border-radius: 14px 14px 14px 4px;
+  background: #fff; color: #13224b; font-size: 14px; font-weight: 600; line-height: 1.35;
+  box-shadow: 0 10px 24px -12px rgba(19, 34, 75, 0.5);
+  animation: cl-say 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.3) 1.25s backwards;
+}
+@keyframes cl-say { from { opacity: 0; transform: translateY(8px) scale(0.85); } }
+
+/* ── results ─────────────────────────────────────────────────────────────── */
+.cl-results { position: relative; padding: 92px 0 96px; }
+.cl-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+.cl-stat {
+  position: relative; display: flex; flex-direction: column; gap: 4px;
+  padding: 22px 20px 20px; border-radius: 22px;
+  background: var(--card); box-shadow: var(--shadow-sm), var(--ring);
+  transition: var(--rise), translate 0.25s ease, background 0.5s ease;
+}
+.cl-stat.is-in:hover { translate: 0 -4px; }
+.cl-stat__ico { display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 10px; border-radius: 12px; background: color-mix(in srgb, var(--tone) 15%, transparent); color: var(--tone); }
+.cl-stat__n { font-size: clamp(30px, 3vw, 40px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.cl-stat__l { font-size: 15px; font-weight: 700; line-height: 1.3; }
+.cl-stat__s { font-size: 13.5px; color: var(--ink-2); line-height: 1.4; }
+/* confetti, once, when the first number has counted up */
+.cl-confetti { position: absolute; left: 50%; top: 40%; width: 0; height: 0; pointer-events: none; }
+.cl-confetti i { position: absolute; width: 7px; height: 11px; border-radius: 2px; opacity: 0; animation: cl-pop 1.15s cubic-bezier(0.15, 0.7, 0.3, 1) forwards; }
+@keyframes cl-pop { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), calc(var(--y) + 60px)) rotate(var(--r)); } }
+
+/* ── the gap in the week ─────────────────────────────────────────────────── */
+.cl-gap { padding: 40px 0 104px; }
+.cl-gap__in { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; gap: 64px; }
+.cl-gap__words > p { margin-top: 18px !important; max-width: 32em; font-size: 19px; color: var(--ink-2); }
+.cl-gap__words .cl-gap__note { font-size: 16px; color: var(--ink); font-weight: 600; padding-left: 14px; border-left: 4px solid var(--green); }
+.cl-week { padding: 26px; border-radius: 26px; background: var(--card); box-shadow: var(--shadow-sm), var(--ring); }
+.cl-week ul { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.cl-week li {
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  aspect-ratio: 3 / 5; padding: 10px 2px; border-radius: 12px;
+  background: var(--bg-2); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink-2);
+  transition: background 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
+}
+.cl-week li b { font-size: 13px; font-weight: 700; }
+.cl-week li span { font-size: 12px; font-weight: 800; text-align: center; line-height: 1.1; }
+.cl-week li.is-lesson { background: var(--green); box-shadow: none; color: #fff; }
+.cl-week li.is-compi { background: color-mix(in srgb, var(--green) 13%, var(--bg-2)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--green) 55%, transparent); color: var(--ink); }
+.cl-week li.is-empty span { opacity: 0.35; }
+.cl-week__mark { display: block; width: min(32px, 82%); height: auto; animation: cl-mark 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.45) backwards; }
+@keyframes cl-mark { from { opacity: 0; transform: translateY(10px) scale(0.4); } }
+.cl-week__key { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 18px; margin-top: 16px; font-size: 14px; color: var(--ink-2); }
+.cl-week__key span { display: inline-flex; align-items: center; gap: 7px; }
+.cl-week__key i { width: 12px; height: 12px; border-radius: 4px; background: var(--green); }
+.cl-week__key i.is-compi { background: color-mix(in srgb, var(--green) 13%, var(--bg-2)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--green) 55%, transparent); }
+.cl-week__turn { margin-top: 18px !important; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; opacity: 0.22; transform: translateY(6px); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.cl-week__turn.is-on { opacity: 1; transform: none; color: var(--green-ink); }
+
+/* ── the road through what it is ─────────────────────────────────────────── */
+.cl-how { padding: 100px 0 80px; background: var(--bg-2); transition: background 0.5s ease; }
+.cl-stops { position: relative; }
+.cl-road { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.cl-tarmac path { fill: none; stroke: var(--road); stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.5s ease; }
+.cl-tarmac path.cl-tarmac__edge { stroke: var(--road-line); }
+.cl-road__dash { fill: none; stroke: rgba(255, 255, 255, 0.6); stroke-width: 2; stroke-dasharray: 12 12; }
+.cl-road__stop { fill: var(--card); stroke: var(--green); stroke-width: 3; transition: fill 0.3s ease; }
+.cl-road__stop.is-reached { fill: var(--green); }
+.cl-stops__list { position: relative; z-index: 2; }
+.cl-car { position: absolute; left: 0; top: 0; z-index: 3; --u: 0.5px; width: calc(104 * var(--u)); height: calc(198 * var(--u)); margin: calc(-99 * var(--u)) 0 0 calc(-52 * var(--u)); will-change: transform; pointer-events: none; visibility: hidden; }
+.cl-car.is-placed { visibility: visible; }
+.cl-car svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.cl-car__beam { opacity: 0.35; transition: opacity 0.5s ease; }
+.cl[data-sky="night"] .cl-car__beam { opacity: 1; }
+.cl-car__brake { fill: #991b1b; transition: fill 0.2s ease; }
+.cl-car__glow { opacity: 0; transition: opacity 0.2s ease; }
+.cl-car.is-stopped .cl-car__brake { fill: #ef4444; }
+.cl-car.is-stopped .cl-car__glow { opacity: 1; }
+
+.cl-stop {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: minmax(0, 1fr) 160px minmax(0, 1.12fr); grid-template-areas: "words lane clip";
+  align-items: center; padding: 46px 0;
+}
+.cl-stop--flip { grid-template-columns: minmax(0, 1.12fr) 160px minmax(0, 1fr); grid-template-areas: "clip lane words"; }
+.cl-stop__words { grid-area: words; max-width: 30em; transition: opacity 0.45s ease; opacity: 0.5; }
+.cl-stop--flip .cl-stop__words { justify-self: start; }
+.cl-stop:not(.cl-stop--flip) .cl-stop__words { justify-self: end; }
+.cl-stop.is-reached .cl-stop__words { opacity: 1; }
+.cl-stop__pin { grid-area: lane; justify-self: center; width: 2px; height: 2px; }
+.cl-stop .cl-screen { grid-area: clip; }
+.cl-stop .cl-screen:hover { transform: translateY(-4px) rotate(-0.4deg); }
+.cl-stop--flip .cl-screen:hover { transform: translateY(-4px) rotate(0.4deg); }
+.cl-stop__n {
+  display: inline-grid; place-items: center; min-width: 36px; height: 36px; margin-bottom: 14px; padding: 0 8px;
+  border-radius: 11px; background: var(--card); box-shadow: inset 0 0 0 2px var(--green);
+  font-size: 17px; font-weight: 800; color: var(--green-ink);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.cl-stop.is-reached .cl-stop__n { background: var(--green); color: #fff; }
+.cl-stop__words h3 { font-size: clamp(24px, 2.4vw, 30px); }
+.cl-stop__words p { margin-top: 10px !important; font-size: 17px; color: var(--ink-2); }
+
+/* ── courses ─────────────────────────────────────────────────────────────── */
+.cl-courses { padding: 104px 0; }
+.cl-course-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.cl-course {
+  display: flex; flex-direction: column; padding: 20px 22px 24px; border-radius: 24px;
+  background: var(--card); box-shadow: var(--shadow-sm), var(--ring);
+  transition: var(--rise), translate 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), background 0.5s ease;
+}
+.cl-course.is-in:hover { translate: 0 -5px; }
+.cl-bld {
+  position: relative; display: flex; align-items: flex-end; justify-content: center;
+  height: 132px; margin: 0 -6px 18px; padding: 0 18px 10px; border-radius: 16px;
+  background: linear-gradient(180deg, transparent 0 70%, color-mix(in srgb, var(--hill-far) 22%, transparent) 70%), color-mix(in srgb, var(--sky-2) 55%, transparent);
+  overflow: hidden;
+}
+.cl-bld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: var(--road); opacity: 0.85; }
+.cl-bld__b {
+  position: relative; width: 31%; margin: 0 -2%; border-radius: 9px 9px 3px 3px;
+  background:
+    radial-gradient(circle, var(--window) 0 1.6px, transparent 2.2px) 6px 26px / 12px 13px,
+    linear-gradient(180deg, color-mix(in srgb, #fff 32%, var(--c)) 0 11px, var(--c) 11px);
+  box-shadow: inset -7px 0 0 rgba(0, 0, 0, 0.1), 0 -1px 0 rgba(255, 255, 255, 0.3);
+  transform: scaleY(0); transform-origin: 50% 100%;
+  transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.25) var(--up, 0ms);
+}
+.cl-bld__b:nth-child(1) { height: 66%; --up: 120ms; }
+.cl-bld__b:nth-child(2) { height: 92%; z-index: 1; --up: 220ms; }
+.cl-bld__b:nth-child(3) { height: 76%; --up: 320ms; }
+.cl-course.is-in .cl-bld__b { transform: none; }
+.cl-bld__chip {
+  position: absolute; left: 50%; top: 18px; transform: translateX(-50%);
+  display: grid; place-items: center; min-width: 26px; height: 26px; padding: 0 5px; border-radius: 8px;
+  background: #fff; color: var(--c); font-size: 12px; font-weight: 800; line-height: 1; white-space: nowrap;
+  box-shadow: 0 3px 8px -3px rgba(0, 0, 0, 0.35);
+}
+.cl-course h3 { font-size: 20px; }
+.cl-course__meta { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 8px 0 10px !important; font-size: 14px; font-weight: 700; color: var(--green-ink); }
+.cl-course__meta span + span { color: var(--ink-2); font-weight: 600; }
+.cl-course__meta em { font-style: normal; padding: 0 7px; border-radius: 6px; background: #fde68a; color: #13224b; font-size: 12.5px; font-weight: 800; }
+.cl-course p { font-size: 15px; color: var(--ink-2); }
+
+/* ── built for real classrooms ───────────────────────────────────────────── */
+.cl-class { padding: 100px 0; background: var(--bg-2); transition: background 0.5s ease; }
+.cl-class-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.cl-feat {
+  padding: 24px; border-radius: 22px; background: var(--card); box-shadow: var(--shadow-sm), var(--ring);
+  transition: var(--rise), translate 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), background 0.5s ease;
+}
+.cl-feat.is-in:hover { translate: 0 -4px; }
+.cl-feat__ico { display: grid; place-items: center; width: 46px; height: 46px; margin-bottom: 16px; border-radius: 14px; background: color-mix(in srgb, var(--tone) 15%, transparent); color: var(--tone); transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.cl-feat:hover .cl-feat__ico { transform: scale(1.1) rotate(-6deg); }
+.cl-feat h3 { font-size: 19px; }
+.cl-feat p { margin-top: 8px !important; font-size: 15px; color: var(--ink-2); }
+
+/* ── under the hood ──────────────────────────────────────────────────────── */
+.cl-tech { padding: 104px 0; }
+.cl-arch { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px; margin-bottom: 18px; }
+.cl-arch::before {
+  /* the road the requests travel, behind the four stops */
+  content: ''; position: absolute; left: 6%; right: 6%; top: 46px; height: 22px; border-radius: 11px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.6) 50%, transparent 50%) 0 50% / 24px 2px repeat-x, var(--road);
+  box-shadow: inset 0 0 0 3px var(--road), inset 0 0 0 5px var(--road-line);
+}
+.cl-arch li {
+  position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 18px 16px 20px; border-radius: 22px; background: var(--card); box-shadow: var(--shadow-sm), var(--ring);
+  transition: var(--rise), background 0.5s ease;
+}
+.cl-arch__ico { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 12px; border-radius: 16px; background: color-mix(in srgb, var(--tone) 15%, transparent); color: var(--tone); }
+.cl-arch h3 { font-size: 17px; }
+.cl-arch p { margin-top: 6px !important; font-size: 14px; color: var(--ink-2); }
+.cl-arch__note { display: flex; align-items: flex-start; gap: 10px; max-width: 760px; margin: 22px auto 48px !important; font-size: 14.5px; color: var(--ink-2); text-align: left; }
+.cl-arch__note svg { flex: none; margin-top: 2px; color: #f59e0b; }
+.cl-tech-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.cl-tech-card { padding: 24px 26px; border-radius: 22px; background: var(--card); box-shadow: var(--shadow-sm), var(--ring); transition: var(--rise), background 0.5s ease; }
+.cl-tech-card h3 { display: flex; align-items: center; gap: 10px; font-size: 19px; }
+.cl-tech-card h3 i { width: 10px; height: 10px; border-radius: 3px; background: var(--tone); transform: rotate(45deg); }
+.cl-tech-card p { margin-top: 10px !important; font-size: 15px; color: var(--ink-2); }
+.cl-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 34px !important; }
+.cl-pills li { padding: 7px 14px; border-radius: 999px; background: var(--card); box-shadow: var(--ring); font-size: 14px; font-weight: 700; color: var(--ink-2); transition: background 0.5s ease; }
+
+/* ── the road so far ─────────────────────────────────────────────────────── */
+.cl-trip { padding: 100px 0 110px; background: var(--bg-2); transition: background 0.5s ease; }
+.cl-trip__list { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; padding-top: 74px; }
+.cl-trip__list::before {
+  content: ''; position: absolute; left: -28px; right: -28px; top: 20px; height: 26px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.6) 50%, transparent 50%) 0 50% / 24px 2px repeat-x, var(--road);
+  box-shadow: inset 0 3px 0 var(--road), inset 0 5px 0 var(--road-line), inset 0 -3px 0 var(--road), inset 0 -5px 0 var(--road-line);
+}
+.cl-trip__item { position: relative; padding: 20px 18px 20px; border-radius: 20px; background: var(--card); box-shadow: var(--shadow-sm), var(--ring); transition: var(--rise), background 0.5s ease; }
+.cl-trip__flag { position: absolute; left: 22px; top: -62px; width: 26px; height: 40px; }
+.cl-trip__flag::before { content: ''; position: absolute; left: 0; top: 0; width: 3px; height: 40px; border-radius: 2px; background: var(--ink-2); }
+.cl-trip__flag::after { content: ''; position: absolute; left: 3px; top: 1px; width: 22px; height: 15px; background: var(--green); clip-path: polygon(0 0, 100% 50%, 0 100%); transform-origin: 0 50%; animation: cl-flap 1.6s ease-in-out infinite alternate; }
+@keyframes cl-flap { from { transform: scaleX(1); } to { transform: scaleX(0.82) skewY(4deg); } }
+.cl-trip__item--next .cl-trip__flag::after { background: #fbbf24; }
+.cl-trip__item--next { background: transparent; box-shadow: inset 0 0 0 2px var(--line); }
+.cl-trip__when { font-size: 13px; font-weight: 800; letter-spacing: 0.02em; color: var(--green-ink); text-transform: uppercase; }
+.cl-trip__item h3 { margin-top: 6px !important; font-size: 17px; }
+.cl-trip__item p { margin-top: 6px !important; font-size: 14px; color: var(--ink-2); }
+
+/* ── the way in, at the foot of the page ─────────────────────────────────── */
+/* the hills rise out of the section before (the road so far), so the strip above them is its colour */
+.cl-end { position: relative; overflow: hidden; isolation: isolate; padding: 150px 0 110px; background: linear-gradient(180deg, var(--bg-2) 0 90px, #16a34a 90px, #15803d); color: #fff; text-align: center; transition: background 0.5s ease; }
+.cl[data-sky="night"] .cl-end { background: linear-gradient(180deg, var(--bg-2) 0 90px, #14532d 90px, #0b2e19); }
+.cl-end__hills { position: absolute; left: 0; right: 0; top: 0; height: 170px; z-index: -1; }
+.cl-end__hills svg { width: 100%; height: 100%; display: block; }
+.cl-end__hills .cl-hill--far { fill: #22c55e; }
+.cl-end__hills .cl-hill--near { fill: #16a34a; }
+.cl[data-sky="night"] .cl-end__hills .cl-hill--far { fill: #166534; }
+.cl[data-sky="night"] .cl-end__hills .cl-hill--near { fill: #14532d; }
+.cl-end h2 { color: #fff; }
+.cl-end p { max-width: 34em; margin: 16px auto 0 !important; font-size: 18px; color: rgba(255, 255, 255, 0.86); }
+.cl-end .cl-actions { justify-content: center; margin-top: 30px; }
+.cl-end__compi { position: absolute; right: max(4%, calc(50% - 560px)); top: 40px; width: 118px; z-index: 1; }
+.cl-end__fly { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.cl-end__fly i { position: absolute; bottom: 8%; border-radius: 50%; background: #fef08a; box-shadow: 0 0 10px 3px rgba(254, 240, 138, 0.65); opacity: 0; animation: cl-fly ease-in-out infinite; }
+@keyframes cl-fly { 0% { opacity: 0; transform: translate3d(0, 0, 0); } 20% { opacity: 0.9; } 60% { opacity: 0.6; transform: translate3d(18px, -120px, 0); } 100% { opacity: 0; transform: translate3d(-10px, -240px, 0); } }
+.cl-plane { position: absolute; top: 120px; left: -60px; width: 40px; animation: cl-plane 16s linear 2s infinite; }
+@keyframes cl-plane { 0% { transform: translate3d(0, 40px, 0) rotate(-6deg); } 50% { transform: translate3d(55vw, -10px, 0) rotate(4deg); } 100% { transform: translate3d(112vw, 30px, 0) rotate(-4deg); } }
+
+/* the other projects, in this page's look */
+.cl-more .pp-more { padding: 84px 28px 84px; background: var(--bg); }
+.cl-more .pp-wrap { max-width: 1144px; }
+.cl-more .pp-tag { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px; font-family: inherit; font-size: 14px; font-weight: 700; letter-spacing: 0.02em; color: var(--green-ink); }
+.cl-more .pp-tag::before { content: ''; width: 22px; height: 4px; border-radius: 4px; background: currentColor; }
+.cl-more .pp-more-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.cl-more .pp-more-card { border: 0; border-radius: 22px; padding: 22px 24px; background: var(--card); box-shadow: var(--shadow-sm), var(--ring); }
+.cl-more .pp-more-card::after { left: 24px; right: 24px; height: 3px; border-radius: 3px; background: var(--green); }
+.cl-more .pp-more-card:hover { border: 0; box-shadow: var(--shadow), var(--ring); }
+.cl-more .pp-more-id { font-family: inherit; font-weight: 800; color: var(--ink-2); }
+.cl-more .pp-more-name { font-family: inherit; font-size: 19px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.cl-more .pp-more-arrow { font-family: inherit; color: var(--ink-2); }
+.cl-more .pp-more-card:hover .pp-more-name, .cl-more .pp-more-card:hover .pp-more-arrow { color: var(--green-ink); }
+.cl-more .pp-more-desc { font-size: 14.5px; color: var(--ink-2); }
+
+.cl-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 22px 28px; border-top: 1px solid var(--line); font-size: 14px; font-weight: 600; color: var(--ink-2); }
+.cl-foot a:hover { color: var(--green-ink); }
+
+/* ── narrower screens ────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .cl-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cl-trip__list { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 90px; }
+  .cl-trip__list::before { display: none; }
+  .cl-trip__flag::before { background: var(--road-line); }
+}
+@media (max-width: 1040px) {
+  .cl-hero { min-height: 0; }
+  .cl-hero__in { grid-template-columns: 1fr; gap: 64px; }
+  .cl-hero__show { max-width: 680px; width: calc(100% - 40px); margin-left: 40px; }
+  .cl-fall { inset: 58% 0 0 0; }
+  .cl-gap__in { grid-template-columns: 1fr; gap: 40px; }
+  .cl-course-grid, .cl-class-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cl-arch { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .cl-arch::before { display: none; }
+  .cl-more .pp-more-grid { grid-template-columns: 1fr; }
+  .cl-end__compi { display: none; }
+}
+@media (max-width: 820px) {
+  /* the road runs down the left; each stop's words, then its clip, beside it */
+  .cl-stop, .cl-stop--flip { grid-template-columns: 56px minmax(0, 1fr); grid-template-areas: "lane words" "lane clip"; row-gap: 18px; align-items: start; padding: 30px 0; }
+  .cl-stop__words, .cl-stop:not(.cl-stop--flip) .cl-stop__words { justify-self: stretch; max-width: none; }
+  .cl-stop__pin { align-self: start; margin-top: 18px; }
+  .cl-car { --u: 0.3px; }
+}
+@media (max-width: 680px) {
+  .cl-top { padding: 0 16px; gap: 10px; }
+  .cl-top__back { padding: 0 12px; }
+  .cl-top__back-t { display: none; }
+  .cl-top__logo { width: 132px; }
+  .cl-top__open { display: none; }
+  .cl-wrap { padding: 0 16px; }
+  .cl-hero { padding-top: 92px; }
+  .cl-eyebrow { gap: 8px; padding: 6px 12px 6px 10px; font-size: 12.5px; border-radius: 14px; }
+  .cl-hero__lead { font-size: 17px; }
+  .cl-hero__show { width: calc(100% - 22px); margin-left: 22px; }
+  .cl-hero__compi { width: 92px; left: -26px; bottom: -44px; }
+  .cl-compi__say { max-width: 170px; font-size: 13px; }
+  .cl-sun { top: 74px; width: 64px; height: 64px; }
+  .cl-actions .cl-btn { flex: 1 1 auto; }
+  .cl-head { margin-bottom: 34px; }
+  .cl-head > p:last-child, .cl-gap__words > p { font-size: 17px; }
+  .cl-results, .cl-courses, .cl-class, .cl-tech, .cl-trip { padding: 72px 0; }
+  .cl-how { padding: 72px 0 50px; }
+  .cl-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .cl-stat { padding: 18px 16px; }
+  .cl-stat:last-child { grid-column: 1 / -1; }
+  .cl-week { padding: 16px; }
+  .cl-week ul { gap: 5px; }
+  .cl-week li { padding: 8px 1px; border-radius: 10px; }
+  .cl-week li b { font-size: 11.5px; }
+  .cl-week li span { font-size: 10px; }
+  .cl-course-grid, .cl-class-grid, .cl-tech-grid, .cl-arch { grid-template-columns: 1fr; }
+  .cl-trip__list { grid-template-columns: 1fr; row-gap: 14px; padding: 0 0 0 46px; }
+  .cl-trip__list::before { display: block; left: 0; right: auto; top: 0; bottom: 0; width: 22px; height: auto;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 50%, transparent 50%) 50% 0 / 2px 24px repeat-y, var(--road);
+    box-shadow: inset 3px 0 0 var(--road), inset 5px 0 0 var(--road-line), inset -3px 0 0 var(--road), inset -5px 0 0 var(--road-line); border-radius: 11px; }
+  /* down the side road, each milestone is a stop on it, as on the road above */
+  .cl-trip__flag { left: -43px; top: 22px; width: 16px; height: 16px; border-radius: 50%; background: var(--card); box-shadow: 0 0 0 3px var(--green); }
+  .cl-trip__flag::before, .cl-trip__flag::after { display: none; }
+  .cl-trip__item--next .cl-trip__flag { box-shadow: 0 0 0 3px #fbbf24; }
+  .cl-end { padding: 130px 0 90px; }
+  .cl-more .pp-more { padding: 64px 16px; }
+  .cl-foot { flex-direction: column; text-align: center; padding: 20px 16px; }
+}
+
+/* anybody who asks for less motion gets none of it */
+@media (prefers-reduced-motion: reduce) {
+  .cl *, .cl *::before, .cl *::after { animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0s !important; }
+  .cl-fall, .cl-end__fly, .cl-plane { display: none; }
+  .cl-rise { opacity: 1; transform: none; }
+  .cl-bld__b { transform: none; }
+}

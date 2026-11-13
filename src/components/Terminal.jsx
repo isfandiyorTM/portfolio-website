@@ -101,6 +101,7 @@ function process(cmd) {
       }, 400);
       return {
         lines: [
+          "→ Compiland     learn-computers-by-playing startup (React)",
           "→ RahimovDevs   student projects platform (React)",
           "→ Cho'ntak      personal finance app (Flutter)",
           "→ Hoji Jalyuzi  blinds measuring & orders (Flutter)",

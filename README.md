@@ -43,17 +43,21 @@ On Netlify, set them under Site settings → Environment variables.
 index.html              Head tags for the home page: SEO, Open Graph, JSON-LD, fonts
 vite.config.js          Build config; also writes one HTML file per route (see below)
 public/                 Static files: icons, og-image, screenshots, CV PDFs, APKs, sw.js
+public/compiland/       Clips of compiland.uz for its page (day and night versions)
+public/fonts/           Inter, self-hosted for the Compiland page
 scripts/                Generators for the images and PDFs in public/
 src/
   App.jsx               Routes and the always-on pieces (cursor, terminal, intro)
   components/           Home page sections and effects
   pages/                Project pages, games, scores, resume, 404
+  pages/compiland/      The Compiland page's parts: the road and its car, drawings, clips
   games/                The nine games, loaded on demand
   constants/data.js     Projects, skills, resume facts, social links
   constants/seo.js      Title and description for every route
   i18n/translations.js  All text, in en / uz / ru
   styles/global.css     Theme variables and shared classes
   styles/project-pages.css  Layout shared by the project pages (the .pp-* classes)
+  styles/compiland.css  The Compiland page, in Compiland's own look (the .cl-* classes)
 ```
 
 ## Common edits

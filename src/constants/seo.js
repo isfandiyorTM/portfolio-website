@@ -8,6 +8,10 @@ export const ROUTE_META = {
     title: "Isfandiyor Madaminov — IT Mentor & Flutter Developer",
     description: "Isfandiyor Madaminov — IT Mentor and Flutter mobile developer at Rahimov School. Building cross-platform apps and mentoring the next generation of developers in Uzbekistan.",
   },
+  "/compiland": {
+    title: "Compiland — Learn Computers by Playing | Isfandiyor Madaminov",
+    description: "Compiland is an EdTech platform for school students: a town of six hands-on computer and coding courses (419 lessons) with a guide called Compi, a game, typing races and teacher analytics. Built with React, Cloudflare Workers and D1.",
+  },
   "/chontak": {
     title: "Cho'ntak — Offline Personal Finance App in Flutter | Isfandiyor Madaminov",
     description: "Cho'ntak is a personal finance app for Uzbekistan: track income and expenses, set budgets and grow savings, fully offline. Built with Flutter, Clean Architecture, BLoC and SQLite.",

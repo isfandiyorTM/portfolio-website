@@ -7,6 +7,21 @@ export const SKILLS = [
 export const PROJECTS = [
   {
     id: "01",
+    key: "compiland",
+    name: "Compiland",
+    desc: {
+      en: "My EdTech startup: a town of computer and coding courses for school students, with Compi as the guide, a game that brings them back, and analytics for the teacher. Live at its first school — 279 students, 37,806 lessons in under three weeks.",
+      uz: "Mening EdTech startapim: maktab o'quvchilari uchun kompyuter va dasturlash kurslari shaharchasi — Compi yo'lboshchi, o'quvchilarni qaytaradigan o'yin va o'qituvchi uchun analitika. Birinchi maktabda ishlamoqda: 279 o'quvchi, uch haftaga yetmay 37 806 dars.",
+      ru: "Мой EdTech-стартап: город курсов по компьютеру и программированию для школьников — с гидом Compi, игрой, которая возвращает учеников, и аналитикой для учителя. Работает в первой школе: 279 учеников, 37 806 уроков меньше чем за три недели.",
+    },
+    stack: ["React", "Cloudflare Workers", "D1", "PWA"],
+    statusKey: "live",
+    tags: ["Web"],
+    internalLink: "/compiland",
+    preview: "/compiland/town.webp",
+  },
+  {
+    id: "02",
     key: "rahimovdevs",
     name: "RahimovDevs",
     desc: {
@@ -21,7 +36,7 @@ export const PROJECTS = [
     preview: "/screenshots/rahimovdevs/home.jpg",
   },
   {
-    id: "02",
+    id: "03",
     key: "chontak",
     name: "Cho'ntak",
     desc: {
@@ -40,7 +55,7 @@ export const PROJECTS = [
     ],
   },
   {
-    id: "03",
+    id: "04",
     key: "hojijalyuzi",
     name: "Hoji Jalyuzi",
     desc: {
