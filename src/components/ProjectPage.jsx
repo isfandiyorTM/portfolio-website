@@ -25,7 +25,8 @@ export function CountUp({ value }) {
 }
 
 // Links to the other projects, so a project page isn't a dead end.
-// `style` carries the page's --pp-* palette when the page isn't a .pp page itself.
+// Each project page restyles it to its own look (.cl-more, .hj-more, .ch-more,
+// .rd-more); `style` can still set the --pp-* defaults it falls back to.
 export function MoreProjects({ current, style }) {
   const { t, lang } = useLang();
   const others = PROJECTS.filter(p => p.key !== current);
