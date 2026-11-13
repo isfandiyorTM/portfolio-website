@@ -100,7 +100,10 @@ function Portfolio({ onGamesClick }) {
 function PageTransition({ children }) {
   const location = useLocation();
   return (
-    <div key={location.pathname} style={{ animation: "pageFade 0.45s ease both" }}>
+    // `backwards`, not `both`: a fill that outlives the fade leaves an identity transform and
+    // blur(0) on this wrapper, which makes it the containing block of every position:fixed
+    // child, so the project pages' fixed nav bars scrolled away with the page
+    <div key={location.pathname} style={{ animation: "pageFade 0.45s ease backwards" }}>
       {children}
     </div>
   );
