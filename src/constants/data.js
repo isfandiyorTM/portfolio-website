@@ -96,6 +96,7 @@ export const RESUME = {
     { company: "ICode · Codial · Integer" },
   ],
   projects: [
+    { name: "Compiland",             tech: "React · Cloudflare Workers · D1 · PWA" },
     { name: "Rahimov Devs Platform", tech: "React · Vite · Custom i18n" },
     { name: "Cho'ntak",              tech: "Flutter · BLoC · SQLite · Clean Architecture" },
     { name: "Hoji Jalyuzi",          tech: "Flutter · Firebase" },

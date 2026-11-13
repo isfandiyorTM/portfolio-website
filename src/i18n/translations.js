@@ -219,6 +219,7 @@ const translations = {
         { role: "IT Instructor", period: "2021 — 2023", points: ["Taught Computer Literacy (Komputer Savodxonligi) to students of all ages across three academies.", "Delivered FrontEnd courses covering HTML, CSS, and JavaScript fundamentals.", "Prepared students for practical computer usage and entry-level web development."] },
       ],
       proj: [
+        { desc: "EdTech startup I founded and build: a town of 6 hands-on computer and coding courses (419 lessons) for school students, with a game, typing races and teacher analytics. Live at its first school — 279 active students, 37,806 lessons in 19 days. Works offline, 3 languages. compiland.uz" },
         { desc: "Student showcase platform where 500+ mentored students publish their live portfolios. 3 languages, custom translation system." },
         { desc: "Personal finance tracker for Uzbekistan — so'm currency, Uzbek/Russian/English, 100% offline with PIN & biometric lock. 42+ Dart files, 5 screens, SQLite with v1→v4 migrations." },
         { desc: "Business management app for a blinds company. Order tracking, inventory management, and customer records." },
@@ -685,6 +686,7 @@ const translations = {
         { role: "IT O'qituvchi", period: "2021 — 2023", points: ["Uchta akademiyada barcha yoshdagi o'quvchilarga Komputer Savodxonligi darslarini o'tkazdim.", "HTML, CSS va JavaScript asoslarini qamrab olgan FrontEnd kurslarini olib bordim.", "O'quvchilarni amaliy komputer foydalanish va boshlang'ich veb dasturlashga tayyorladim."] },
       ],
       proj: [
+        { desc: "O'zim asos solgan va quradigan EdTech startap: maktab o'quvchilari uchun 6 ta amaliy kompyuter va dasturlash kursi (419 dars) shaharchasi — o'yin, yozish poygalari va o'qituvchi analitikasi bilan. Birinchi maktabda ishlamoqda: 279 faol o'quvchi, 19 kunda 37 806 dars. Internetsiz ishlaydi, 3 til. compiland.uz" },
         { desc: "500+ mentorlik qilingan o'quvchilar o'z jonli portfoliolarini nashr qiladigan platforma. 3 til, maxsus tarjima tizimi." },
         { desc: "O'zbekiston uchun shaxsiy moliya ilovasi — so'm valyutasi, o'zbek/rus/ingliz, PIN va biometrik qulf bilan 100% oflayn. 42+ Dart fayl, 5 ekran, v1→v4 migratsiyali SQLite." },
         { desc: "Jalyuzi kompaniyasi uchun biznes boshqaruv ilovasi. Buyurtmalarni kuzatish, inventarni boshqarish va mijozlar ma'lumotlari." },
@@ -1151,6 +1153,7 @@ const translations = {
         { role: "IT-инструктор", period: "2021 — 2023", points: ["Преподавал компьютерную грамотность (Komputer Savodxonligi) студентам всех возрастов в трёх академиях.", "Вёл курсы FrontEnd по основам HTML, CSS и JavaScript.", "Готовил студентов к практическому использованию компьютеров и начальной веб-разработке."] },
       ],
       proj: [
+        { desc: "EdTech-стартап, который я основал и разрабатываю: город из 6 практических курсов по компьютеру и программированию (419 уроков) для школьников — с игрой, гонками на скорость печати и аналитикой для учителя. Работает в первой школе: 279 активных учеников, 37 806 уроков за 19 дней. Работает офлайн, 3 языка. compiland.uz" },
         { desc: "Платформа для демонстрации проектов, где 500+ наставляемых студентов публикуют свои живые портфолио. 3 языка, собственная система перевода." },
         { desc: "Личный финансовый трекер для Узбекистана — валюта сум, Узбекский/Русский/Английский, 100% офлайн с PIN и биометрической блокировкой. 42+ Dart файлов, 5 экранов, SQLite с миграциями v1→v4." },
         { desc: "Приложение для управления бизнесом жалюзи-компании. Отслеживание заказов, управление складом и записи клиентов." },
