@@ -94,7 +94,7 @@ export default function ChontakPage() {
 
         /* Nav */
         .ct-nav {
-          position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+          position: absolute; top: 0; left: 0; right: 0; z-index: 200;
           display: flex; align-items: center; justify-content: space-between;
           padding: 0 40px; height: 64px;
           background: rgba(5,10,15,.93);

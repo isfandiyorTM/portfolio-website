@@ -134,20 +134,11 @@ function Land() {
 
 /* ── the top row ──────────────────────────────────────────────────────────── */
 
+/* At the head of the page, over the sky, like the portfolio's other navbars: it scrolls away with the hero */
 function Top({ c, night, onSky }) {
-  const [solid, setSolid] = useState(false);
-  useEffect(() => {
-    let frame = 0;
-    const look = () => { frame = 0; setSolid(window.scrollY > 24); };
-    const on = () => { if (!frame) frame = requestAnimationFrame(look); };
-    window.addEventListener("scroll", on, { passive: true });
-    return () => { cancelAnimationFrame(frame); window.removeEventListener("scroll", on); };
-  }, []);
-
   return (
-    <header className={`cl-top${solid ? " is-solid" : ""}`}>
+    <header className="cl-top">
       <Link to="/" className="cl-top__back"><span aria-hidden="true">←</span><span className="cl-top__back-t">{c.back}</span></Link>
-      <a href="#top" className="cl-top__logo" aria-label="Compiland" tabIndex={solid ? 0 : -1}><Logo /></a>
       <div className="cl-top__end">
         <button type="button" className="cl-top__sky" onClick={onSky} aria-label={night ? c.to_day : c.to_night} title={night ? c.to_day : c.to_night}>
           <Icon name={night ? "sun" : "moon"} size={19} />

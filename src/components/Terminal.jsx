@@ -80,7 +80,7 @@ function process(cmd) {
           "Teaching 500+ students at Rahimov School.",
           "Flutter apps with Clean Architecture & BLoC.",
           "From computer basics to full-stack — I cover it.",
-          "Available for freelance and full-time roles.",
+          "Building Compiland, my EdTech startup.",
         ],
       };
 

@@ -12,8 +12,8 @@ const translations = {
     hero: {
       greeting: "// INITIALIZING PROFILE...",
       title:    "> IT Teacher & Flutter Developer",
-      bio:      "Teaching 500+ students at Rahimov School — from computer basics to full-stack web and Flutter apps. I love watching students ship their first live projects. I also build real Flutter apps on the side.",
-      status:       "Full-time · Open to projects",
+      bio:      "Teaching 500+ students at Rahimov School — from computer basics to full-stack web and Flutter apps. I love watching students ship their first live projects. Now I'm also building Compiland, my EdTech startup.",
+      status:       "Founder of Compiland · Teaching at Rahimov School",
       cta_projects: "View Projects",
       cta_contact:  "Contact Me",
       cta_cv:       "Download CV",
@@ -97,10 +97,10 @@ const translations = {
     },
     contact: {
       label: "// CONNECT.SH", heading: "LET'S", heading2: "COLLABORATE_",
-      desc: "Whether you want mentorship for your students, have a project idea, or need a Flutter developer — my inbox is open.",
+      desc: "Whether you want Compiland for your school, mentorship for your students, or just want to say hi — my inbox is open.",
       name:"Name", email:"Email", message:"Message",
       placeholder_name:"John Doe", placeholder_email:"john@example.com",
-      placeholder_message:"Tell me about your project...",
+      placeholder_message:"Write your message...",
       send:"Send Message", sending:"Sending...",
       success:"Message sent successfully", error:"Failed to send — try again",
       mailto_notice:"Opening your email app — send the message from there",
@@ -480,8 +480,8 @@ const translations = {
     hero: {
       greeting: "// PROFIL YUKLANMOQDA...",
       title:    "> IT O'qituvchi va Flutter Dasturchi",
-      bio:      "Rahimov Maktabida 500+ o'quvchiga komputer asoslaridan to veb va Flutter ilovalargacha dars beraman. O'quvchilarim birinchi jonli loyihalarini chiqarganini ko'rish menga katta quvonch beradi. Qo'shimcha ravishda Flutter ilovalar ham yarataman.",
-      status:       "To'liq ish vaqti · Loyihalar uchun ochiq",
+      bio:      "Rahimov Maktabida 500+ o'quvchiga komputer asoslaridan to veb va Flutter ilovalargacha dars beraman. O'quvchilarim birinchi jonli loyihalarini chiqarganini ko'rish menga katta quvonch beradi. Hozir o'z EdTech startapim — Compiland ustida ham ishlayapman.",
+      status:       "Compiland asoschisi · Rahimov Schoolda dars beraman",
       cta_projects:"Loyihalar", cta_contact:"Bog'lanish",
       cta_cv:      "CV Yuklab olish",
       rahimovcard: {
@@ -564,10 +564,10 @@ const translations = {
     },
     contact: {
       label:"// BOG'LANISH.SH", heading:"KELING", heading2:"HAMKORLIK QILAMIZ_",
-      desc:"O'quvchilaringiz uchun mentor kerakmi, loyiha g'oyangiz bormi yoki Flutter dasturchi izlayapsizmi — murojaat qiling.",
+      desc:"Maktabingizga Compiland kerakmi, o'quvchilaringizga mentor kerakmi yoki shunchaki salom aytmoqchimisiz — murojaat qiling.",
       name:"Ism", email:"Elektron pochta", message:"Xabar",
       placeholder_name:"Jasur Karimov", placeholder_email:"jasur@example.com",
-      placeholder_message:"Loyihangiz haqida yozing...",
+      placeholder_message:"Xabaringizni yozing...",
       send:"Yuborish", sending:"Yuborilmoqda...",
       success:"Xabar muvaffaqiyatli yuborildi", error:"Xatolik — qayta urinib ko'ring",
       mailto_notice:"Pochta ilovangiz ochilmoqda — xabarni o'sha yerdan yuboring",
@@ -947,8 +947,8 @@ const translations = {
     hero: {
       greeting:"// ИНИЦИАЛИЗАЦИЯ ПРОФИЛЯ...",
       title:   "> IT-преподаватель и Flutter-разработчик",
-      bio:     "Преподаю 500+ студентам в Rahimov School — от основ компьютера до веб и Flutter приложений. Люблю видеть, как студенты запускают свои первые живые проекты. Также разрабатываю Flutter приложения.",
-      status:       "Полная занятость · Открыт к проектам",
+      bio:     "Преподаю 500+ студентам в Rahimov School — от основ компьютера до веб и Flutter приложений. Люблю видеть, как студенты запускают свои первые живые проекты. Сейчас также создаю Compiland — свой EdTech-стартап.",
+      status:       "Основатель Compiland · Преподаю в Rahimov School",
       cta_projects:"Мои проекты", cta_contact:"Написать мне",
       cta_cv:      "Скачать CV",
       rahimovcard: {
@@ -1031,10 +1031,10 @@ const translations = {
     },
     contact: {
       label:"// СВЯЗЬ.SH", heading:"ДАВАЙТЕ", heading2:"СОТРУДНИЧАТЬ_",
-      desc:"Ищете наставника для студентов, есть идея проекта или нужен Flutter-разработчик — пишите, всегда отвечу.",
+      desc:"Хотите Compiland для своей школы, ищете наставника для студентов или просто хотите поздороваться — пишите, всегда отвечу.",
       name:"Имя", email:"Электронная почта", message:"Сообщение",
       placeholder_name:"Иван Иванов", placeholder_email:"ivan@example.com",
-      placeholder_message:"Расскажите о вашем проекте...",
+      placeholder_message:"Напишите сообщение...",
       send:"Отправить", sending:"Отправка...",
       success:"Сообщение успешно отправлено", error:"Ошибка — попробуйте снова",
       mailto_notice:"Открываю почтовое приложение — отправьте письмо оттуда",

@@ -161,7 +161,8 @@ export default function Navbar({ onGamesClick }) {
         .lang-btn.active { opacity: 1; filter: drop-shadow(0 0 6px rgba(0,255,136,0.6)); transform: scale(1.1); }
       `}</style>
 
-      <nav aria-label={t.a11y.main_nav} style={{ position:"fixed", top:0, left:0, right:0, zIndex:100, borderBottom:"1px solid var(--border)", background:"var(--bg-nav)", backdropFilter:"blur(12px)", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 24px", height:"64px", width:"100%" }}>
+      {/* At the head of the page, not fixed: it scrolls away with the hero */}
+      <nav aria-label={t.a11y.main_nav} style={{ position:"absolute", top:0, left:0, right:0, zIndex:100, borderBottom:"1px solid var(--border)", background:"var(--bg-nav)", backdropFilter:"blur(12px)", display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 24px", height:"64px", width:"100%" }}>
 
         {/* Logo — stays lit while the rest of the nav sleeps, same rule as the hero's name */}
         <div style={{ fontFamily:"var(--font-display)", fontSize:"18px", fontWeight:900, color:"var(--green)", letterSpacing:"4px", animation:"flicker 6s infinite", flexShrink:0 }}>
@@ -205,7 +206,7 @@ export default function Navbar({ onGamesClick }) {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="mobile-nav" style={{ position:"fixed", top:"64px", left:0, right:0, zIndex:99, background:"var(--bg)", borderBottom:"1px solid var(--border)", display:"flex", flexDirection:"column" }}>
+        <div className="mobile-nav" style={{ position:"absolute", top:"64px", left:0, right:0, zIndex:99, background:"var(--bg)", borderBottom:"1px solid var(--border)", display:"flex", flexDirection:"column" }}>
           {NAV_ITEMS.map(key => (
             <button key={key} className={`nav-link ${active===key?"active":""}`} style={{ textAlign:"left", padding:"16px 24px", borderBottom:"1px solid var(--border)" }} onClick={() => scrollTo(key)}>
               {t.nav[key]}
